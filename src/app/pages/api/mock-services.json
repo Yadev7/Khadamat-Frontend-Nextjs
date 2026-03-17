@@ -1,0 +1,20 @@
+[
+  {
+    "city": "casablanca",
+    "service": "plumbing",
+    "name": "FastFix Plumbing",
+    "description": "24/7 emergency plumber service.",
+    "address": "123 Main St, Casablanca",
+    "phone": "+212 6 1234 5678",
+    "coords": [33.5731, -7.5898]
+  },
+  {
+    "city": "marrakech",
+    "service": "electrician",
+    "name": "Marrakech Electrics",
+    "description": "Expert electrical installations.",
+    "address": "456 Medina St, Marrakech",
+    "phone": "+212 6 8765 4321",
+    "coords": [31.6295, -7.9811]
+  }
+]

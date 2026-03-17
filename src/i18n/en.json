@@ -1,0 +1,227 @@
+{
+  "hero": {
+    "title": "Welcome to Khadamat",
+    "subtitle": "Your all-in-one platform to find and offer quality services.",
+    "get_started": "Get Started",
+    "become_tasker": "Become a Tasker",
+    "verified_pro": "Verified Pro",
+    "services": {
+      "title": {
+        "general": "General",
+        "plumber": "Plumber",
+        "electrician": "Electrician",
+        "cleaning": "Cleaning",
+        "tutoring": "Tutoring",
+        "handyman": "Handyman",
+        "gardening": "Gardening"
+      },
+      "description": {
+        "general": "Discover a wide range of general services that cater to all your everyday needs.",
+        "plumber": "Get plumbing services from professional plumbers to fix your issues quickly and efficiently.",
+        "electrician": "Rely on experienced electricians to repair and maintain your electrical systems at home or work.",
+        "cleaning": "Enjoy comprehensive cleaning services to keep your home or office spotless with top quality.",
+        "tutoring": "Receive personalized tutoring in various subjects from experienced teachers.",
+        "handyman": "Count on skilled handymen to handle various maintenance and repair tasks around your home.",
+        "gardening": "Enjoy specialized gardening services to enhance the beauty of your garden and home."
+      }
+    }
+  },
+  "become_tasker_page": {
+    "title": "Become a Service Provider",
+    "description": "Join our platform as a service provider and start offering your skills to clients worldwide.",
+    "sidebar_title": "Become a Tasker",
+    "sidebar_description": "Join our community of taskers and grow your business.",
+    "submit": "Sign Up as a Tasker",
+    "form": {
+      "name": "Full Name",
+      "name_placeholder": "Enter your full name",
+      "email": "Email Address",
+      "email_placeholder": "Enter your email address",
+      "phone": "Phone Number",
+      "phone_placeholder": "Enter your phone number",
+      "skills": "Skills and Services",
+      "skills_placeholder": "Describe your skills and the services you offer"
+    }
+  },
+  "header": {
+    "sign_in": "Sign In",
+    "title": "Khadamat",
+    "about_us": "About Us",
+    "contact_us": "Contact Us",
+    "reports": "Reports",
+    "logout": "Logout",
+    "profile": "Profile"
+  },
+  "sign_in": {
+    "title": "Sign In to Your Account",
+    "description": "Welcome to Our Platform Connect with clients and providers. Find the services you need or offer your expertise to the world.",
+    "email": "Email Address",
+    "email_placeholder": "Enter your email address",
+    "password": "Password",
+    "password_placeholder": "Enter your password",
+    "sign_in_button": "Sign In",
+    "gestion_account": "Or manage your account",
+    "forgot_password": "Forgot Password?"
+  },
+  "search": {
+    "please_select_city_and_service": "Please select a city and service to search.",
+    "city_and_service_selected": "Selected city: {city} and service: {service}",
+    "placeholder": "Search for services, providers...",
+    "button": "Search",
+    "city": "City",
+    "zone": "Zone",
+    "service": "Service",
+    "list": "List",
+    "map": "Map"
+  },
+  "forgot_password_page": {
+    "title": "Password Recovery",
+    "description": "Enter your email address to recover your password.",
+    "email": "Email Address",
+    "email_placeholder": "Enter your email address",
+    "submit_button": "Send Recovery Instructions",
+    "back_to_sign_in": "Back to Sign In",
+    "loading": "Sending..."
+  },
+  "details_ads": {
+    "loading": "Loading provider details...",
+    "profile_not_found": "Profile not found.",
+    "voice_intro": "Voice Introduction",
+    "name": "Name",
+    "email": "Email Address",
+    "phone": " Call Now",
+    "skills": "Skills and Services",
+    "location": "Location",
+    "back_to_search": "Back to Search",
+    "rating": "Rating",
+    "message": "Let a Message",
+    "whatsapp": "WhatsApp"
+  },
+  "how_it_works": {
+    "process": "The Process",
+    "title": "How It Works",
+    "description": "Getting your tasks done in Morocco has never been easier. Follow these three simple steps to start.",
+    "steps": {
+      "1": {
+        "title": "Search for services or offer your skills",
+        "description": "Whether you're looking for a plumber, an electrician, or a tutor, our platform connects you with the right professionals. If you have skills to offer, create your profile and start attracting clients."
+      },
+      "2": {
+        "title": "Connect with clients or workers",
+        "description": "Communicate directly with clients or service providers through our secure messaging system. Discuss your needs, negotiate prices, and schedule appointments with ease."
+      },
+      "3": {
+        "title": "Enjoy quality services or grow your business",
+        "description": "Experience top-notch services delivered by trusted professionals. If you're a service provider, build your reputation and grow your business by delivering excellent service to your clients."
+      }
+    },
+    "details": "Details"
+  },
+  "services_section": {
+    "title": "Premium Services",
+    "description": "Exceptional quality and verified professionals for your every need across Morocco.",
+    "book_expert": "Book This Expert",
+    "categories": {
+      "home_services": "Home Services",
+      "tutoring": "Tutoring",
+      "event_planning": "Event Planning",
+      "cleaning": "Cleaning",
+      "handyman": "Handyman",
+      "gardening": "Gardening",
+      "plumbing": "Plumbing",
+      "plumbing_description": "Expert leak repairs, pipe installations, and bathroom maintenance by certified professionals.",
+      "cleaning_description": "Professional deep cleaning for homes and offices. Flexible scheduling to fit your life.",
+      "handyman_description": "Versatile experts for furniture assembly, mounting, and general home improvements.",
+      "gardening_description": "Complete lawn care, landscaping, and outdoor maintenance to keep your garden beautiful."
+    }
+  },
+  "members": {
+    "add_member": "Add Professional",
+    "pros": "Professionals"
+  },
+  "contact": {
+    "write_us": "Write Us",
+    "instruction": "Your email address will not be published. Required fields are indicated by",
+    "name": "Your Name*",
+    "email": "Email *",
+    "object": "Objet *",
+    "message": "Your Message *",
+    "button": "Send",
+    "placeholder": {
+      "name": "Your Name",
+      "email": "Your Email",
+      "subject": "Subject of your message",
+      "message": "How we can help you ?"
+    }
+  },
+  "about": {
+    "hero": {
+      "title": "About Khadamat",
+      "subtitle": "The trusted gateway connecting local talent to everyday needs in Morocco."
+    },
+    "mission": {
+      "title": "Our Mission",
+      "p1": "At Khadamat, we believe that finding a qualified professional shouldn't be an uphill battle. Whether you need an electrician in Fes, a plomber, or a cleaning service, our platform simplifies the connection.",
+      "p2": "We are digitalizing the service sector in Morocco by offering providers a professional showcase to grow their business, and customers a secure and fast solution.",
+      "stats": {
+        "services": "Services",
+        "origin": "Origin",
+        "originValue": "Fes"
+      }
+    },
+    "features": {
+      "title": "Why Choose Khadamat?",
+      "trust": {
+        "title": "Trust & Security",
+        "description": "All our providers are verified to ensure quality and secure service."
+      },
+      "speed": {
+        "title": "Speed",
+        "description": "Book a service in just a few clicks and get an instant response."
+      },
+      "proximity": {
+        "title": "Proximity",
+        "description": "Find the best experts right next to you, anywhere in Morocco."
+      }
+    },
+    "cta": {
+      "title": "Ready to simplify your daily life?",
+      "findBtn": "Find a Service",
+      "becomeBtn": "Become a Provider"
+    }
+  },
+
+  "footer": {
+    "stats": {
+      "customers": "Satisfied Customers",
+      "projects": "Projects Completed"
+    },
+    "brand": {
+      "name": "Khadamat",
+      "description": "Connecting skilled professionals with people who need to get things done. Quality service, guaranteed."
+    },
+    "columns": {
+      "company": "Company",
+      "support": "Support",
+      "getInTouch": "Get in Touch"
+    },
+    "links": {
+      "about": "About Us",
+      "careers": "Careers",
+      "blog": "Our Blog",
+      "press": "Press",
+      "faq": "Help Center",
+      "safety": "Safety",
+      "terms": "Terms of Service",
+      "privacy": "Privacy Policy"
+    },
+    "contact": {
+      "text": "Questions or feedback? We’d love to hear from you.",
+      "button": "Contact Us"
+    },
+    "bottom": {
+      "rights": "All rights reserved. Made By ",
+      "language": "English (US)"
+    }
+  }
+}

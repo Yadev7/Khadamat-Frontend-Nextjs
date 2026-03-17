@@ -1,0 +1,233 @@
+{
+  "hero": {
+    "title": "Bienvenue sur Khadamat",
+    "subtitle": "Votre plateforme tout-en-un pour trouver et offrir des services de qualité.",
+    "get_started": "Commencer",
+    "become_tasker": "Devenir prestataire",
+    "verified_pro": "Professionnel vérifié",
+    "services": {
+      "title": {
+        "general": "Général",
+        "plumber": "Plombier",
+        "electrician": "Électricien",
+        "cleaning": "Nettoyage",
+        "tutoring": "Tutorat",
+        "handyman": "Bricoleur",
+        "gardening": "Jardinage"
+      },
+      "description": {
+        "general": "Découvrez une large gamme de services généraux qui répondent à tous vos besoins quotidiens.",
+        "plumber": "Obtenez des services de plomberie de la part de plombiers professionnels pour résoudre vos problèmes rapidement et efficacement.",
+        "electrician": "Faites confiance à des électriciens expérimentés pour réparer et entretenir vos systèmes électriques à domicile ou au travail.",
+        "cleaning": "Profitez de services de nettoyage complets pour garder votre maison ou votre bureau impeccable avec une qualité supérieure.",
+        "tutoring": "Recevez des cours particuliers personnalisés dans diverses matières auprès d'enseignants expérimentés.",
+        "handyman": "Comptez sur des bricoleurs qualifiés pour gérer diverses tâches de maintenance et de réparation autour de votre maison.",
+        "gardening": "Profitez de services de jardinage spécialisés pour améliorer la beauté de votre jardin et de votre maison."
+      }
+    }
+  },
+
+  "become_tasker_page": {
+    "title": "Devenir prestataire de services",
+    "description": "Rejoignez notre plateforme en tant que prestataire de services et commencez à offrir vos compétences aux clients du monde entier.",
+    "sidebar_title": "Devenir prestataire",
+    "sidebar_description": "Rejoignez notre communauté de prestataires et développez votre activité.",
+    "submit": "S'inscrire en tant que prestataire",
+    "form": {
+      "name": "Nom complet",
+      "name_placeholder": "Entrez votre nom complet",
+      "email": "Adresse e-mail",
+      "email_placeholder": "Entrez votre adresse e-mail",
+      "phone": "Numéro de téléphone",
+      "phone_placeholder": "Entrez votre numéro de téléphone",
+      "skills": "Compétences et services",
+      "skills_placeholder": "Décrivez vos compétences et les services que vous offrez"
+    }
+  },
+
+  "header": {
+    "sign_in": "Se connecter",
+    "title": "Khadamat",
+    "about_us": "À propos de nous",
+    "contact_us": "Contactez-nous",
+    "reports": "Signalements",
+    "logout": "Se déconnecter",
+    "profile": "Profil"
+  },
+
+  "sign_in": {
+    "title": "Se connecter a votre compte",
+    "description": "Bienvenue sur notre plateforme. Connectez-vous avec des clients et des prestataires. Trouvez les services dont vous avez besoin ou offrez votre expertise au monde.",
+    "email": "Adresse e-mail",
+    "email_placeholder": "Entrez votre adresse e-mail",
+    "password": "Mot de passe",
+    "password_placeholder": "Entrez votre mot de passe",
+    "sign_in_button": "Se connecter",
+    "gestion_account": "Ou gérez votre compte",
+    "forgot_password": "Mot de passe oublié ?"
+  },
+
+  "search": {
+    "please_select_city_and_service": "Veuillez sélectionner une ville et un service pour rechercher.",
+    "city_and_service_selected": "Ville sélectionnée : {city} et service : {service}",
+    "placeholder": "Rechercher des services, des prestataires...",
+    "button": "Rechercher",
+    "city": "Ville",
+    "zone": "Zone",
+    "service": "Service",
+    "list": "Liste",
+    "map": "Carte"
+  },
+
+  "forgot_password_page": {
+    "title": "Récupération de mot de passe",
+    "description": "Entrez votre adresse e-mail pour récupérer votre mot de passe.",
+    "email": "Adresse e-mail",
+    "email_placeholder": "Entrez votre adresse e-mail",
+    "submit_button": "Envoyer les instructions de récupération",
+    "back_to_sign_in": "Retour à la connexion",
+    "loading": "Envoi en cours..."
+  },
+
+  "details_ads": {
+    "loading": "Chargement des détails du prestataire...",
+    "profile_not_found": "Profil non trouvé.",
+    "voice_intro": "Introduction vocale",
+    "name": "Nom",
+    "email": "Adresse e-mail",
+    "phone": "Appeler maintenant",
+    "skills": "Compétences et services",
+    "location": "Emplacement",
+    "back_to_search": "Retour à la recherche",
+    "rating": "Évaluation",
+    "message": "Laisser un Message",
+    "whatsapp": "WhatsApp"
+  },
+  "how_it_works": {
+    "process": "Le processus",
+    "title": "Comment ça marche",
+    "description": "Faire vos tâches au Maroc n'a jamais été aussi facile. Suivez ces trois étapes simples pour commencer.",
+    "steps": {
+      "1": {
+        "title": "Trouvez votre expert",
+        "description": "Parcourez les professionnels les mieux notés au Maroc. Filtrez par prix, compétences et avis réels des utilisateurs."
+      },
+      "2": {
+        "title": "Réservez et planifiez",
+        "description": "Choisissez un horaire qui correspond à votre emploi du temps. Réservation instantanée avec des experts locaux disponibles dès aujourd'hui."
+      },
+      "3": {
+        "title": "Gérez tout",
+        "description": "Discutez en toute sécurité, suivez les progrès, payez et laissez un avis - tout cela via notre tableau de bord simplifié."
+      }
+    },
+    "details": "Details"
+  },
+  "services_section": {
+    "title": "Services Premium",
+    "description": "Qualité exceptionnelle et professionnels vérifiés pour tous vos besoins à travers le Maroc.",
+    "book_expert": "Réservez cet expert",
+    "categories": {
+      "home_services": "Services à domicile",
+      "tutoring": "Tutorat",
+      "event_planning": "Organisation d'événements",
+      "cleaning": "Nettoyage",
+      "handyman": "Bricoleur",
+      "gardening": "Jardinage",
+      "plumbing": "Plomberie",
+      "plumbing_description": "Réparations de fuites expertes, installations de tuyaux et maintenance de salle de bain par des professionnels certifiés.",
+      "cleaning_description": "Nettoyage en profondeur professionnel pour les maisons et les bureaux. Planification flexible pour s'adapter à votre vie.",
+      "handyman_description": "Experts polyvalents pour l'assemblage de meubles, le montage et les améliorations générales de la maison.",
+      "gardening_description": "Entretien complet de la pelouse, aménagement paysager et maintenance extérieure pour garder votre jardin magnifique."
+    }
+  },
+  "members": {
+    "add_member": "Ajouter Un Membre",
+    "pros": "Professionnels"
+  },
+  "contact": {
+    "write_us": "Ecrivez-nous",
+    "instruction": "Votre adresse email ne sera pas publiée. Les champs requis sont indiqués par",
+    "name": "Votre Nom*",
+    "email": "Adresse Email *",
+    "object": "Objet *",
+    "message": "Votre Message *",
+    "button": "Envoyer",
+    "placeholder": {
+      "name": "Votre Nom",
+      "email": "Votre Email",
+      "subject": "Sujet de votre message",
+      "message": "Comment pouvons-nous vous aider ?"
+    }
+  },
+  "about": {
+    "hero": {
+      "title": "À propos de Khadamat",
+      "subtitle": "La passerelle de confiance reliant les talents locaux aux besoins du quotidien au Maroc."
+    },
+    "mission": {
+      "title": "Notre Mission",
+      "p1": "Chez Khadamat, nous croyons que trouver un professionnel qualifié ne devrait pas être un parcours du combattant. Que vous ayez besoin d'un électricien à Fès, d'un plombier ou d'un service de nettoyage, notre plateforme simplifie la mise en relation.",
+      "p2": "Nous digitalisons le secteur des services au Maroc en offrant aux prestataires (Providers) une vitrine professionnelle pour développer leur activité, et aux clients une solution sécurisée et rapide.",
+      "stats": {
+        "services": "Services",
+        "origin": "Origine",
+        "originValue": "Fès"
+      }
+    },
+    "features": {
+      "title": "Pourquoi choisir Khadamat ?",
+      "trust": {
+        "title": "Confiance & Sécurité",
+        "description": "Tous nos prestataires sont vérifiés pour garantir un service de qualité et sécurisé."
+      },
+      "speed": {
+        "title": "Rapidité",
+        "description": "Réservez un service en quelques clics et recevez une réponse instantanée."
+      },
+      "proximity": {
+        "title": "Proximité",
+        "description": "Trouvez les meilleurs experts juste à côté de chez vous, partout au Maroc."
+      }
+    },
+    "cta": {
+      "title": "Prêt à simplifier votre quotidien ?",
+      "findBtn": "Trouver un service",
+      "becomeBtn": "Devenir Prestataire"
+    }
+  },
+
+  "footer": {
+    "stats": {
+      "customers": "Clients Satisfaits",
+      "projects": "Projets Terminés"
+    },
+    "brand": {
+      "name": "Khadamat",
+      "description": "Connecter des professionnels qualifiés avec des personnes qui ont besoin de faire avancer leurs projets. Qualité garantie."
+    },
+    "columns": {
+      "company": "Entreprise",
+      "support": "Support",
+      "getInTouch": "Contactez-nous"
+    },
+    "links": {
+      "about": "À propos",
+      "careers": "Carrières",
+      "blog": "Notre Blog",
+      "press": "Presse",
+      "faq": "Centre d'aide",
+      "safety": "Sécurité",
+      "terms": "Conditions d'utilisation",
+      "privacy": "Politique de confidentialité"
+    },
+    "contact": {
+      "text": "Des questions ou des commentaires ? Nous aimerions avoir de vos nouvelles.",
+      "button": "Contactez-nous"
+    },
+    "bottom": {
+      "rights": "Tous droits réservés. Fait par ",
+      "language": "Français"
+    }
+  }
+}
