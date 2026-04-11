@@ -10,13 +10,13 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: 'http',
-        hostname: 'localhost',
+        hostname: '127.0.0.1',
         port: '3001', // Changed from 3000 to 3001
         pathname: '/uploads/**', // Changed to match your error path
       },
       {
         protocol: 'http',
-        hostname: 'localhost',
+        hostname: '127.0.0.1',
         port: '3000',
         pathname: '/api/v1/files/**',
       },

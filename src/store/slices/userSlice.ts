@@ -32,7 +32,7 @@ export const fetchUser = createAsyncThunk<
   { rejectValue: string } // Type for rejectWithValue
 >('user/fetchUser', async (_, { rejectWithValue }) => {
   try {
-    const response = await fetch('/api/v1/auth/me');
+    const response = await fetch('/v1/auth/me');
 
     if (!response.ok) {
       const errorData = await response.json();

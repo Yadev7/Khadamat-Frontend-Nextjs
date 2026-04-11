@@ -52,7 +52,8 @@
     "contact_us": "Contactez-nous",
     "reports": "Signalements",
     "logout": "Se déconnecter",
-    "profile": "Profil"
+    "profile": "Profil",
+    "dashboard": "Tableau de bord"
   },
 
   "sign_in": {
@@ -143,7 +144,8 @@
   },
   "members": {
     "add_member": "Ajouter Un Membre",
-    "pros": "Professionnels"
+    "pros": "Professionnels",
+    "short_description": "Annuaire des experts et services disponibles au Maroc"
   },
   "contact": {
     "write_us": "Ecrivez-nous",
@@ -228,6 +230,55 @@
     "bottom": {
       "rights": "Tous droits réservés. Fait par ",
       "language": "Français"
+    }
+  },
+  "services_page": {
+    "title": "Gestion des Services",
+    "subtitle": "Ajoutez et gérez les services affichés sur la plateforme",
+    "total_count": "Total des services",
+    "name_form": "Nom du service",
+    "description_form": "Description du service",
+    "submit": "Ajouter un service",
+    "loading": "Ajout du service en cours...",
+    "logo": "Image du service",
+    "services_page.success_msg": "Ajouté avec succès"
+  },
+  "common": {
+    "confirm_delete_title": "Êtes-vous sûr ?",
+    "confirm_delete_text": "Vous ne pourrez pas récupérer ce service après la suppression !",
+    "yes_delete": "Oui, supprimer !",
+    "cancel": "Annuler",
+    "deleted": "Supprimé !",
+    "deleted_success": "Le service a été supprimé avec succès.",
+    "upload_click": "Cliquez pour télécharger ou glisser-déposer",
+    "error_message": "Une erreur s'est produite lors du téléchargement ou de l'enregistrement.",
+    "actions": "Actions"
+  },
+
+  "dashboard": {
+    "welcome": "Bienvenue, {name} 👋",
+    "default_user": "Utilisateur",
+    "subtitle": "Votre tableau de bord",
+    "cards": {
+      "role_title": "Rôle Actuel",
+      "email_title": "E-mail",
+      "status_title": "État du compte",
+      "status_active": "Actif",
+      "default_role": "Utilisateur"
+    },
+    "operations": {
+      "title": "Opérations disponibles",
+      "manage_services": "Gérer les Services",
+      "edit_profile": "Modifier le profil"
+    },
+    "sidebar": {
+      "name": "Tableau de Bord",
+      "home": "Accueil",
+      "services": "Services",
+      "members": "Professionnels",
+      "settings": "Paramètres",
+      "logout": "Se déconnecter",
+      "business": "Affaires"
     }
   }
 }

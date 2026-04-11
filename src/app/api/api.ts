@@ -1,7 +1,7 @@
 // lib/api.ts
 export const fetchWithAuth = async (url: string, options: any = {}) => {
   // Since we use HTTP-only cookies, we no longer pull from localStorage
-  const response = await fetch(`http://localhost:3001${url}`, { 
+  const response = await fetch(`http://127.0.0.1:3001${url}`, { 
     ...options, 
     credentials: "include" // Ensures cookies are sent with the request
   });

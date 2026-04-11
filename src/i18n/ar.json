@@ -52,7 +52,8 @@
     "contact_us": "اتصل بنا",
     "reports": "التقارير",
     "logout": "تسجيل الخروج",
-    "profile": "الملف الشخصي"
+    "profile": "الملف الشخصي",
+    "dashboard": "لوحة التحكم"
   },
   "sign_in": {
     "title": "تسجيل الدخول إلى حسابك",
@@ -139,7 +140,8 @@
   },
   "members": {
     "add_member": "اضف مهني",
-    "pros": "المهنين"
+    "pros": "المهنين",
+    "short_description": "قائمة الخبراء والخدمات المتاحة في المغرب"
   },
   "contact": {
     "write_us": "اكتب لنا",
@@ -225,5 +227,55 @@
       "rights": "جميع الحقوق محفوظة. صُنع من طرف ",
       "language": "العربية"
     }
+  },
+  "services_page": {
+    "title": "إدارة الخدمات",
+    "subtitle": "أضف وتحكم في الخدمات المعروضة على المنصة",
+    "total_count": "إجمالي الخدمات",
+    "name_form": "اسم الخدمة",
+    "description_form": "وصف الخدمة",
+    "submit": "إضافة خدمة",
+    "loading": "جارٍ إضافة الخدمة...",
+    "logo": "صورة الخدمة",
+    "services_page.success_msg": "تمت الإضافة بنجاح"
+  },
+"common": {
+  "confirm_delete_title": "هل أنت متأكد؟",
+  "confirm_delete_text": "لن تتمكن من استعادة هذه الخدمة بعد حذفها!",
+  "yes_delete": "نعم، احذف الآن",
+  "cancel": "تراجع",
+  "deleted": "تم الحذف!",
+  "deleted_success": "تم حذف الخدمة من قاعدة البيانات بنجاح.",
+  "error_message": "حدث خطأ أثناء الحذف. يرجى المحاولة مرة أخرى.",
+  "upload_click": "انقر للتحميل أو اسحب وأفلت",
+  "actions": "العمليات"
+},
+
+  "dashboard": {
+    "welcome": "مرحباً بك، {name} 👋",
+    "default_user": "مستخدم خدمات",
+    "subtitle": "لوحة التحكم الخاصة بك",
+    "cards": {
+      "role_title": "الدور الحالي",
+      "email_title": "البريد الإلكتروني",
+      "status_title": "حالة الحساب",
+      "status_active": "نشط",
+      "default_role": "مستخدم"
+    },
+    "operations": {
+      "title": "العمليات المتاحة",
+      "manage_services": "إدارة الخدمات (Services)",
+      "edit_profile": "تعديل الملف الشخصي"
+    },
+    "sidebar": {
+      "name": "لوحة التحكم",
+      "home": "الرئيسية",
+      "services": "الخدمات",
+      "members": "المهنيين",
+      "settings": "الإعدادات",
+      "logout": "تسجيل الخروج",
+      "business": "الأعمال"
+    }
   }
 }
+

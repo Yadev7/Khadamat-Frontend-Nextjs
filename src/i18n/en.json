@@ -50,7 +50,8 @@
     "contact_us": "Contact Us",
     "reports": "Reports",
     "logout": "Logout",
-    "profile": "Profile"
+    "profile": "Profile",
+    "dashboard": "Dashboard"
   },
   "sign_in": {
     "title": "Sign In to Your Account",
@@ -137,7 +138,8 @@
   },
   "members": {
     "add_member": "Add Professional",
-    "pros": "Professionals"
+    "pros": "Professionals",
+    "short_description": "Directory of experts and services available in Morocco"
   },
   "contact": {
     "write_us": "Write Us",
@@ -222,6 +224,55 @@
     "bottom": {
       "rights": "All rights reserved. Made By ",
       "language": "English (US)"
+    }
+  },
+  "services_page": {
+    "title": "Services Management",
+    "subtitle": "Add and manage the services displayed on the platform",
+    "total_count": "Total Services",
+    "name_form": "Service Name",
+    "description_form": "Service Description",
+    "submit": "Add Service",
+    "loading": "Adding service...",
+    "logo": "Service Image",
+    "services_page.success_msg": "Added successfully"
+  },
+  "common": {
+    "confirm_delete_title": "Are you sure?",
+    "confirm_delete_text": "You won't be able to recover this service after deletion!",
+    "yes_delete": "Yes, delete it!",
+    "cancel": "Cancel",
+    "deleted": "Deleted!",
+    "deleted_success": "Service deleted successfully.",
+    "error_message": "An error occurred while deleting. Please try again.",
+    "upload_click": "Click to upload or drag and drop",
+    "action": "Action"
+  },
+
+  "dashboard": {
+    "welcome": "Welcome, {name} 👋",
+    "default_user": "Service User",
+    "subtitle": "Your Dashboard",
+    "cards": {
+      "role_title": "Current Role",
+      "email_title": "Email Address",
+      "status_title": "Account Status",
+      "status_active": "Active",
+      "default_role": "User"
+    },
+    "operations": {
+      "title": "Available Operations",
+      "manage_services": "Manage Services",
+      "edit_profile": "Edit Profile"
+    },
+    "sidebar": {
+      "name": "Dashboard",
+      "home": "Home",
+      "services": "Services",
+      "members": "Professionals",
+      "settings": "Settings",
+      "logout": "Logout",
+      "business": "Business"
     }
   }
 }

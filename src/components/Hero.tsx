@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowRight, CheckCircle2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import Image  from "next/image";
+import Image from "next/image";
 
 const slides = [
   // { image: "/bckgHero.png", key: "general" },
@@ -29,7 +29,7 @@ export default function HeroSection() {
   }, []);
 
   return (
-<div className="relative min-h-[85vh] w-full flex items-start justify-center overflow-hidden  px-4 md:px-12 lg:px-20">
+    <div className="relative min-h-[85vh] w-full flex items-start justify-center overflow-hidden  px-4 md:px-12 lg:px-20">
       {/* Background Slideshow */}
       {slides.map((slide, index) => (
         <div
@@ -60,16 +60,45 @@ export default function HeroSection() {
             {t('hero.verified_pro')}
           </div>
 
-          <h1 className="text-5xl md:text-7xl font-black text-white leading-[1.1] tracking-tight drop-shadow-xl">
-            {t('hero.title')} <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-400 italic">
+          <h1 className="text-5xl md:text-7xl font-black text-white leading-[1.1] tracking-tight drop-shadow-xl whitespace-nowrap">
+            {t('hero.title')}{' '}
+            {/* <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-400 italic">
               {t(`hero.services.title.${slides[currentSlide].key}`)}
-            </span>
+            </span> */}
           </h1>
-
-          <p className="text-lg md:text-xl text-gray-300 max-w-xl leading-relaxed font-light">
+          {/* <p className="text-lg md:text-xl text-gray-300 max-w-xl leading-relaxed font-light">
             {t('hero.subtitle')}
-          </p>
+          </p> */}
+
+
+          {/* Subtitle Section */}
+          <div className="relative max-w-xl space-y-4 animate-fade-in [animation-delay:200ms]">
+            <div className="flex items-center gap-3">
+              <div className="h-[1px] w-12 bg-gradient-to-r from-indigo-500 to-transparent" />
+              <span className="text-xs uppercase tracking-[0.3em] text-indigo-400 font-bold">
+                {t('hero.featured_tagline') || "Premium Services"}
+              </span>
+            </div>
+
+            <p className="text-xl md:text-2xl text-gray-300 leading-relaxed font-light italic">
+              {t('hero.subtitle').split('.').map((sentence, i) => (
+                <span key={i} className="block mb-2 last:mb-0">
+                  {sentence}{sentence ? '.' : ''}
+                </span>
+              ))}
+            </p>
+
+            <div className="flex items-center gap-6 text-gray-400 text-sm font-medium pt-2">
+              <span className="flex items-center gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-cyan-500 animate-pulse" />
+                {t('hero.stats.pros') || "1k+ Experts"}
+              </span>
+              <span className="flex items-center gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse" />
+                {t('hero.stats.rating') || "4.9/5 Rating"}
+              </span>
+            </div>
+          </div>
 
 
           <div className="flex flex-col sm:flex-row gap-5 pt-4">
@@ -107,13 +136,13 @@ export default function HeroSection() {
 
             <div className="relative bg-white/95 dark:bg-gray-900/95 backdrop-blur-md rounded-[2rem] overflow-hidden shadow-2xl border border-white/20">
               <div className="h-56 overflow-hidden">
-                  <Image
-                    src={slides[currentSlide].image}
-                    alt={t(`hero.services.title.${slides[currentSlide].key}`)}
-                    className="w-full h-full object-cover"
-                    width={380}
-                    height={224}
-                  />
+                <Image
+                  src={slides[currentSlide].image}
+                  alt={t(`hero.services.title.${slides[currentSlide].key}`)}
+                  className="w-full h-full object-cover"
+                  width={380}
+                  height={224}
+                />
               </div>
 
               <div className="p-8">

@@ -29,7 +29,7 @@ const Header = () => {
 
   const handleLogout = async () => {
     try {
-      const response = await fetch("http://localhost:3001/logout", {
+      const response = await fetch("http://127.0.0.1:3001/logout", {
         method: "POST",
         credentials: "include"
       });
@@ -110,9 +110,9 @@ const Header = () => {
                     <p className="text-xs font-bold text-gray-900 dark:text-gray-100 leading-none mb-1">
                       {user?.name || user?.email?.split('@')[0]}
                     </p>
-                    <span className="text-[10px] px-1.5 py-0.5 bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 rounded uppercase tracking-wider font-bold">
+                    {/* <span className="text-[10px] px-1.5 py-0.5 bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 rounded uppercase tracking-wider font-bold">
                       {user?.role?.name}
-                    </span>
+                    </span> */}
                   </div>
                   <ChevronDown size={14} className={`text-gray-400 transition-transform duration-300 ${isProfileOpen ? 'rotate-180 text-blue-500' : ''}`} />
                 </button>
@@ -124,6 +124,8 @@ const Header = () => {
                       {/* <p className="text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest">{t('header.account_details') || 'Account'}</p> */}
                       <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">{user.email}</p>
                     </div>
+
+                    <DropdownItem href="/dashboard" onClick={closeAllMenus} icon={<User size={18} />} label={t('header.dashboard') || 'Dashboard'} />
 
                     <DropdownItem href="/dashboard/profile" onClick={closeAllMenus} icon={<User size={18} />} label={t('header.profile') || 'My Profile'} />
                     {/* <DropdownItem href="/settings" onClick={closeAllMenus} icon={<Settings size={18} />} label={t('header.settings') || 'Settings'} /> */}
@@ -189,6 +191,9 @@ const Header = () => {
             {user && (
               <>
                 <div className="h-px bg-gray-100 dark:bg-gray-800 my-2" />
+                <Link href="/dashboard" onClick={closeAllMenus} className="px-4 py-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-900 font-medium transition-colors">
+                  {t('header.dashboard')}
+                </Link>
                 <Link href="/profile" onClick={closeAllMenus} className="px-4 py-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-900 font-medium transition-colors">
                   {t('header.profile')}
                 </Link>

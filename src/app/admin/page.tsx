@@ -3,7 +3,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { ChevronDown, ChevronUp, MoreVertical, Search, User, Users, X } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 
-const API_BASE_URL = 'http://localhost:3001/api/v1';
+const API_BASE_URL = 'http://127.0.0.1:3001/api/v1';
 
 // This map is now only used to find an ID when updating a status.
 const statusMap = {

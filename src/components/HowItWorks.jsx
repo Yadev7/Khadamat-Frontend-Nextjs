@@ -86,6 +86,51 @@ const HowItWorks = () => {
           </div>
         </div>
       </div>
+
+      <div className="max-w-7xl mx-auto px-6 lg:px-8 gap-2">
+        
+        {/* Section Header */}
+
+        {/* Steps Container */}
+        <div className="relative">
+          
+          {/* Connector Line (Desktop Only) */}
+          <div className="hidden md:block absolute top-[25%] left-0 w-full h-0.5 border-t-2 border-dashed border-slate-200 z-0" />
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 relative z-10 cursor-pointer">
+            {steps.map((step, index) => (
+              <div key={index} className="group flex flex-col items-center">
+                
+                {/* Icon Hub */}
+                <div className="relative mb-8">
+                  {/* Step Number Badge */}
+                  <div className="absolute -top-2 -right-2 w-8 h-8 bg-white shadow-lg rounded-full flex items-center justify-center z-20">
+                    <span className="text-sm font-bold text-slate-900">{step.number}</span>
+                  </div>
+
+                  {/* Main Icon Circle */}
+                  <div className={`w-20 h-20 md:w-24 md:h-24 ${step.color} rounded-3xl flex items-center justify-center transform group-hover:rotate-6 transition-all duration-300 shadow-xl group-hover:shadow-2xl`}>
+                    {step.icon}
+                  </div>
+                </div>
+
+                {/* Content Card */}
+                <div className="text-center bg-white p-8 rounded-[2rem] shadow-sm group-hover:shadow-xl transition-all duration-500 border border-slate-100 group-hover:-translate-y-2">
+                  <h3 className="text-xl md:text-2xl font-bold text-slate-900 mb-4 group-hover:text-blue-600 transition-colors">
+                    {step.title}
+                  </h3>
+                  <p className="text-slate-600 leading-relaxed text-sm md:text-base">
+                    {step.description}
+                  </p>
+                  
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      
     </section>
   );
 };

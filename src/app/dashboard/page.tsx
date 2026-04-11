@@ -3,10 +3,11 @@
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
-
+import { useTranslation } from "react-i18next";
 export default function DashboardPage() {
   const { user, isLoading, logout } = useAuth();
   const router = useRouter();
+  const { t } = useTranslation();
 
   // حماية إضافية: إذا طفأ المستخدم المتصفح ورجع دخل ديريكت للـ Dashboard وهو ماشي Logged in
   useEffect(() => {
@@ -27,23 +28,17 @@ export default function DashboardPage() {
         <div className="flex justify-between items-center mb-8">
           <div>
             <h1 className="text-2xl font-bold text-gray-800 dark:text-white">
-              مرحباً بك، {user?.firstName || 'مستخدم خدمات'} 👋
+            {t('welcome', { name: user?.firstName || t('default_user') })}
             </h1>
-            <p className="text-gray-500">لوحة التحكم الخاصة بك</p>
+            <p className="text-gray-500">{t('subtitle')}</p>
           </div>
-          {/* <button 
-            onClick={logout}
-            className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition"
-          >
-            تسجيل الخروج
-          </button> */}
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Card 1: الدور (Role) */}
           <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-100 dark:border-blue-800">
             <h3 className="text-blue-700 dark:text-blue-400 font-semibold mb-2">الدور الحالي</h3>
-            <p className="text-xl font-bold">{user?.role?.name || 'مستخدم'}</p>
+            <p className="text-xl font-bold">{t('cards.role_title')}</p>
           </div>
 
           {/* Card 2: البريد الإلكتروني */}
