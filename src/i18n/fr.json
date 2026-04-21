@@ -26,7 +26,6 @@
       }
     }
   },
-
   "become_tasker_page": {
     "title": "Devenir prestataire de services",
     "description": "Rejoignez notre plateforme en tant que prestataire de services et commencez à offrir vos compétences aux clients du monde entier.",
@@ -44,7 +43,6 @@
       "skills_placeholder": "Décrivez vos compétences et les services que vous offrez"
     }
   },
-
   "header": {
     "sign_in": "Se connecter",
     "title": "Khadamat",
@@ -55,7 +53,6 @@
     "profile": "Profil",
     "dashboard": "Tableau de bord"
   },
-
   "sign_in": {
     "title": "Se connecter a votre compte",
     "description": "Bienvenue sur notre plateforme. Connectez-vous avec des clients et des prestataires. Trouvez les services dont vous avez besoin ou offrez votre expertise au monde.",
@@ -67,7 +64,6 @@
     "gestion_account": "Ou gérez votre compte",
     "forgot_password": "Mot de passe oublié ?"
   },
-
   "search": {
     "please_select_city_and_service": "Veuillez sélectionner une ville et un service pour rechercher.",
     "city_and_service_selected": "Ville sélectionnée : {city} et service : {service}",
@@ -77,9 +73,14 @@
     "zone": "Zone",
     "service": "Service",
     "list": "Liste",
-    "map": "Carte"
+    "map": "Carte",
+    "select_city": "Sélectionnez une ville",
+    "select_zone": "Sélectionnez une zone",
+    "select_service": "Sélectionnez un service",
+    "no_results": "Aucun prestataire trouvé correspondant à vos critères.",
+    "results_found": "prestataires trouvés correspondant à vos critères.",
+    "view_details": "Voir les détails"
   },
-
   "forgot_password_page": {
     "title": "Récupération de mot de passe",
     "description": "Entrez votre adresse e-mail pour récupérer votre mot de passe.",
@@ -89,7 +90,6 @@
     "back_to_sign_in": "Retour à la connexion",
     "loading": "Envoi en cours..."
   },
-
   "details_ads": {
     "loading": "Chargement des détails du prestataire...",
     "profile_not_found": "Profil non trouvé.",
@@ -198,7 +198,6 @@
       "becomeBtn": "Devenir Prestataire"
     }
   },
-
   "footer": {
     "stats": {
       "customers": "Clients Satisfaits",
@@ -245,16 +244,15 @@
   },
   "common": {
     "confirm_delete_title": "Êtes-vous sûr ?",
-    "confirm_delete_text": "Vous ne pourrez pas récupérer ce service après la suppression !",
+    "confirm_delete_text": "Vous ne pourrez pas récupérer cet élément après la suppression !",
     "yes_delete": "Oui, supprimer !",
     "cancel": "Annuler",
     "deleted": "Supprimé !",
-    "deleted_success": "Le service a été supprimé avec succès.",
+    "deleted_success": "L'élément a été supprimé avec succès.",
     "upload_click": "Cliquez pour télécharger ou glisser-déposer",
     "error_message": "Une erreur s'est produite lors du téléchargement ou de l'enregistrement.",
     "actions": "Actions"
   },
-
   "dashboard": {
     "welcome": "Bienvenue, {name} 👋",
     "default_user": "Utilisateur",
@@ -275,10 +273,40 @@
       "name": "Tableau de Bord",
       "home": "Accueil",
       "services": "Services",
+      "infos-general": "Infos générales",
       "members": "Professionnels",
       "settings": "Paramètres",
       "logout": "Se déconnecter",
       "business": "Affaires"
+    },
+    "infos-general": {
+      "title": "Informations Générales",
+      "description": "Gérez vos informations personnelles et vos préférences de compte.",
+      "name": "Nom complet",
+      "email": "Adresse e-mail",
+      "phone": "Numéro de téléphone",
+      "update_button": "Mettre à jour les informations",
+      "loading": "Mise à jour en cours...",
+      "tabs": {
+        "city_tab": "Ville",
+        "country_tab": "Pays",
+        "zone_tab": "Zone",
+        "service_tab": "Service",
+        "city_area_tab": "Zone de la Ville"
+      },
+      "common": {
+        "add_new": "Ajouter",
+        "edit": "Modifier",
+        "save": "Enregistrer",
+        "delete": "Supprimer",
+        "confirm_delete_title": "Êtes-vous sûr ?",
+        "confirm_delete_text": "Vous ne pourrez pas récupérer cette information après la suppression !",
+        "yes_delete": "Oui, supprimer !",
+        "cancel": "Annuler",
+        "deleted": "Supprimé !",
+        "deleted_success": "{item} a été supprimé avec succès.",
+        "actions": "Actions"
+      }
     }
   }
 }

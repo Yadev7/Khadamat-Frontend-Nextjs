@@ -1,10 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { ArrowRight, CheckCircle2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import Image from "next/image";
+
+
 
 const slides = [
   // { image: "/bckgHero.png", key: "general" },
@@ -17,6 +19,12 @@ const slides = [
 export default function HeroSection() {
   const { t, i18n } = useTranslation();
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+   const initialCity = searchParams.get("city");
+   const initialService = searchParams.get("service");
+   const initialZone = searchParams.get("zone");
+  
   const [currentSlide, setCurrentSlide] = useState(0);
 
   const isRtl = i18n.language === 'ar';
@@ -29,7 +37,7 @@ export default function HeroSection() {
   }, []);
 
   return (
-    <div className="relative min-h-[85vh] w-full flex items-start justify-center overflow-hidden  px-4 md:px-12 lg:px-20">
+    <div className="relative min-h-[70vh] w-full flex items-start justify-center overflow-hidden  px-4 md:px-12 lg:px-20">
       {/* Background Slideshow */}
       {slides.map((slide, index) => (
         <div
@@ -53,14 +61,14 @@ export default function HeroSection() {
       <div className="relative z-20 container mx-auto px-6 lg:px-12 pt-20 pb-32 grid lg:grid-cols-2 gap-16 items-center">
 
         {/* Left Side: Content */}
-        <div className="text-start space-y-10">
+        <div className="text-start space-y-5">
           {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/20 border border-indigo-400/30 text-indigo-300 text-sm font-medium animate-fade-in">
+          {/* <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/20 border border-indigo-400/30 text-indigo-300 text-sm font-medium animate-fade-in">
             <CheckCircle2 size={14} />
             {t('hero.verified_pro')}
-          </div>
+          </div> */}
 
-          <h1 className="text-5xl md:text-7xl font-black text-white leading-[1.1] tracking-tight drop-shadow-xl whitespace-nowrap">
+          <h1 className="text-5xl md:text-5xl font-black text-white leading-[1.1] tracking-tight drop-shadow-xl whitespace-nowrap">
             {t('hero.title')}{' '}
             {/* <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-400 italic">
               {t(`hero.services.title.${slides[currentSlide].key}`)}
@@ -73,12 +81,12 @@ export default function HeroSection() {
 
           {/* Subtitle Section */}
           <div className="relative max-w-xl space-y-4 animate-fade-in [animation-delay:200ms]">
-            <div className="flex items-center gap-3">
+            {/* <div className="flex items-center gap-3">
               <div className="h-[1px] w-12 bg-gradient-to-r from-indigo-500 to-transparent" />
               <span className="text-xs uppercase tracking-[0.3em] text-indigo-400 font-bold">
                 {t('hero.featured_tagline') || "Premium Services"}
               </span>
-            </div>
+            </div> */}
 
             <p className="text-xl md:text-2xl text-gray-300 leading-relaxed font-light italic">
               {t('hero.subtitle').split('.').map((sentence, i) => (
@@ -88,7 +96,7 @@ export default function HeroSection() {
               ))}
             </p>
 
-            <div className="flex items-center gap-6 text-gray-400 text-sm font-medium pt-2">
+            {/* <div className="flex items-center gap-6 text-gray-400 text-sm font-medium pt-2">
               <span className="flex items-center gap-2">
                 <span className="w-1.5 h-1.5 rounded-full bg-cyan-500 animate-pulse" />
                 {t('hero.stats.pros') || "1k+ Experts"}
@@ -97,7 +105,7 @@ export default function HeroSection() {
                 <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse" />
                 {t('hero.stats.rating') || "4.9/5 Rating"}
               </span>
-            </div>
+            </div> */}
           </div>
 
 
@@ -129,45 +137,46 @@ export default function HeroSection() {
         </div>
 
         {/* Right Side: Floating UI Card */}
-        <div className="hidden lg:flex justify-end pr-8">
-          <div className="relative group w-[380px] animate-float">
-            {/* Glow Effect */}
-            <div className="absolute -inset-4 bg-indigo-500 rounded-[2.5rem] blur-2xl opacity-20 group-hover:opacity-40 transition duration-1000"></div>
+<div className="hidden lg:flex justify-end pr-8">
+  <div className="relative group w-[380px] animate-float">
+    {/* Glow Effect */}
+    <div className="absolute -inset-4 bg-indigo-500 rounded-[2.5rem] blur-2xl opacity-20 group-hover:opacity-40 transition duration-1000"></div>
 
-            <div className="relative bg-white/95 dark:bg-gray-900/95 backdrop-blur-md rounded-[2rem] overflow-hidden shadow-2xl border border-white/20">
-              <div className="h-56 overflow-hidden">
-                <Image
-                  src={slides[currentSlide].image}
-                  alt={t(`hero.services.title.${slides[currentSlide].key}`)}
-                  className="w-full h-full object-cover"
-                  width={380}
-                  height={224}
-                />
-              </div>
+    <div className="relative bg-white/95 dark:bg-gray-900/95 backdrop-blur-md rounded-[2rem] overflow-hidden shadow-2xl border border-white/20">
+      <div className="h-52 overflow-hidden"> {/* Reduced height slightly from h-56 */}
+        <Image
+          src={slides[currentSlide].image}
+          alt={t(`hero.services.title.${slides[currentSlide].key}`)}
+          className="w-full h-full object-cover"
+          width={380}
+          height={208}
+        />
+      </div>
 
-              <div className="p-8">
-                {/* <div className="flex items-center gap-1.5 text-amber-500 mb-3">
-                  {[...Array(5)].map((_, i) => <Star key={i} size={18} fill="currentColor" />)}
-                  <span className="text-gray-500 dark:text-gray-400 text-sm font-semibold ms-2">4.9</span>
-                </div> */}
+      {/* Reduced padding from p-8 to p-5 */}
+      <div className="p-5">
+        {/* Reduced margin-bottom from mb-3 to mb-1 */}
+        <h3 className="text-xl font-extrabold text-gray-900 dark:text-white mb-1">
+          {t(`hero.services.title.${slides[currentSlide].key}`)}
+        </h3>
 
-                <h3 className="text-2xl font-extrabold text-gray-900 dark:text-white mb-3">
-                  {t(`hero.services.title.${slides[currentSlide].key}`)}
-                </h3>
+        <p className="text-gray-600 dark:text-gray-400 text-sm leading-snug line-clamp-2">
+          {t(`hero.services.description.${slides[currentSlide].key}`)}
+        </p>
 
-                <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed line-clamp-3">
-                  {t(`hero.services.description.${slides[currentSlide].key}`)}
-                </p>
-
-                <div className="mt-6 pt-6 border-t border-gray-100 dark:border-gray-800 flex justify-between items-center">
-                  <div className="px-4 py-2 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-lg font-bold text-xs">
-                    {t('hero.verified_pro')}
-                  </div>
-                </div>
-              </div>
-            </div>
+        {/* Reduced margin-top and padding-top from mt-6 pt-6 to mt-4 pt-4 */}
+        {/* <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-800 flex justify-between items-center">
+          <div className="px-3 py-1.5 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-lg font-bold text-[10px]">
+            {t('hero.verified_pro')}
           </div>
-        </div>
+        </div> */}
+      </div>
+    </div>
+  </div>
+</div>
+<h1>
+  here add search bar with auto complete and location input and date picker and time picker and a button to search for taskers
+</h1>
       </div>
 
       <style jsx>{`

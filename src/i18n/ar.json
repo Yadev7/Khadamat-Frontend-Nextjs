@@ -27,7 +27,6 @@
       }
     }
   },
-
   "become_tasker_page": {
     "title": "كن عاملًا",
     "description": "انضم إلى منصتنا كعامل وابدأ في تقديم مهاراتك للعملاء من جميع أنحاء العالم.",
@@ -75,7 +74,13 @@
     "zone": "المنطقة",
     "service": "الخدمة",
     "list": "قائمة",
-    "map": "خريطة"
+    "map": "خريطة",
+    "select_city": "اختر مدينة",
+    "select_zone": "اختر منطقة",
+    "select_service": "اختر خدمة",
+    "no_results": "لم يتم العثور على مزودين يطابقون معاييرك.",
+    "results_found": "من المزودين يطابقون معاييرك",
+    "view_details": "عرض التفاصيل"
   },
   "forgot_password_page": {
     "title": "استعادة كلمة المرور",
@@ -194,7 +199,6 @@
       "becomeBtn": "كن مزود خدمة"
     }
   },
-
   "footer": {
     "stats": {
       "customers": "عميل راضٍ",
@@ -239,18 +243,17 @@
     "logo": "صورة الخدمة",
     "services_page.success_msg": "تمت الإضافة بنجاح"
   },
-"common": {
-  "confirm_delete_title": "هل أنت متأكد؟",
-  "confirm_delete_text": "لن تتمكن من استعادة هذه الخدمة بعد حذفها!",
-  "yes_delete": "نعم، احذف الآن",
-  "cancel": "تراجع",
-  "deleted": "تم الحذف!",
-  "deleted_success": "تم حذف الخدمة من قاعدة البيانات بنجاح.",
-  "error_message": "حدث خطأ أثناء الحذف. يرجى المحاولة مرة أخرى.",
-  "upload_click": "انقر للتحميل أو اسحب وأفلت",
-  "actions": "العمليات"
-},
-
+  "common": {
+    "confirm_delete_title": "هل أنت متأكد؟",
+    "confirm_delete_text": "لن تتمكن من استعادة هذا العنصر بعد حذفه!",
+    "yes_delete": "نعم، احذف الآن",
+    "cancel": "تراجع",
+    "deleted": "تم الحذف!",
+    "deleted_success": "تم حذف العنصر من قاعدة البيانات بنجاح.",
+    "error_message": "حدث خطأ أثناء الحذف. يرجى المحاولة مرة أخرى.",
+    "upload_click": "انقر للتحميل أو اسحب وأفلت",
+    "actions": "العمليات"
+  },
   "dashboard": {
     "welcome": "مرحباً بك، {name} 👋",
     "default_user": "مستخدم خدمات",
@@ -271,11 +274,27 @@
       "name": "لوحة التحكم",
       "home": "الرئيسية",
       "services": "الخدمات",
+      "infos-general": "المعلومات الاساسية",
       "members": "المهنيين",
       "settings": "الإعدادات",
       "logout": "تسجيل الخروج",
       "business": "الأعمال"
+    },
+    "infos-general": {
+      "title": "معلومات عامة",
+      "description": "قم بإدارة معلوماتك الشخصية وتفضيلات حسابك.",
+      "name": "الاسم الكامل",
+      "email": "البريد الإلكتروني",
+      "phone": "رقم الهاتف",
+      "update_button": "تحديث المعلومات",
+      "loading": "جاري التحديث...",
+      "tabs": {
+        "city_tab": "المدينة",
+        "country_tab": "البلد",
+        "zone_tab": "المنطقة",
+        "service_tab": "الخدمة",
+        "city_area_tab": "منطقة المدينة"
+      }
     }
   }
 }
-

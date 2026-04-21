@@ -2,7 +2,7 @@
 
 import { useAuth } from "@/context/AuthContext";
 import { useState, useEffect } from "react";
-import { updateMe } from "@/services/auth-api"; // تأكد من استيراد الدالة من الـ service ديالك
+import { updateMe } from "@/api/auth-api"; // تأكد من استيراد الدالة من الـ service ديالك
 import { User, Mail, Calendar, Check, Loader2, AlertCircle } from "lucide-react";
 
 export default function ProfilePage() {

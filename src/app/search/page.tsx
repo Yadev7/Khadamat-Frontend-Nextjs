@@ -3,22 +3,32 @@
 import { useSearchParams, useRouter } from "next/navigation";
 import { useState, useEffect, useRef, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { List, MapPin, Star, LayoutGrid, HandPlatter, ChevronDown, Search } from "lucide-react";
-import Image from "next/image";
+import { MapPin, LayoutGrid, HandPlatter, ChevronDown, Search, ArrowRight, Loader2 } from "lucide-react";
 import dynamic from "next/dynamic";
-import Link from "next/link";
+
+// API Imports
+import { getCities } from "@/api/cities-api";
+import { getCityAreas } from "@/api/city-areas-api";
+import { getServices } from "@/api/services-api";
+import { getBusinesses } from "@/api/businesses-api";
 
 const MapComponent = dynamic(() => import('@/components/MapComponent'), {
   ssr: false,
-  loading: () => <div className="w-full h-full bg-gray-100 animate-pulse" />
+  loading: () => <div className="w-full h-full bg-gray-100 animate-pulse rounded-[2rem]" />
 });
+
+// --- REUSABLE SELECT COMPONENT ---
+interface Option {
+  id: string | number;
+  name: string;
+}
 
 interface CompactSelectProps {
   label: string;
   icon: React.ReactNode;
-  options: string[];
+  options: Option[];
   value: string;
-  onChange: (value: string) => void;
+  onChange: (id: string) => void;
   placeholder: string;
   disabled?: boolean;
 }
@@ -41,15 +51,13 @@ const CompactSelect = ({ label, icon, options, value, onChange, placeholder, dis
         type="button"
         disabled={disabled}
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full flex items-center justify-between gap-1 md:gap-2 px-1.5 py-2 md:px-3 rounded-xl hover:bg-gray-50 transition-colors text-left overflow-hidden"
+        className="w-full flex items-center justify-between gap-2 px-3 py-2 rounded-xl hover:bg-gray-50 transition-colors text-left overflow-hidden"
       >
-        <div className="flex items-center gap-1.5 md:gap-2 overflow-hidden min-w-0">
+        <div className="flex items-center gap-2 overflow-hidden min-w-0">
           <div className="text-indigo-600 shrink-0">{icon}</div>
           <div className="flex flex-col overflow-hidden min-w-0">
-            <span className="text-[7px] md:text-[9px] uppercase font-bold text-gray-400 leading-none truncate">
-              {label}
-            </span>
-            <span className="text-gray-800 font-semibold truncate text-[11px] md:text-sm whitespace-nowrap">
+            <span className="text-[9px] uppercase font-bold text-gray-400 leading-none truncate">{label}</span>
+            <span className="text-gray-800 font-semibold truncate text-sm whitespace-nowrap">
               {value || placeholder}
             </span>
           </div>
@@ -58,17 +66,24 @@ const CompactSelect = ({ label, icon, options, value, onChange, placeholder, dis
       </button>
 
       {isOpen && (
-        <div className="absolute z-[100] mt-2 w-56 left-0 bg-white border border-gray-100 rounded-2xl shadow-2xl max-h-60 overflow-y-auto py-2 animate-in fade-in slide-in-from-top-1">
-          {options.map((option: string) => (
-            <button
-              key={option}
-              onClick={() => { onChange(option); setIsOpen(false); }}
-              className={`w-full text-left px-4 py-2.5 text-sm hover:bg-indigo-50 ${value === option ? 'text-indigo-600 font-bold bg-indigo-50/50' : 'text-gray-600'
-                }`}
-            >
-              {option}
-            </button>
-          ))}
+        <div className="absolute z-[110] mt-2 w-64 left-0 bg-white border border-gray-100 rounded-2xl shadow-2xl max-h-60 overflow-y-auto py-2">
+          {options.length > 0 ? (
+            options.map((option) => (
+              <button
+                key={option.id}
+                type="button"
+                onClick={() => {
+                  onChange(String(option.id));
+                  setIsOpen(false);
+                }}
+                className={`w-full text-left px-4 py-2.5 text-sm hover:bg-indigo-50 ${value === option.name ? 'text-indigo-600 font-bold bg-indigo-50/50' : 'text-gray-600'}`}
+              >
+                {option.name}
+              </button>
+            ))
+          ) : (
+            <div className="px-4 py-2 text-xs text-gray-400 italic text-center">No data found</div>
+          )}
         </div>
       )}
     </div>
@@ -78,140 +93,173 @@ const CompactSelect = ({ label, icon, options, value, onChange, placeholder, dis
 export default function SearchResultsPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const { t } = useTranslation();
-  const [view, setView] = useState<'list' | 'map'>('list');
+  const { t, i18n } = useTranslation();
+  const isRtl = i18n.language === 'ar';
 
-  const [location, setLocation] = useState<string>("");
-  const [zone, setZone] = useState<string>("");
-  const [service, setService] = useState<string>("");
+  const [loading, setLoading] = useState(false);
+  const [cities, setCities] = useState<any[]>([]);
+  const [allZones, setAllZones] = useState<any[]>([]);
+  const [services, setServices] = useState<any[]>([]);
+  const [businesses, setBusinesses] = useState<any[]>([]);
 
-  const [cities, setCities] = useState<{ [key: string]: [number, number] }>({});
-  const [services, setServices] = useState<{ [key: string]: unknown }>({});
-  const [allZones, setAllZones] = useState<{ [key: string]: { name: string, coords: [number, number] }[] }>({});
-  const [filteredZones, setFilteredZones] = useState<{ name: string, coords: [number, number] }[]>([]);
+  // Local state for the inputs
+  const [selectedCityId, setSelectedCityId] = useState<string>("");
+  const [selectedZoneId, setSelectedZoneId] = useState<string>("");
+  const [selectedServiceId, setSelectedServiceId] = useState<string>("");
 
+  // 1. Sync local input state with URL
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [c, s, z] = await Promise.all([
-          fetch('/api/cities').then(res => res.json()),
-          fetch('/api/services').then(res => res.json()),
-          fetch('/api/zones').then(res => res.json())
-        ]);
-        setCities(c); 
-        setServices(s); 
-        setAllZones(z);
-
-        // SYNC URL PARAMS TO STATE
-        const initialCity = searchParams.get("city");
-        const initialService = searchParams.get("service");
-        const initialZone = searchParams.get("zone");
-
-        if (initialCity) {
-          setLocation(initialCity);
-          setFilteredZones(z[initialCity] || []);
-        }
-        if (initialService) setService(initialService);
-        if (initialZone) setZone(initialZone);
-
-      } catch (e) { console.error("Error loading data:", e); }
-    };
-    fetchData();
+    setSelectedCityId(searchParams.get("cityId") || "");
+    setSelectedZoneId(searchParams.get("zoneId") || "");
+    setSelectedServiceId(searchParams.get("service") || "");
   }, [searchParams]);
 
-  const mapCenter = useMemo((): [number, number] => {
-    if (zone) {
-      const zoneData = filteredZones.find(z => z.name === zone);
-      if (zoneData) return zoneData.coords;
-    }
-    if (location && cities[location]) return cities[location];
-    return [33.5731, -7.5898];
-  }, [location, zone, cities, filteredZones]);
+  // 2. Load Filter Metadata
+  useEffect(() => {
+    const loadFilters = async () => {
+      try {
+        const [citiesData, zonesData, servicesData] = await Promise.all([
+          getCities(),
+          getCityAreas(),
+          getServices()
+        ]);
 
-  const handleLocationChange = (cityKey: string) => {
-    setLocation(cityKey);
-    setZone("");
-    setFilteredZones(allZones[cityKey] || []);
-  };
+        const langSuffix = i18n.language.charAt(0).toUpperCase() + i18n.language.slice(1);
+        const getData = (res: any) => (Array.isArray(res) ? res : res?.data || []);
 
-const handleSearchUpdate = () => {
-    if (!location || !service) {
-      alert(t("search.please_select_city_and_service"));
+        setCities(getData(citiesData).map((c: any) => ({
+          ...c,
+          displayName: c[`name${langSuffix}`] || c.nameFr || c.nameEn || "City"
+        })));
+
+        setAllZones(getData(zonesData).map((z: any) => ({
+          ...z,
+          displayName: z[`name${langSuffix}`] || z.nameFr || "Area",
+          normalizedCityId: z.city?.id || z.cityId
+        })));
+
+        setServices(getData(servicesData).map((s: any) => ({
+          ...s,
+          displayName: s[`nameServ${langSuffix}`] || s.nameServFr || "Service"
+        })));
+      } catch (error) {
+        console.error("❌ Fetch Filters Error:", error);
+      }
+    };
+    loadFilters();
+  }, [i18n.language]);
+
+  // 3. Main Data Fetching (Triggered ONLY when service is in URL)
+  useEffect(() => {
+    const fetchBusinesses = async () => {
+      const serviceId = searchParams.get("service");
+
+      // Stop if no service is selected in the URL
+      if (!serviceId) {
+        setBusinesses([]);
+        setLoading(false);
+        return;
+      }
+
+      setLoading(true);
+      try {
+        const response = await getBusinesses(1, 20, {
+          service: serviceId,
+        });
+
+        const data = response?.data || response || [];
+        setBusinesses(Array.isArray(data) ? data : []);
+      } catch (error) {
+        console.error("❌ Fetch Error:", error);
+        setBusinesses([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBusinesses();
+  }, [searchParams]);
+
+  const filteredZones = useMemo(() => {
+    if (!selectedCityId) return [];
+    return allZones.filter(zone => String(zone.normalizedCityId) === String(selectedCityId));
+  }, [selectedCityId, allZones]);
+
+  // 4. Update the URL
+  const handleSearchUpdate = () => {
+    if (!selectedServiceId) {
+      alert(t("search.please_select_service") || "Please select a service first");
       return;
-    } else {
-      // Log or notify the user of the selection
-      alert(`Searching for ${t(service)} in ${t(location)}${zone ? ` - ${zone}` : ""}`);
-      
-      const params = new URLSearchParams({ 
-        city: location, 
-        service, 
-        ...(zone ? { zone } : {}) 
-      });
-      router.push(`/search?${params.toString()}`);
     }
+
+    const params = new URLSearchParams();
+    if (selectedCityId) params.set("cityId", selectedCityId);
+    if (selectedServiceId) params.set("service", selectedServiceId);
+    if (selectedZoneId) params.set("zoneId", selectedZoneId);
+
+    router.push(`/search?${params.toString()}`, { scroll: false });
   };
 
-  const serviceProviders = [
-    { id: 1, name: 'Carlos Rodriguez', service: service || 'Professional', rating: 4.8, reviewCount: 124, distance: '2.5 miles', imageUrl: '/PlumbingCarlos.png', isAvailable: true },
-    { id: 2, name: 'Linda Nguyen', service: service || 'Expert', rating: 4.6, reviewCount: 98, distance: '3.1 miles', imageUrl: '/HandymanPatricia.png', isAvailable: false },
-    { id: 3, name: 'Ahmed Hassan', service: service || 'Specialist', rating: 4.9, reviewCount: 150, distance: '1.8 miles', imageUrl: '/PlumbingCarlos.png', isAvailable: true },
-    { id: 4, name: 'Sophie Dubois', service: service || 'Professional', rating: 4.7, reviewCount: 110, distance: '2.9 miles', imageUrl: '/HouseCleaningMaria.png', isAvailable: true },
-  ];
-
-  const labelToShow = zone || location || "my location";
+  const mapMarkers = useMemo(() => {
+    return businesses.map((biz: any) => {
+      const loc = biz.contact?.address?.localisation;
+      if (loc?.latitude && loc?.longitude) {
+        const langSuffix = i18n.language.charAt(0).toUpperCase() + i18n.language.slice(1);
+        return {
+          position: [parseFloat(loc.latitude), parseFloat(loc.longitude)] as [number, number],
+          label: biz[`name${langSuffix}`] || biz.nameFr
+        };
+      }
+      return null;
+    }).filter(Boolean);
+  }, [businesses, i18n.language]);
 
   return (
-    <div className="relative min-h-screen w-full bg-gray-50/50 overflow-x-hidden">
-
-      {/* --- SEARCH BAR --- */}
-      <div className="fixed top-15 left-0 right-0 z-[90] px-2 py-4 md:px-6 md:py-4">
+    <div className="relative min-h-screen w-full bg-slate-50/50" dir={isRtl ? 'rtl' : 'ltr'}>
+      {/* HEADER / SEARCH BAR */}
+      <div className="fixed top-15 left-0 right-0 z-[100] px-2 py-4 md:px-6 bg-white/80 backdrop-blur-md border-b border-slate-100">
         <div className="container mx-auto max-w-6xl">
-          <div className="bg-white/90 backdrop-blur-xl border border-white/60 shadow-xl rounded-full p-1 flex flex-row items-center">
-            <div className="flex flex-row items-center flex-[1.5]">
-              <CompactSelect
-                label={t("search.city")}
-                icon={<MapPin size={14} className="md:w-4 md:h-4" />}
-                options={Object.keys(cities).map(c => t(c))}
-                value={location ? t(location) : ""}
-                onChange={(val: string) => {
-                  const key = Object.keys(cities).find(k => t(k) === val) || "";
-                  handleLocationChange(key);
-                }}
-                placeholder={t("search.city")}
-              />
-              <div className="w-px h-6 bg-gray-100 shrink-0" />
-              <CompactSelect
-                label={t("search.zone")}
-                icon={<LayoutGrid size={14} className="md:w-4 md:h-4" />}
-                options={filteredZones.map(z => z.name)}
-                value={zone}
-                disabled={!location}
-                onChange={(val: string) => setZone(val)}
-                placeholder={t("search.zone")}
-              />
-            </div>
+          <div className="bg-white border border-slate-200 shadow-xl rounded-full p-1.5 flex flex-row items-center gap-1">
+            <CompactSelect
+              label={t("search.city")}
+              icon={<MapPin size={16} />}
+              options={cities.map(c => ({ id: c.id, name: c.displayName }))}
+              value={cities.find(c => String(c.id) === String(selectedCityId))?.displayName || ""}
+              onChange={(id) => { setSelectedCityId(id); setSelectedZoneId(""); }}
+              placeholder={t("search.select_city")}
+            />
 
-            <div className="w-px h-8 bg-gray-200 mx-1 md:mx-2 shrink-0" />
+            <div className="w-px h-8 bg-slate-100 shrink-0" />
 
-            <div className="flex flex-row items-center flex-1 min-w-0 gap-1 md:gap-2">
+            <CompactSelect
+              label={t("search.zone")}
+              icon={<LayoutGrid size={16} />}
+              options={filteredZones.map(z => ({ id: z.id, name: z.displayName }))}
+              value={filteredZones.find(z => String(z.id) === String(selectedZoneId))?.displayName || ""}
+              disabled={!selectedCityId}
+              onChange={(id) => setSelectedZoneId(id)}
+              placeholder={selectedCityId ? (filteredZones.length === 0 ? "No Areas" : t("search.select_zone")) : t("search.select_zone")}
+            />
+
+            <div className="w-px h-8 bg-slate-100 shrink-0" />
+
+            <div className="flex-[1.2] flex flex-row items-center min-w-0">
               <CompactSelect
                 label={t("search.service")}
-                icon={<HandPlatter size={14} className="md:w-4 md:h-4" />}
-                options={Object.keys(services).map(s => t(s))}
-                value={service ? t(service) : ""}
-                onChange={(val: string) => {
-                  const key = Object.keys(services).find(k => t(k) === val) || "";
-                  setService(key);
-                }}
-                placeholder={t("search.service")}
+                icon={<HandPlatter size={16} />}
+                options={services.map(s => ({ id: s.id, name: s.displayName }))}
+                value={services.find(s => String(s.id) === String(selectedServiceId))?.displayName || ""}
+                onChange={(id) => setSelectedServiceId(id)}
+                placeholder={t("search.select_service")}
               />
 
               <button
                 onClick={handleSearchUpdate}
-                className="bg-indigo-600 hover:bg-indigo-700 text-white p-2.5 md:px-6 md:py-3 rounded-full transition-all flex items-center justify-center gap-2 shrink-0 active:scale-90"
+                disabled={loading}
+                className="bg-indigo-600 hover:bg-indigo-700 text-white p-3 md:px-6 rounded-full active:scale-95 transition-all flex items-center justify-center gap-2 shadow-lg shadow-indigo-200 disabled:opacity-50"
               >
-                <Search size={16} className="md:w-[18px] md:h-[18px]" />
-                <span className="hidden lg:inline font-bold text-sm uppercase tracking-wide">
+                {loading ? <Loader2 size={18} className="animate-spin" /> : <Search size={18} />}
+                <span className="hidden lg:inline font-bold text-sm uppercase tracking-wider">
                   {t("search.button")}
                 </span>
               </button>
@@ -220,68 +268,102 @@ const handleSearchUpdate = () => {
         </div>
       </div>
 
-      <main className="sticky w-full pt-15 pb-20">
-        {view === 'list' ? (
-          <div className="container mx-auto px-4 pt-8 pb-32 max-w-6xl animate-in fade-in slide-in-from-bottom-2 duration-500 touch-pan-y">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
-              {serviceProviders.map((provider) => (
-                <Link key={provider.id} href={`/providers/${provider.id}`} className="group bg-white rounded-[32px] shadow-sm hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-100 flex flex-col">
-                  <div className="relative h-48 w-full shrink-0">
-                    <Image
-                      src={provider.imageUrl}
-                      alt={provider.name}
-                      fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                  </div>
-                  <div className="p-6 flex flex-col flex-1">
-                    <h3 className="font-bold text-lg text-gray-900">{provider.name}</h3>
-                    <p className="text-indigo-600 text-sm font-semibold mb-4">{t(provider.service.toLowerCase())}</p>
-                    <div className="mt-auto flex justify-between items-center text-xs text-gray-400 border-t pt-4">
-                      <span className="flex items-center gap-1.5"><MapPin size={14} /> {provider.distance}</span>
-                      <span className="flex items-center gap-1.5"><Star size={14} className="fill-indigo-600 text-indigo-600" /> {provider.rating}</span>
-                    </div>
-                  </div>
-                </Link>
-              ))}
+      {/* MAIN CONTENT AREA */}
+      <div className="flex flex-col lg:flex-row h-screen pt-36">
+        {/* LEFT: RESULTS CARDS */}
+        <div className="w-full lg:w-1/2 overflow-y-auto px-4 md:px-8 pb-20 custom-scrollbar">
+          {!loading && searchParams.get("service") && (
+            <div className="max-w-2xl mb-8">
+              <h2 className="text-3xl font-black text-slate-900 tracking-tight">
+                {`${businesses.length} ${t("search.results_found")}`}
+              </h2>
             </div>
-          </div>
-        ) : (
-          <div className="fixed inset-0 w-screen h-screen z-[10] overflow-hidden">
-            <MapComponent
-              center={mapCenter}
-              displayLabel={labelToShow}
-            />
-          </div>
-        )}
-      </main>
+          )}
 
-      {/* VIEW TOGGLE */}
-      <div className="fixed bottom-10 left-1/2 -translate-x-1/2 md:left-auto md:right-10 md:translate-x-0 z-[100]">
-        <div className="flex p-1.5 bg-gray-900/90 backdrop-blur-xl border border-white/10 shadow-2xl rounded-full items-center gap-1">
-          <button
-            onClick={() => setView('list')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all duration-300 ${view === 'list'
-                ? 'bg-indigo-600 text-white shadow-lg'
-                : 'text-gray-400 hover:text-white'
-              }`}
-          >
-            <List size={18} />
-            <span className="text-xs font-bold uppercase tracking-wider">{t("search.list")}</span>
-          </button>
-          <div className="w-px h-4 bg-gray-700 mx-1" />
-          <button
-            onClick={() => setView('map')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all duration-300 ${view === 'map'
-                ? 'bg-indigo-600 text-white shadow-lg'
-                : 'text-gray-400 hover:text-white'
-              }`}
-          >
-            <MapPin size={18} />
-            <span className="text-xs font-bold uppercase tracking-wider">{t("search.map")}</span>
-          </button>
+          {loading ? (
+            <div className="flex justify-center py-20">
+              <Loader2 size={40} className="animate-spin text-indigo-600" />
+            </div>
+          ) : (
+            <>
+              {/* STATE 1: NO SEARCH PERFORMED YET */}
+              {!searchParams.get("service") && (
+                <div className="flex flex-col items-center justify-center py-32 bg-white rounded-[3rem] border-2 border-dashed border-slate-100 text-center px-6">
+                  <div className="p-6 bg-indigo-50 rounded-full mb-6">
+                    <HandPlatter size={48} className="text-indigo-500" />
+                  </div>
+                  <h3 className="text-2xl font-bold text-slate-800 mb-2">{t("search.welcome_title") || "Ready to search?"}</h3>
+                  <p className="text-slate-400 max-w-sm">
+                    {t("search.welcome_text") || "Please select a service from the bar above to discover businesses in your area."}
+                  </p>
+                </div>
+              )}
+
+              {/* STATE 2: SEARCH PERFORMED, RESULTS FOUND */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {businesses.map((biz: any) => {
+                  const langSuffix = i18n.language.charAt(0).toUpperCase() + i18n.language.slice(1);
+                  const title = biz[`name${langSuffix}`] || biz.nameFr || biz.nameEn;
+                  const desc = biz[`descr${langSuffix}`] || biz.descrFr || biz.descrEn;
+                  const img = biz.flyer?.path
+                    ? `${process.env.NEXT_PUBLIC_API_ENDPOINT}/v1/files/${biz.flyer.path}`
+                    : "/placeholder.png";
+
+                  return (
+                    <div
+                      key={biz.id}
+                      onClick={() => router.push(`/businesses/${biz.id}`)}
+                      className="group flex flex-col bg-white rounded-[2rem] overflow-hidden transition-all duration-500 hover:shadow-2xl hover:shadow-slate-200 cursor-pointer border border-slate-100"
+                    >
+                      <div className="relative h-52 w-full overflow-hidden">
+                        <img src={img} alt={title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                        <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-md px-3 py-1 rounded-full">
+                          <span className="text-[10px] font-black text-indigo-600 uppercase">
+                            {biz.service?.[`nameServ${langSuffix}`] || biz.service?.nameServFr}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="p-6 flex flex-col flex-grow">
+                        <h3 className="text-xl font-bold text-slate-900 mb-2 group-hover:text-indigo-600 transition-colors line-clamp-1">{title}</h3>
+                        <div className="flex items-center gap-1.5 text-slate-400 mb-3">
+                          <MapPin size={14} />
+                          <span className="text-xs font-bold truncate">{biz.contact?.address?.lineAddressFr || "Address not provided"}</span>
+                        </div>
+                        <p className="text-slate-500 text-sm leading-relaxed line-clamp-2 mb-4">{desc}</p>
+                        <div className="mt-auto pt-4 border-t border-slate-50 flex items-center justify-between text-indigo-600 font-bold text-sm">
+                          <span>{t("search.view_details")}</span>
+                          <ArrowRight size={16} className={isRtl ? "rotate-180" : ""} />
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* STATE 3: SEARCHED BUT NOTHING FOUND */}
+              {searchParams.get("service") && businesses.length === 0 && (
+                <div className="text-center py-20 bg-white rounded-[2rem] border border-dashed border-slate-200">
+                  <Search size={40} className="mx-auto text-slate-200 mb-4" />
+                  <p className="text-slate-500 font-bold">{t("search.no_results")}</p>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+
+        {/* RIGHT: MAP */}
+        <div className="hidden lg:block lg:w-1/2 h-full p-4">
+          <div className="w-full h-full rounded-[2.5rem] overflow-hidden shadow-inner border-4 border-white">
+            <MapComponent markers={mapMarkers as any} />
+          </div>
         </div>
       </div>
+
+      <style jsx global>{`
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+      `}</style>
     </div>
   );
 }

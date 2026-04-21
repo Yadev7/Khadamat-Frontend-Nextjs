@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, Fragment } from 'react';
-import { getServices, createService, deleteService, uploadFile, updateService } from '@/services/services-api';
+import { getServices, createService, deleteService, uploadFile, updateService } from '@/api/services-api';
 import { PlusIcon, TrashIcon, PhotoIcon, CloudArrowUpIcon, PencilSquareIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { useTranslation } from 'react-i18next';
 import Swal from 'sweetalert2';

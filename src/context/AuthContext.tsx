@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useState, useEffect, ReactNode, useContext, useCallback } from 'react';
-import { loginUser } from '@/services/auth-api';
+import { loginUser } from '@/api/auth-api';
 import Cookies from 'js-cookie';
 
 interface User {

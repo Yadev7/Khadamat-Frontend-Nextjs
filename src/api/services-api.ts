@@ -1,7 +1,7 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
 
-const API_URL = process.env.NEXT_PUBLIC_API_ENDPOINT || 'http://localhost:3001/api';
+const API_URL = process.env.NEXT_PUBLIC_API_ENDPOINT;
 
 const api = axios.create({
   baseURL: API_URL,
@@ -64,7 +64,6 @@ export const getServices = async () => {
   const token = Cookies?.get('auth_token');
 
   if (token) {
-    console.log("Token found in getServices:", token);
 
     const response = await api.get('/v1/services', {
       headers: {

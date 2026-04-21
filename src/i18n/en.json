@@ -73,7 +73,13 @@
     "zone": "Zone",
     "service": "Service",
     "list": "List",
-    "map": "Map"
+    "map": "Map",
+    "select_city": "Select a city",
+    "select_zone": "Select a zone",
+    "select_service": "Select a service",
+    "no_results": "No providers found matching your criteria.",
+    "results_found": "Found providers matching your criteria.",
+    "view_details": "View Details"
   },
   "forgot_password_page": {
     "title": "Password Recovery",
@@ -192,7 +198,6 @@
       "becomeBtn": "Become a Provider"
     }
   },
-
   "footer": {
     "stats": {
       "customers": "Satisfied Customers",
@@ -239,16 +244,15 @@
   },
   "common": {
     "confirm_delete_title": "Are you sure?",
-    "confirm_delete_text": "You won't be able to recover this service after deletion!",
+    "confirm_delete_text": "You won't be able to recover this item after deletion!",
     "yes_delete": "Yes, delete it!",
     "cancel": "Cancel",
     "deleted": "Deleted!",
-    "deleted_success": "Service deleted successfully.",
+    "deleted_success": "Item deleted successfully.",
     "error_message": "An error occurred while deleting. Please try again.",
     "upload_click": "Click to upload or drag and drop",
     "action": "Action"
   },
-
   "dashboard": {
     "welcome": "Welcome, {name} 👋",
     "default_user": "Service User",
@@ -269,10 +273,40 @@
       "name": "Dashboard",
       "home": "Home",
       "services": "Services",
+      "infos-general": "General Information",
       "members": "Professionals",
       "settings": "Settings",
       "logout": "Logout",
       "business": "Business"
+    },
+    "infos-general": {
+      "title": "General Information",
+      "description": "Manage your personal information and account preferences.",
+      "name": "Full Name",
+      "email": "Email Address",
+      "phone": "Phone Number",
+      "update_button": "Update Information",
+      "loading": "Updating...",
+      "tabs": {
+        "city_tab": "Cities",
+        "country_tab": "Countries",
+        "zone_tab": "Zones",
+        "service_tab": "Services",
+        "city_area_tab": "City Areas"
+      },
+      "common": {
+        "add_new": "Add New",
+        "edit": "Edit",
+        "save": "Save",
+        "delete": "Delete",
+        "confirm_delete_title": "Are you sure ?",
+        "confirm_delete_text": "You won't be able to recover this item after deletion !",
+        "yes_delete": "Yes, delete !",
+        "cancel": "Cancel",
+        "deleted": "Deleted !",
+        "deleted_success": "{item} is deleted successfully.",
+        "actions": "Actions"
+      }
     }
   }
 }
