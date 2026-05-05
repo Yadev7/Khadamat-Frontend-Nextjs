@@ -17,6 +17,25 @@ const Toast = MySwal.mixin({
   timerProgressBar: true,
 });
 
+const getImageUrl = (path: string) => {
+  if (!path) return '';
+  if (path.startsWith('http')) return path;
+  
+  if (path.includes('/v1/files/')) {
+    const cleanPath = path.startsWith('/') ? path : `/${path}`;
+    const domain = process.env.NEXT_PUBLIC_API_ENDPOINT?.replace('/api', '') || 'http://localhost:3001';
+    return `${domain}${cleanPath}`;
+  }
+  
+  if (path.startsWith('files/') || path.startsWith('/files/')) {
+    const cleanPath = path.startsWith('/') ? path : `/${path}`;
+    const domain = process.env.NEXT_PUBLIC_API_ENDPOINT?.replace('/api', '') || 'http://localhost:3001';
+    return `${domain}${cleanPath}`;
+  }
+  
+  return `${process.env.NEXT_PUBLIC_API_ENDPOINT}/v1/files/${path}`;
+};
+
 export default function ServicesPage() {
   const { t } = useTranslation();
   const [services, setServices] = useState<any[]>([]);
@@ -210,7 +229,7 @@ export default function ServicesPage() {
       nameServAr: service.nameServAr, nameServFr: service.nameServFr, nameServEn: service.nameServEn || '',
       descrAr: service.descrAr || '', descrFr: service.descrFr || '', descrEn: service.descrEn || ''
     });
-    setEditImagePreview(service.image?.path ? (service.image.path.startsWith('http') ? service.image.path : `${process.env.NEXT_PUBLIC_API_ENDPOINT?.replace('/api', '')}/${service.image.path}`) : null);
+    setEditImagePreview(service.image?.path ? getImageUrl(service.image.path) : null);
     setIsEditModalOpen(true);
   };
 
@@ -458,11 +477,7 @@ export default function ServicesPage() {
                     <div className="w-12 h-12 rounded-xl bg-gray-100 flex items-center justify-center overflow-hidden border border-gray-200 shadow-sm">
                       {s.image?.path ? (
                         <img
-                          src={
-                            s.image.path.startsWith('http')
-                              ? s.image.path
-                              : `${process.env.NEXT_PUBLIC_API_ENDPOINT?.replace('/api', '')}${s.image.path}`
-                          }
+                          src={getImageUrl(s.image.path)}
                           className="w-full h-full object-cover transition-transform hover:scale-110"
                           alt={s.nameServAr}
                           onError={(e) => {

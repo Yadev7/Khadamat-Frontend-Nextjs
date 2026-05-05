@@ -307,6 +307,31 @@
         "deleted_success": "{item} is deleted successfully.",
         "actions": "Actions"
       }
+    },
+    "business": {
+      "title": "Business",
+      "subtitle": "Manage your business",
+      "add_business": "Add Business",
+      "edit_business": "Edit Business",
+      "delete_business": "Delete Business",
+      "business_added_success": "Business added successfully.",
+      "business_updated_success": "Business updated successfully.",
+      "business_deleted_success": "Business deleted successfully.",
+      "business_not_found": "Business not found.",
+      "business_not_found_description": "The business you are looking for does not exist or has been deleted.",
+      "add_business_title": "Add New Business",
+      "add_business_description": "Add a new business to the platform",
+      "edit_business_title": "Edit Business",
+      "edit_business_description": "Edit the business information",
+      "delete_business_title": "Delete Business",
+      "delete_business_description": "Delete the business information",
+      "business_directory": "Business Directory",
+      "business_directory_description": "Directory of businesses and services available in Morocco",
+      "create_new_business": "Create New Business",
+      "create_new_business_description": "Complete the 5 steps to add a new entry to the database",
+      "managing": "Managing",
+      "back_to_directory": "Back to Directory",
+      "records": "records"
     }
   }
 }

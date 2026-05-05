@@ -2,9 +2,9 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { useTranslation } from "react-i18next";
-import { 
-  Trash2, Plus, Pencil, Loader2, X, 
-  MapPin, Building2 
+import {
+  Trash2, Plus, Pencil, Loader2, X,
+  MapPin, Building2
 } from "lucide-react";
 import Swal from 'sweetalert2';
 
@@ -133,18 +133,18 @@ export default function CityAreasPage() {
             <form onSubmit={handleSubmit} className="space-y-5">
               <div>
                 <label className="block text-xs font-black uppercase text-slate-400 mb-2 px-1">City</label>
-                <select required className="w-full bg-slate-50 border-none rounded-2xl p-4 text-slate-800 font-bold outline-none" value={formData.cityId} onChange={(e) => setFormData({...formData, cityId: e.target.value})}>
+                <select required className="w-full bg-slate-50 border-none rounded-2xl p-4 text-slate-800 font-bold outline-none" value={formData.cityId} onChange={(e) => setFormData({ ...formData, cityId: e.target.value })}>
                   <option value="">-- Select City --</option>
                   {cities.map(c => (<option key={c.id} value={c.id}>{isAr ? c.nameAr : c.nameFr}</option>))}
                 </select>
               </div>
               <div>
                 <label className="block text-xs font-black uppercase text-slate-400 mb-2 px-1">Name (Arabic)</label>
-                <input type="text" required className="w-full bg-slate-50 border-none rounded-2xl p-4 text-slate-800 font-bold outline-none" value={formData.nameAr} onChange={(e) => setFormData({...formData, nameAr: e.target.value})} />
+                <input type="text" required className="w-full bg-slate-50 border-none rounded-2xl p-4 text-slate-800 font-bold outline-none" value={formData.nameAr} onChange={(e) => setFormData({ ...formData, nameAr: e.target.value })} />
               </div>
               <div>
                 <label className="block text-xs font-black uppercase text-slate-400 mb-2 px-1">Name (French)</label>
-                <input type="text" required className="w-full bg-slate-50 border-none rounded-2xl p-4 text-slate-800 font-bold outline-none" value={formData.nameFr} onChange={(e) => setFormData({...formData, nameFr: e.target.value})} />
+                <input type="text" required className="w-full bg-slate-50 border-none rounded-2xl p-4 text-slate-800 font-bold outline-none" value={formData.nameFr} onChange={(e) => setFormData({ ...formData, nameFr: e.target.value })} />
               </div>
               <button type="submit" className="w-full bg-violet-600 text-white py-4 rounded-2xl font-black shadow-lg mt-4">{editingArea ? 'Update' : 'Create'}</button>
             </form>

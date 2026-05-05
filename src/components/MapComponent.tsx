@@ -1,10 +1,11 @@
 'use client';
 
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, useMap, Popup } from 'react-leaflet';
 import L from 'leaflet';
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
+import 'leaflet/dist/leaflet.css';
 
-// Fix for default Leaflet icons in Next.js
+// Fix for Marker icons in Next.js
 const redIcon = typeof window !== 'undefined' ? new L.Icon({
   iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
@@ -14,39 +15,61 @@ const redIcon = typeof window !== 'undefined' ? new L.Icon({
   shadowSize: [41, 41],
 }) : null;
 
-function MapViewUpdater({ center, markers }: { center?: [number, number], markers: any[] }) {
+function MapViewUpdater({ center, zoom }: { center: [number, number], zoom: number }) {
   const map = useMap();
 
   useEffect(() => {
-    if (markers.length > 0) {
-      const group = new L.FeatureGroup(markers.map(m => L.marker(m.position)));
-      map.fitBounds(group.getBounds().pad(0.1));
-    } else if (center) {
-      map.flyTo(center, 13);
+    if (!center || !Array.isArray(center) || center.length < 2) return;
+    
+    const lat = parseFloat(String(center[0]));
+    const lng = parseFloat(String(center[1]));
+    
+    // Strict numeric check
+    if (isFinite(lat) && isFinite(lng) && !isNaN(lat) && !isNaN(lng)) {
+      const timer = setTimeout(() => {
+        try {
+          map.flyTo([lat, lng], zoom, {
+            duration: 1.5,
+            easeLinearity: 0.25
+          });
+          map.invalidateSize();
+        } catch (e) {
+          console.error("Leaflet flyTo error:", e);
+        }
+      }, 100);
+      return () => clearTimeout(timer);
     }
-  }, [center, markers, map]);
+  }, [center, zoom, map]);
 
   return null;
 }
 
-interface MapMarker {
-  position: [number, number];
-  label: string;
-}
-
 interface MapComponentProps {
   center?: [number, number];
-  markers?: MapMarker[];
+  markers?: any[];
 }
 
 export default function MapComponent({ center, markers = [] }: MapComponentProps) {
   const defaultPosition: [number, number] = [34.0331, -5.0003]; // Fes
 
+  // Extremely strict coordinate extraction
+  let activeCenter: [number, number] = defaultPosition;
+  let zoomLevel = 12;
+
+  if (center && Array.isArray(center) && center.length >= 2) {
+    const parsedLat = parseFloat(String(center[0]));
+    const parsedLng = parseFloat(String(center[1]));
+    if (isFinite(parsedLat) && isFinite(parsedLng) && !isNaN(parsedLat) && !isNaN(parsedLng)) {
+      activeCenter = [parsedLat, parsedLng];
+      zoomLevel = 14;
+    }
+  }
+
   return (
     <div className="h-full w-full relative z-0">
       <MapContainer
-        center={center || defaultPosition}
-        zoom={13}
+        center={activeCenter}
+        zoom={12}
         scrollWheelZoom={true}
         className="h-full w-full"
       >
@@ -62,7 +85,7 @@ export default function MapComponent({ center, markers = [] }: MapComponentProps
           )
         ))}
 
-        <MapViewUpdater center={center} markers={markers} />
+        <MapViewUpdater center={activeCenter} zoom={zoomLevel} />
       </MapContainer>
     </div>
   );

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { X, Upload, CheckCircle2, Music, Video, FileStack, Globe, MessageSquare, ShieldCheck, Loader2 } from "lucide-react";
-import { api, createBusiness } from "@/api/businesses-api";
+import { api, createBusiness, CreateBusinessData } from "@/api/businesses-api";
 import { uploadFile } from "@/api/members-api";
 import { useTranslation } from "react-i18next";
 
@@ -56,34 +56,209 @@ export default function AddBusinessModal({ isOpen, onClose, onSuccess }: any) {
         }
     };
 
+    // const handleSubmit = async (e: React.FormEvent) => {
+    //     e.preventDefault();
+    //     if (!files.flyer) {
+    //         alert("Please upload a flyer image.");
+    //         return;
+    //     }
+
+    //     if (!formData.contactId) {
+    //         alert("Please select a contact address.");
+    //         return;
+    //     }
+    //     setLoading(true);
+
+    //     try {
+    //         const uploadedFiles: any = {};
+    //         const uploadPromises = Object.entries(files).map(async ([key, file]) => {
+    //             if (file) {
+    //                 const res = await uploadFile(file);
+    //                 if (res && res.id) uploadedFiles[key] = { id: res.id };
+    //             }
+    //         });
+    //         await Promise.all(uploadPromises);
+
+    //         const payload = {
+    //             ...formData,
+    //             owner: formData.ownerId ? { id: formData.ownerId } : undefined,
+    //             manager: { id: formData.managerId || formData.ownerId },
+    //             contact: { id: formData.contactId },
+    //             service: formData.serviceId ? { id: formData.serviceId } : undefined,
+    //             ...uploadedFiles,
+    //         };
+
+    //         await createBusiness(payload);
+    //         onSuccess();
+    //         onClose();
+    //     } catch (err: any) {
+    //         console.error("Submission Error:", err.response?.data);
+    //         alert(err.response?.data?.message || "Error creating business");
+    //     } finally {
+    //         setLoading(false);
+    //     }
+    // };
+
+
+
+    // const handleSubmit = async (e: React.FormEvent) => {
+    //     e.preventDefault();
+    //     if (!files.flyer) {
+    //         alert("Please upload a flyer image.");
+    //         return;
+    //     }
+
+    //     if (!formData.contactId) {
+    //         alert("Please select a contact address.");
+    //         return;
+    //     }
+    //     setLoading(true);
+
+    //     try {
+    //         const uploadedFiles: any = {};
+
+    //         // Use a standard loop or Promise.all to ensure we catch all IDs
+    //         const fileEntries = Object.entries(files);
+
+    //         for (const [key, file] of fileEntries) {
+    //             if (file) {
+    //                 const res = await uploadFile(file);
+    //                 if (res && res.id) {
+    //                     /** 
+    //                      * FIX: Map the key 'flyer' to 'flyerId', 'audioAr' to 'audioArId', etc.
+    //                      * This matches your database column names.
+    //                      */
+    //                     uploadedFiles[`${key}Id`] = res.id;
+    //                 }
+    //             }
+    //         }
+
+    //         const payload = {
+    //             ...formData,
+    //             // Ensure relations are handled as expected by your NestJS/TypeORM setup
+    //             ownerId: formData.ownerId || null,
+    //             managerId: formData.managerId || formData.ownerId || null,
+    //             contactId: formData.contactId || null,
+    //             serviceId: formData.serviceId || null,
+
+    //             // This now contains flyerId, audioArId, videoFrId, etc.
+    //             ...uploadedFiles,
+    //         };
+
+    //         // Log to verify the payload before sending
+    //         console.log("Final Payload:", payload);
+
+    //         await createBusiness(payload);
+    //         onSuccess();
+    //         onClose();
+    //     } catch (err: any) {
+    //         console.error("Submission Error:", err.response?.data);
+    //         alert(err.response?.data?.message || "Error creating business");
+    //     } finally {
+    //         setLoading(false);
+    //     }
+    // };
+
+
+
+
+    // const handleSubmit = async (e: React.FormEvent) => {
+    //     e.preventDefault();
+
+    //     // 1. Basic Validation
+    //     if (!files.flyer) {
+    //         alert("Please upload a flyer image.");
+    //         return;
+    //     }
+    //     if (!formData.contactId) {
+    //         alert("Please select a contact address.");
+    //         return;
+    //     }
+
+    //     setLoading(true);
+
+    //     try {
+    //         // 2. Upload all files and collect their IDs
+    //         const uploadedFileIds: any = {};
+    //         const fileEntries = Object.entries(files);
+
+    //         for (const [key, file] of fileEntries) {
+    //             if (file) {
+    //                 const res = await uploadFile(file);
+    //                 if (res && res.id) {
+    //                     // Map 'flyer' to 'flyerId', 'audioAr' to 'audioArId', etc.
+    //                     uploadedFileIds[`${key}Id`] = res.id;
+    //                 }
+    //             }
+    //         }
+
+    //         // 3. Construct the Payload
+    //         // We ensure ownerId and managerId are sent as top-level keys
+    //         const payload = {
+    //             ...formData,
+    //             // Map form IDs to the foreign key columns expected by the DB
+    //             ownerId: formData.ownerId,
+    //             managerId: formData.managerId || formData.ownerId, // Default manager to owner if empty
+    //             contactId: formData.contactId,
+    //             serviceId: formData.serviceId,
+
+    //             // Spread the file IDs (flyerId, audioArId, etc.)
+    //             ...uploadedFileIds,
+    //         };
+
+    //         // 4. Send to Backend
+    //         await createBusiness(payload);
+
+    //         onSuccess();
+    //         onClose();
+    //     } catch (err: any) {
+    //         console.error("Submission Error:", err.response?.data);
+    //         alert(err.response?.data?.message || "Error creating business");
+    //     } finally {
+    //         setLoading(false);
+    //     }
+    // };
+
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!files.flyer) {
-            alert("Please upload a flyer image.");
+        
+        if (!formData.ownerId) {
+            alert("Please select an owner.");
             return;
         }
         if (!formData.contactId) {
             alert("Please select a contact address.");
             return;
         }
+
         setLoading(true);
 
         try {
             const uploadedFiles: any = {};
-            const uploadPromises = Object.entries(files).map(async ([key, file]) => {
+            for (const [key, file] of Object.entries(files)) {
                 if (file) {
                     const res = await uploadFile(file);
-                    if (res && res.id) uploadedFiles[key] = { id: res.id };
+                    if (res?.id) {
+                        // Backend expects 'flyer', 'audioAr', etc. as objects { id: string }
+                        uploadedFiles[key] = { id: res.id };
+                    }
                 }
-            });
-            await Promise.all(uploadPromises);
+            }
 
-            const payload = {
-                ...formData,
-                owner: formData.ownerId ? { id: formData.ownerId } : undefined,
+            const payload: CreateBusinessData = {
+                nameFr: formData.nameFr,
+                nameAr: formData.nameAr,
+                nameEn: formData.nameEn,
+                descrFr: formData.descrFr,
+                descrAr: formData.descrAr,
+                descrEn: formData.descrEn,
+                socialMedia: formData.socialMedia,
+                businessUrlSite: formData.businessUrlSite,
+                owner: { id: formData.ownerId },
                 manager: { id: formData.managerId || formData.ownerId },
                 contact: { id: formData.contactId },
-                service: formData.serviceId ? { id: formData.serviceId } : undefined,
+                service: formData.serviceId ? { id: formData.serviceId } : null,
                 ...uploadedFiles,
             };
 
@@ -91,12 +266,13 @@ export default function AddBusinessModal({ isOpen, onClose, onSuccess }: any) {
             onSuccess();
             onClose();
         } catch (err: any) {
-            console.error("Submission Error:", err.response?.data);
+            console.error("Submission Error:", err.response?.data || err.message);
             alert(err.response?.data?.message || "Error creating business");
         } finally {
             setLoading(false);
         }
     };
+
 
     if (!isOpen) return null;
 
@@ -200,6 +376,7 @@ export default function AddBusinessModal({ isOpen, onClose, onSuccess }: any) {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <textarea name="descrFr" placeholder="Description détaillée (FR)" className="input-style min-h-[100px]" onChange={handleInputChange} />
                             <textarea name="descrAr" placeholder="وصف مفصل (AR)" dir="rtl" className="input-style min-h-[100px] text-right" onChange={handleInputChange} />
+                            <textarea name="descrEn" placeholder="Description détaillée (EN)" className="input-style min-h-[100px]" onChange={handleInputChange} />
                         </div>
                     </div>
 

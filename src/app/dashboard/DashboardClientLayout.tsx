@@ -4,12 +4,12 @@ import React, { ReactNode } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import AuthGuard from '@/components/AuthGuard';
 import Link from 'next/link';
-import { 
-  LayoutDashboard, 
-  Settings, 
-  Users, 
-  Briefcase, 
-  LogOut 
+import {
+  LayoutDashboard,
+  Settings,
+  Users,
+  Briefcase,
+  LogOut
 } from 'lucide-react';
 
 import { useTranslation } from "react-i18next";
@@ -22,16 +22,16 @@ export default function DashboardClientLayout({ children }: { children: ReactNod
   const currentDir = i18n.language === 'ar' ? 'rtl' : 'ltr';
 
   const menuItems = [
-    { 
-      name: t('dashboard.sidebar.home'), 
-      icon: <LayoutDashboard size={20} />, 
-      href: '/dashboard' 
+    {
+      name: t('dashboard.sidebar.home'),
+      icon: <LayoutDashboard size={20} />,
+      href: '/dashboard'
     },
 
-        { 
-      name: t('dashboard.sidebar.infos-general'), 
-      icon: <LayoutDashboard size={20} />, 
-      href: '/dashboard/infos-general' 
+    {
+      name: t('dashboard.sidebar.infos-general'),
+      icon: <LayoutDashboard size={20} />,
+      href: '/dashboard/infos-general'
     },
 
     // { 
@@ -39,31 +39,31 @@ export default function DashboardClientLayout({ children }: { children: ReactNod
     //   icon: <Briefcase size={20} />, 
     //   href: '/dashboard/services' 
     // },
-    { 
-      name: t('dashboard.sidebar.members'), 
-      icon: <Users size={20} />, 
-      href: '/dashboard/members' 
+    {
+      name: t('dashboard.sidebar.members'),
+      icon: <Users size={20} />,
+      href: '/dashboard/members'
     },
     {
       name: t('dashboard.sidebar.business'),
       icon: <Briefcase size={20} />,
       href: '/dashboard/business'
     },
-    { 
-      name: t('dashboard.sidebar.settings'), 
-      icon: <Settings size={20} />, 
-      href: '/dashboard/settings' 
+    {
+      name: t('dashboard.sidebar.settings'),
+      icon: <Settings size={20} />,
+      href: '/dashboard/settings'
     },
   ];
 
   return (
     <AuthGuard>
       {/* Set the direction dynamically here */}
-      <div 
-        dir={currentDir} 
+      <div
+        dir={currentDir}
         className="flex min-h-screen bg-gray-50 dark:bg-black text-gray-900 dark:text-white"
       >
-        
+
         {/* Sidebar */}
         <aside className="w-64 bg-white dark:bg-gray-900 border-e border-gray-200 dark:border-gray-800 hidden md:flex flex-col">
           <div className="p-6">
@@ -71,7 +71,7 @@ export default function DashboardClientLayout({ children }: { children: ReactNod
               {t('dashboard.sidebar.name')}
             </h2>
           </div>
-          
+
           <nav className="flex-1 px-4 space-y-2">
             {menuItems.map((item) => (
               <Link
@@ -86,7 +86,7 @@ export default function DashboardClientLayout({ children }: { children: ReactNod
             ))}
           </nav>
 
-          <div className="p-4 border-t border-gray-200 dark:border-gray-800">
+          {/* <div className="p-4 border-t border-gray-200 dark:border-gray-800">
             <button 
               onClick={() => logout()}
               className="flex items-center gap-3 w-full px-4 py-3 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-xl transition-all"
@@ -94,7 +94,7 @@ export default function DashboardClientLayout({ children }: { children: ReactNod
               <LogOut size={20} />
               <span className="font-medium">{t('sidebar_dashboard.logout')}</span>
             </button>
-          </div>
+          </div> */}
         </aside>
 
         {/* Main Content Area */}

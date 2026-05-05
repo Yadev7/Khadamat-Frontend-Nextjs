@@ -13,7 +13,7 @@ api.interceptors.request.use((config) => {
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
-    return config;
+  return config;
 });
 
 api.interceptors.response.use(
@@ -22,7 +22,7 @@ api.interceptors.response.use(
     if (error.response?.status === 401) {
       console.error("الجلسة انتهت! يتم التوجيه لصفحة تسجيل الدخول...");
       Cookies.remove('auth_token');
-        if (typeof window !== 'undefined') {
+      if (typeof window !== 'undefined') {
         window.location.href = '/sign-in';
       }
     }
@@ -31,9 +31,16 @@ api.interceptors.response.use(
 );
 
 // 1. Get All City Areas
+// export const getCityAreas = async () => {
+//   const response = await api.get('/v1/city-areas');
+//   return response.data?.data || [];
+// };
+
 export const getCityAreas = async () => {
-  const response = await api.get('/v1/city-areas');
-  return response.data?.data || []; 
+  const response = await api.get('/v1/city-areas', {
+    params: { relations: 'localisation' } // Add this to get coordinates
+  });
+  return response.data?.data || [];
 };
 
 export const getCityAreaById = async (id: string) => {
@@ -48,20 +55,20 @@ export const createCityArea = async (data: any) => {
 };
 
 export const updateCityArea = async (id: string, data: any) => {
-    console.log(`Updating City Area ID ${id} with Payload:`, JSON.stringify(data, null, 2));
-    const response = await api.patch(`/v1/city-areas/${id}`, data);
-    return response.data;
+  console.log(`Updating City Area ID ${id} with Payload:`, JSON.stringify(data, null, 2));
+  const response = await api.patch(`/v1/city-areas/${id}`, data);
+  return response.data;
 };
 
 
 export const deleteCityArea = async (id: string) => {
-    const response = await api.delete(`/v1/city-areas/${id}`);
-    return response.data;
+  const response = await api.delete(`/v1/city-areas/${id}`);
+  return response.data;
 };
 
 
 export const getCityAreasByCityId = async (cityId: string) => {
   const response = await api.get(`/v1/city-areas?cityId=${cityId}`);
   return response.data?.data || [];
-}   
+}
 

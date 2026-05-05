@@ -17,110 +17,137 @@ api.interceptors.request.use((config) => {
 });
 
 
-// GET all businesses with pagination
-// export const getBusinesses = async (page = 1, limit = 10) => {
-//   // Add /v1/ if it's not in your env variable
-//   const response = await api.get('/v1/businesses', { 
-//     params: { page, limit }
-//   });
+
+
+// Fetch Services for Step 1
+export const getServicesList = async () => {
+  const response = await api.get('/v1/services');
+  console.log("services", response.data);
+  return response.data; // Adjust based on your API structure (e.g., response.data.data)
+};
+
+// Fetch Members/Owners for Step 1
+// export const getMembersList = async () => {
+//   const response = await api.get('/v1/members');
+//   console.log("members", response.data);
 //   return response.data;
 // };
 
 
-// export const getBusinesses = async (p0: number, p1: number, p2: { cityId: string | null; serviceId: string | null; zoneId: string | null; }, params: { cityId?: string; service?: string; zoneId?: string; page?: number; limit?: number; }) => {
-//   const response = await api.get('/v1/businesses', {
-//     params: {
-//       ...params,
-//       // We ensure the backend knows we need the full nested relation chain
-//       relations: 'contact.address.localisation,service'
-//     }
-//   });
-//   return response.data;
-// };
-
-
-// export const getBusinesses = async (page: number, limit: number, params: {
-//   cityId?: string | null;
-//   service?: string | null;
-//   zoneId?: string | null;
-// } = {}) => {
-//   // إذا كنت تستخدم Strapi، يجب كتابة الفلتر بهذا الشكل:
-//   const formattedParams: any = {
-//     page,
-//     limit,
-//     relations: 'contact.address.localisation,service,flyer'
-//   };
-
-//   // تعديل المفاتيح لتناسب نظام الفلترة في السيرفر
-//   if (params.service) formattedParams['filters[service][id]'] = params.service;
-//   if (params.cityId) formattedParams['filters[city][id]'] = params.cityId;
-//   if (params.zoneId) formattedParams['filters[zone][id]'] = params.zoneId;
-
-//   const response = await api.get('/v1/businesses', { params: formattedParams });
-//   return response.data;
-// };
-
-
-// export const getBusinesses = async (
-//   page: number = 1,
-//   limit: number = 10,
-//   params: {
-//     cityId?: string | null;
-//     service?: string | null;
-//     zoneId?: string | null;
-//   } = {}
-// ) => {
-//   // We construct the query object
-//   // If your backend uses the 'boilerplate' style, it might expect 'filters'
-//   // But let's try the direct approach first with exact key matches.
-//   const response = await api.get('/v1/businesses', {
-//     params: {
-//       page,
-//       limit,
-//       // Ensure these keys match what your NestJS Controller @Query() expects
-//       cityId: params.cityId || undefined,
-//       serviceId: params.service || undefined, // Changed 'service' to 'serviceId' common in Nest
-//       zoneId: params.zoneId || undefined,
-//       // Load necessary data for the UI cards
-//       relations: 'service,flyer,contact.address.localisation'
-//     }
-//   });
-//   return response.data;
-// };
-
-
-
-export const getBusinesses = async (
-  page: number = 1,
-  limit: number = 10,
-  params: {
-    cityId?: string | null;
-    service?: string | null;
-    zoneId?: string | null;
-  } = {}
-) => {
-  const response = await api.get('/v1/businesses', {
+export const getMembersList = async () => {
+  const response = await api.get('/v1/members', {
     params: {
-      page,
-      limit,
-      // We only send the service if it exists. 
-      // Note: check if your backend expects 'serviceId' or 'service'
-      service: params.service || undefined,
-      
-      // Explicitly loading relations so the UI cards don't look empty
-      relations: 'service,flyer' 
+      // Some backends use 'relations', others use 'join', others use 'populate'
+      relations: 'contact',
+      populate: 'contact',
+      join: 'contact'
     }
   });
   return response.data;
 };
 
+// Fetch Contacts for Step 2
+// export const getContactsList = async () => {
+//   const response = await api.get('/v1/contacts');
+//   console.log(response.data);
+//   return response.data;
+// };
 
-// CREATE a new business
-// This is the missing function causing your error
-export const createBusiness = async (payload: any) => {
-  const response = await api.post('/v1/businesses', payload);
+// export const getContactsList = async () => {
+//   const response = await api.get('/v1/contacts', {
+//     params: {
+//       relations: 'address.localisation' // Crucial for showing the street/city
+//     }
+//   });
+//   return response.data;
+// };
+
+
+// export const getContactsList = async () => {
+//   const response = await api.get('/v1/contacts', {
+//     params: { relations: 'address' }
+//   });
+//   return response.data;
+// };
+
+
+export const getContactsList = async () => {
+  const response = await api.get('/v1/contacts', {
+    params: {
+      relations: 'address' // Mandatory to see the street, city, etc.
+    }
+  });
   return response.data;
 };
+
+export const getBusinesses = async (
+  page: number = 1,
+  limit: number = 20,
+  filters: {
+    cityId?: string | null;
+    service?: string | null;
+    zoneId?: string | null;
+  } = {},
+  relations: string = 'service,flyer,contact.address.localisation,owner'
+) => {
+  const response = await api.get('/v1/businesses', {
+    params: {
+      page,
+      limit,
+      ...filters,
+      relations
+    }
+  });
+  return response.data;
+};
+
+export const uploadFile = async (file: File) => {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  const response = await api.post('/v1/files/upload', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+  return response.data;
+};
+
+
+// This is the missing function causing your error
+// export const createBusiness = async (payload: any) => {
+//   const response = await api.post('/v1/businesses', payload);
+//   return response.data;
+// };
+
+
+
+export interface CreateBusinessData {
+  nameFr: string;
+  nameAr: string;
+  nameEn?: string;
+  descrFr?: string;
+  descrAr?: string;
+  descrEn?: string;
+  socialMedia?: string;
+  businessUrlSite?: string;
+  owner: { id: string };
+  manager: { id: string };
+  service?: { id: string } | null;
+  contact: { id: string };
+  flyer?: { id: string } | null;
+  audioAr?: { id: string } | null;
+  audioFr?: { id: string } | null;
+  audioEn?: { id: string } | null;
+  videoAr?: { id: string } | null;
+  videoFr?: { id: string } | null;
+  videoEn?: { id: string } | null;
+}
+
+export const createBusiness = async (data: CreateBusinessData) => {
+  const response = await api.post('/v1/businesses', data);
+  return response.data;
+}
 
 // DELETE a business
 export const deleteBusiness = async (id: string) => {

@@ -295,6 +295,31 @@
         "service_tab": "الخدمة",
         "city_area_tab": "منطقة المدينة"
       }
+    },
+    "business": {
+      "title": "الأعمال",
+      "subtitle": "إدارة الأعمال الخاصة بك",
+      "add_business": "إضافة عمل",
+      "edit_business": "تعديل العمل",
+      "delete_business": "حذف العمل",
+      "business_added_success": "تمت إضافة العمل بنجاح.",
+      "business_updated_success": "تم تحديث العمل بنجاح.",
+      "business_deleted_success": "تم حذف العمل بنجاح.",
+      "business_not_found": "العمل غير موجود.",
+      "business_not_found_description": "العمل الذي تبحث عنه غير موجود أو تم حذفه.",
+      "add_business_title": "إضافة عمل جديد",
+      "add_business_description": "إضافة عمل جديد إلى المنصة",
+      "edit_business_title": "تعديل العمل",
+      "edit_business_description": "تعديل معلومات العمل",
+      "delete_business_title": "حذف العمل",
+      "delete_business_description": "حذف معلومات العمل",
+      "business_directory": "دليل الأعمال",
+      "business_directory_description": "دليل الأعمال والخدمات المتاحة في المغرب",
+      "create_new_business": "إضافة عمل جديد",
+      "create_new_business_description": "أكمل 5 خطوات لإضافة إدخال جديد إلى قاعدة البيانات",
+      "managing": "إدارة",
+      "back_to_directory": "العودة إلى الدليل",
+      "records": "سجلات"
     }
   }
 }

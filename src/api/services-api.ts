@@ -9,21 +9,6 @@ const api = axios.create({
 });
 
 
-// api.interceptors.request.use(
-//   (config) => {
-//     const token = Cookies.get('auth_token');
-    
-//     if (token) {
-//       // Use the specific header assignment to ensure it's set
-//       config.headers.Authorization = `Bearer ${token}`;
-//       console.log("Token attached to request");
-//     } 
-//     return config;
-//   },
-//   (error) => Promise.reject(error)
-// );
-
-
 api.interceptors.request.use((config) => {
   const token = Cookies?.get('auth_token');
 
@@ -35,46 +20,9 @@ api.interceptors.request.use((config) => {
 });
 
 
-// Interceptor للاستجابات الواردة (لمعالجة الـ 401 تلقائياً)
-// api.interceptors.response.use(
-//   (response) => response,
-//   (error) => {
-//     if (error.response?.status === 401) {
-//       console.error("Unauthorized! Redirecting to login...");
-//       // يمكنك هنا إضافة logic لتوجيه المستخدم لصفحة تسجيل الدخول
-//     }
-//     return Promise.reject(error);
-//   }
-// );
-
-// export const getServices = async () => {
-//   const token = Cookies?.get('auth_token');
-//   if(token) {
-//     console.log("Token found in getServices:", token);
-//      const response = await api.get('/v1/services');
-//    return response.data.data || response.data;
-//   }else{
-//     return []; // أو يمكنك رمي خطأ أو إعادة قيمة افتراضية حسب حاجتك
-//   }
-  
-// };
-
-
 export const getServices = async () => {
-  const token = Cookies?.get('auth_token');
-
-  if (token) {
-
-    const response = await api.get('/v1/services', {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    return response.data.data || response.data;
-  } else {
-    return [];
-  }
+  const response = await api.get('/v1/services');
+  return response.data?.data || response.data || [];
 };
 
 export const uploadFile = async (file: File) => {
@@ -86,17 +34,17 @@ export const uploadFile = async (file: File) => {
       'Content-Type': 'multipart/form-data',
     },
   });
-  return response.data; 
+  return response.data;
 };
 
-export const createService = async (data: { 
-  nameServAr: string; 
-  nameServFr: string; 
+export const createService = async (data: {
+  nameServAr: string;
+  nameServFr: string;
   nameServEn?: string;
   descrAr?: string;
   descrFr?: string;
   descrEn?: string;
-  image?: { id: string | number }; 
+  image?: { id: string | number };
 }) => {
   const response = await api.post('/v1/services', data);
   return response.data;

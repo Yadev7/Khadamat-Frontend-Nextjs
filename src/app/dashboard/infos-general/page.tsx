@@ -47,7 +47,7 @@ export default function GeneraleInfos() {
        try {
         const data = await getCountries();
         setCountries(data);
-      } catch (error) {
+      } catch (error: any) {
         console.error("Error fetching countries:", error);
         if (error.response?.status === 401) {
           console.error("الجلسة انتهت! يتم التوجيه لصفحة تسجيل الدخول...");
@@ -61,7 +61,7 @@ export default function GeneraleInfos() {
       // Placeholder for fetching cities data
       const data = await getCities();
       setCities(data);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error fetching cities:", error);
       if (error.response?.status === 401) {
         console.error("الجلسة انتهت! يتم التوجيه لصفحة تسجيل الدخول...");
@@ -75,7 +75,7 @@ export default function GeneraleInfos() {
       const data = await getCityAreas();
       // Placeholder for fetching city areas data
       setAreas(data);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error fetching city areas:", error);
       if (error.response?.status === 401) {
         console.error("الجلسة انتهت! يتم التوجيه لصفحة تسجيل الدخول...");

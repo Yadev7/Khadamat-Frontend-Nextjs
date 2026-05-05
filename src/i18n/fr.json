@@ -307,6 +307,31 @@
         "deleted_success": "{item} a été supprimé avec succès.",
         "actions": "Actions"
       }
+    },
+    "business": {
+      "title": "Affaires",
+      "subtitle": "Gérer vos affaires",
+      "add_business": "Ajouter une affaire",
+      "edit_business": "Modifier l'affaire",
+      "delete_business": "Supprimer l'affaire",
+      "business_added_success": "L'affaire a été ajoutée avec succès.",
+      "business_updated_success": "L'affaire a été mise à jour avec succès.",
+      "business_deleted_success": "L'affaire a été supprimée avec succès.",
+      "business_not_found": "L'affaire n'a pas été trouvée.",
+      "business_not_found_description": "L'affaire que vous recherchez n'existe pas ou a été supprimée.",
+      "add_business_title": "Ajouter une nouvelle affaire",
+      "add_business_description": "Ajouter une nouvelle affaire à la plateforme",
+      "edit_business_title": "Modifier l'affaire",
+      "edit_business_description": "Modifier les informations de l'affaire",
+      "delete_business_title": "Supprimer l'affaire",
+      "delete_business_description": "Supprimer les informations de l'affaire",
+      "business_directory": "Annuaire des affaires",
+      "business_directory_description": "Annuaire des affaires et services disponibles au Maroc",
+      "create_new_business": "Créer une nouvelle affaire",
+      "create_new_business_description": "Complétez les 5 étapes pour ajouter une nouvelle entrée à la base de données",
+      "managing": "Gestion de",
+      "back_to_directory": "Retour à l'annuaire",
+      "records": "enregistrements"
     }
   }
 }

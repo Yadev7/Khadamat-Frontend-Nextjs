@@ -29,17 +29,8 @@ const Header = () => {
 
   const handleLogout = async () => {
     try {
-      const response = await fetch("http://127.0.0.1:3001/logout", {
-        method: "POST",
-        credentials: "include"
-      });
-
-      if (response.ok) {
-        clearAuthContext();
-        localStorage.removeItem('user');
-        setIsProfileOpen(false);
-        router.replace("/sign-in");
-      }
+      await logout();
+      closeAllMenus();
     } catch (err) {
       console.error("Logout error:", err);
     }
@@ -99,8 +90,11 @@ const Header = () => {
                 >
                   <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-blue-500 to-indigo-600 p-0.5 shadow-md">
                     <div className="w-full h-full rounded-full bg-white dark:bg-gray-950 overflow-hidden flex items-center justify-center">
-                      {user.picture ? (
-                        <Image src={user.picture} alt="Profile" width={36} height={36} className="object-cover" />
+                      {(user.picture as string) || user.photo?.path ? (
+                        <Image 
+                          src={(user.picture as string) || (user.photo?.path ? `${process.env.NEXT_PUBLIC_API_ENDPOINT?.replace(/\/api$/, '') || 'http://127.0.0.1:3001'}/api/v1/files/${user.photo.path}` : '')} 
+                          alt="Profile" width={36} height={36} className="object-cover" 
+                        />
                       ) : (
                         <User size={18} className="text-blue-500" />
                       )}
@@ -108,7 +102,7 @@ const Header = () => {
                   </div>
                   <div className="hidden lg:block text-left">
                     <p className="text-xs font-bold text-gray-900 dark:text-gray-100 leading-none mb-1">
-                      {user?.name || user?.email?.split('@')[0]}
+                      {user?.firstName || user?.lastName ? `${user.firstName} ${user.lastName}` : user?.email?.split('@')[0]}
                     </p>
                     {/* <span className="text-[10px] px-1.5 py-0.5 bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 rounded uppercase tracking-wider font-bold">
                       {user?.role?.name}
