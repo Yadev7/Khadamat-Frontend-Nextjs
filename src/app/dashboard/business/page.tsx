@@ -7,7 +7,7 @@ import {
   Phone, Mail, MapPin, Map, Tag,
   Edit2
 } from "lucide-react";
-import { getBusinesses, deleteBusiness, createBusiness, uploadFile, updateBusiness } from "@/api/businesses-api";
+import { getBusinesses, deleteBusiness, createBusiness, uploadFile, updateBusiness, api } from "@/api/businesses-api";
 import { createMember } from "@/api/members-api";
 import { useTranslation } from "react-i18next";
 import { useForm, FormProvider } from "react-hook-form";
@@ -68,84 +68,326 @@ export default function BusinessesPage() {
 
   // AddBusinessPage.tsx (الجزء المتعلق بالرفع والـ Payload)
 
-const handleFinalSubmit = async (data: any) => {
+
+
+  const handleFinalSubmit = async (data: any) => {
     const MySwal = withReactContent(Swal);
+
     try {
-        MySwal.fire({
-            title: 'Saving...',
-            text: 'Processing files...',
-            allowOutsideClick: false,
-            didOpen: () => { Swal.showLoading(); }
-        });
+      // 1. إظهار مؤشر التحميل
+      MySwal.fire({
+        title: 'جاري الحفظ...',
+        text: 'يتم الآن معالجة البيانات ورفع الملفات، يرجى الانتظار.',
+        allowOutsideClick: false,
+        didOpen: () => { Swal.showLoading(); }
+      });
 
-        // دالة الرفع المحسنة
-        const upload = async (fileList: any) => {
-            if (fileList && fileList.length > 0) {
-                const res = await uploadFile(fileList[0]);
-                // استخراج الـ ID مهما كان هيكل الرد (res.id أو res.file.id)
-                const finalId = res?.id || res?.data?.id || res?.file?.id;
-                
-                if (!finalId) throw new Error("Failed to get file ID from server");
-                
-                return { id: String(finalId) }; // نرجعه ككائن يحتوي على ID نصي
-            }
-            return null;
-        };
-
-        // رفع كافة الملفات
-        const flyerData = await upload(data.flyer);
-        const audioArData = await upload(data.audioAr);
-        const audioEnData = await upload(data.audioEn);
-        const audioFrData = await upload(data.audioFr);
-        const videoArData = await upload(data.videoAr);
-        const videoEnData = await upload(data.videoEn);
-        const videoFrData = await upload(data.videoFr);
-
-        // صياغة الـ Payload النهائي بدقة
-        const payload = {
-            nameFr: data.nameFr,
-            nameAr: data.nameAr,
-            nameEn: data.nameEn || "",
-            descrFr: data.descrFr || "",
-            descrAr: data.descrAr || "",
-            descrEn: data.descrEn || "",
-            businessUrlSite: data.siteUrl || "",
-            socialMedia: data.socialMedia || "",
-
-            service: data.serviceId ? { id: data.serviceId } : null,
-            owner: { id: data.ownerId },
-            contact: { id: data.contactId },
-            manager: { id: data.ownerId }, // تبسيط حالياً
-
-            // إرسال الكائنات المعرفة فقط
-            flyer: flyerData, // سيكون { id: "..." }
-            audioAr: audioArData,
-            audioEn: audioEnData,
-            audioFr: audioFrData,
-            videoAr: videoArData,
-            videoEn: videoEnData,
-            videoFr: videoFrData,
-        };
-
-        // التأكد من الحقول الإجبارية قبل الإرسال
-        if (!payload.flyer) {
-            throw new Error("Flyer is required");
+      // 2. دالة رفع الملفات
+      const upload = async (fileList: any) => {
+        if (fileList && fileList.length > 0) {
+          const res = await uploadFile(fileList[0]);
+          const finalId = res?.id || res?.data?.id || res?.file?.id;
+          return finalId ? { id: String(finalId) } : null;
         }
+        return null;
+      };
 
-        await createBusiness(payload as any);
+      // 3. تنفيذ عمليات الرفع (Flyer, Audio, Video)
+      const flyerData = await upload(data.flyer);
+      const audioArData = await upload(data.audioAr);
+      const audioEnData = await upload(data.audioEn);
+      const audioFrData = await upload(data.audioFr);
+      const videoArData = await upload(data.videoAr);
+      const videoEnData = await upload(data.videoEn);
+      const videoFrData = await upload(data.videoFr);
 
-        MySwal.fire({ icon: 'success', title: 'Done!', timer: 2000, showConfirmButton: false });
-        methods.reset();
+      // 4. معالجة الموقع الجغرافي (Localisation -> Address)
+      // نتحقق مما إذا كان المستخدم قد اختار موقعاً جديداً على الخريطة
+      if (data.manualLatitude && data.manualLongitude) {
+        try {
+          // أ. إنشاء سجل Localisation جديد
+          // ملاحظة: استبدل المسار بمسار الـ API الفعلي لديك لإنشاء الإحداثيات
+          const locRes = await api.post('/v1/localisations', {
+            latitude: String(data.manualLatitude),
+            longitude: String(data.manualLongitude)
+          });
+          const newLocalisationId = locRes.data.id;
+
+          // ب. تحديث جدول Address ليرتبط بـ LocalisationId الجديد
+          // نحصل على addressId من جهة الاتصال المختارة (Current Contact)
+          const currentContact = businesses.find(b => b.contact.id === data.contactId)?.contact;
+          const addressId = currentContact?.address?.id;
+
+          if (addressId) {
+            await api.patch(`/v1/addresses/${addressId}`, {
+              localisation: { id: newLocalisationId }
+            });
+          }
+        } catch (err) {
+          console.error("خطأ في تحديث الموقع الجغرافي:", err);
+          // يمكننا الاستمرار حتى لو فشل تحديث الخريطة، أو إيقاف العملية حسب رغبتك
+        }
+      }
+
+      // 5. بناء الـ Payload النهائي للـ Business
+      const payload = {
+        nameFr: data.nameFr,
+        nameAr: data.nameAr,
+        nameEn: data.nameEn || "",
+        descrFr: data.descrFr || "",
+        descrAr: data.descrAr || "",
+        descrEn: data.descrEn || "",
+        businessUrlSite: data.siteUrl || "",
+        socialMedia: data.socialMedia || "",
+
+        // الربط مع الخدمات وجهات الاتصال (Relations)
+        service: data.serviceId ? { id: data.serviceId } : null,
+        owner: { id: data.ownerId },
+        contact: { id: data.contactId },
+        manager: { id: data.ownerId }, // يمكن تعديله ليكون managerId ديناميكي
+
+        // ربط الملفات المرفوعة
+        flyer: flyerData,
+        audioAr: audioArData,
+        audioEn: audioEnData,
+        audioFr: audioFrData,
+        videoAr: videoArData,
+        videoEn: videoEnData,
+        videoFr: videoFrData,
+      };
+
+      // 6. التحقق من الحقول الإجبارية (مثلاً الـ Flyer)
+      if (!payload.flyer) {
+        throw new Error("يجب اختيار صورة (Flyer) للنشاط التجاري.");
+      }
+
+      // 7. إرسال الطلب النهائي لإنشاء النشاط التجاري
+      await createBusiness(payload as any);
+
+      // 8. النجاح وتحديث الواجهة
+      await MySwal.fire({
+        icon: 'success',
+        title: 'تم بنجاح!',
+        text: 'تم إضافة النشاط التجاري وتحديث بيانات الموقع الجغرافي.',
+        timer: 2000,
+        showConfirmButton: false
+      });
+
+      // 9. تنظيف الفورم والعودة للقائمة وتحديث البيانات
+      methods.reset();
+      fetchData(); // جلب البيانات الجديدة من السيرفر
+      setView("list"); // العودة لواجهة القائمة
 
     } catch (error: any) {
-        console.error("API Error:", error);
-        MySwal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: error.message || error.response?.data?.message || "Submission failed"
-        });
+      console.error("❌ Submission Error:", error);
+      const msg = error.response?.data?.message || error.message || "حدث خطأ غير متوقع";
+
+      MySwal.fire({
+        icon: 'error',
+        title: 'فشلت العملية',
+        text: Array.isArray(msg) ? msg.join(', ') : msg
+      });
     }
-};
+  };
+
+
+  // const handleFinalSubmit = async (data: any) => {
+  //   const MySwal = withReactContent(Swal);
+
+  //   try {
+  //     // 1. إظهار مؤشر التحميل
+  //     MySwal.fire({
+  //       title: 'Saving...',
+  //       text: 'Uploading media files and creating your business entry',
+  //       allowOutsideClick: false,
+  //       didOpen: () => {
+  //         Swal.showLoading();
+  //       }
+  //     });
+
+  //     // 2. دالة مساعدة لرفع الملفات واستخراج المعرف (ID)
+  //     const upload = async (fileList: any) => {
+  //       if (fileList && fileList.length > 0) {
+  //         // استدعاء API الرفع
+  //         const res = await uploadFile(fileList[0]);
+  //         // استخراج المعرف بناءً على هيكل الرد المتوقع من NestJS
+  //         const finalId = res?.id || res?.data?.id || res?.file?.id;
+
+  //         if (!finalId) throw new Error("Failed to retrieve file ID from server");
+
+  //         return { id: String(finalId) }; // إرجاع كائن المعرف بتنسيق string
+  //       }
+  //       return null;
+  //     };
+
+  //     // 3. رفع كافة الملفات بشكل متوازي (اختياري للسرعة) أو تسلسلي
+  //     // سنستخدم التسلسلي هنا لضمان الاستقرار
+  //     const flyerData = await upload(data.flyer);
+  //     const audioArData = await upload(data.audioAr);
+  //     const audioEnData = await upload(data.audioEn);
+  //     const audioFrData = await upload(data.audioFr);
+  //     const videoArData = await upload(data.videoAr);
+  //     const videoEnData = await upload(data.videoEn);
+  //     const videoFrData = await upload(data.videoFr);
+
+  //     // 4. معالجة منطق المدير (Manager)
+  //     let managerId = data.ownerId;
+  //     if (data.managementType === "newManagedId") {
+  //       const memberPayload = {
+  //         typeMember: 'INDIVIDUAL',
+  //         user: { email: data.newManagerEmail },
+  //         contact: {
+  //           firstName: data.newManagerFirstName,
+  //           lastName: data.newManagerLastName,
+  //           firstNameAr: data.newManagerFirstNameAr,
+  //           lastNameAr: data.newManagerLastNameAr,
+  //           email: data.newManagerEmail,
+  //           phoneCell: String(data.newManagerPhone),
+  //         }
+  //       };
+  //       const newMemberRes = await createMember(memberPayload);
+  //       managerId = newMemberRes.id || newMemberRes.data?.id;
+  //     }
+
+  //     // 5. بناء الـ Payload النهائي المتوافق مع الـ Relations في NestJS
+  //     const payload = {
+  //       nameFr: data.nameFr,
+  //       nameAr: data.nameAr,
+  //       nameEn: data.nameEn || "",
+  //       descrFr: data.descrFr || "",
+  //       descrAr: data.descrAr || "",
+  //       descrEn: data.descrEn || "",
+  //       businessUrlSite: data.siteUrl || "",
+  //       socialMedia: data.socialMedia || "",
+
+  //       // الربط مع الجداول الأخرى عبر الـ IDs
+  //       service: data.serviceId ? { id: data.serviceId } : null,
+  //       owner: { id: data.ownerId },
+  //       contact: { id: data.contactId },
+  //       manager: { id: managerId },
+
+  //       // إسناد كائنات الملفات (تحتوي على id فقط)
+  //       flyer: flyerData,
+  //       audioAr: audioArData,
+  //       audioEn: audioEnData,
+  //       audioFr: audioFrData,
+  //       videoAr: videoArData,
+  //       videoEn: videoEnData,
+  //       videoFr: videoFrData,
+  //     };
+
+  //     // 6. التحقق النهائي من الحقول الإجبارية قبل الإرسال
+  //     if (!payload.flyer) {
+  //       throw new Error("Flyer image is mandatory for creating a business profile.");
+  //     }
+
+  //     // 7. استدعاء API الإنشاء
+  //     await createBusiness(payload as any);
+
+  //     // 8. عرض رسالة النجاح
+  //     await MySwal.fire({
+  //       icon: 'success',
+  //       title: 'Created Successfully!',
+  //       text: 'The business has been added to the directory.',
+  //       timer: 2000,
+  //       showConfirmButton: false
+  //     });
+
+  //     // 9. التحديث التلقائي للواجهة (الأهم لسؤالك)
+  //     methods.reset();      // تفريغ الفورم بالكامل
+  //     fetchData();          // إعادة جلب البيانات من السيرفر فوراً لتحديث القائمة
+  //     setView("list");      // العودة تلقائياً لواجهة القائمة (Grid View)
+
+  //   } catch (error: any) {
+  //     console.error("❌ Submission Error:", error);
+  //     const errorMessage = error.response?.data?.message || error.message || "An unexpected error occurred.";
+
+  //     MySwal.fire({
+  //       icon: 'error',
+  //       title: 'Action Failed',
+  //       text: Array.isArray(errorMessage) ? errorMessage.join(', ') : errorMessage
+  //     });
+  //   }
+  // };
+
+  // const handleFinalSubmit = async (data: any) => {
+  //     const MySwal = withReactContent(Swal);
+  //     try {
+  //         MySwal.fire({
+  //             title: 'Saving...',
+  //             text: 'Processing files...',
+  //             allowOutsideClick: false,
+  //             didOpen: () => { Swal.showLoading(); }
+  //         });
+
+  //         // دالة الرفع المحسنة
+  //         const upload = async (fileList: any) => {
+  //             if (fileList && fileList.length > 0) {
+  //                 const res = await uploadFile(fileList[0]);
+  //                 // استخراج الـ ID مهما كان هيكل الرد (res.id أو res.file.id)
+  //                 const finalId = res?.id || res?.data?.id || res?.file?.id;
+
+  //                 if (!finalId) throw new Error("Failed to get file ID from server");
+
+  //                 return { id: String(finalId) }; // نرجعه ككائن يحتوي على ID نصي
+  //             }
+  //             return null;
+  //         };
+
+  //         // رفع كافة الملفات
+  //         const flyerData = await upload(data.flyer);
+  //         const audioArData = await upload(data.audioAr);
+  //         const audioEnData = await upload(data.audioEn);
+  //         const audioFrData = await upload(data.audioFr);
+  //         const videoArData = await upload(data.videoAr);
+  //         const videoEnData = await upload(data.videoEn);
+  //         const videoFrData = await upload(data.videoFr);
+
+  //         // صياغة الـ Payload النهائي بدقة
+  //         const payload = {
+  //             nameFr: data.nameFr,
+  //             nameAr: data.nameAr,
+  //             nameEn: data.nameEn || "",
+  //             descrFr: data.descrFr || "",
+  //             descrAr: data.descrAr || "",
+  //             descrEn: data.descrEn || "",
+  //             businessUrlSite: data.siteUrl || "",
+  //             socialMedia: data.socialMedia || "",
+
+  //             service: data.serviceId ? { id: data.serviceId } : null,
+  //             owner: { id: data.ownerId },
+  //             contact: { id: data.contactId },
+  //             manager: { id: data.ownerId }, // تبسيط حالياً
+
+  //             // إرسال الكائنات المعرفة فقط
+  //             flyer: flyerData, // سيكون { id: "..." }
+  //             audioAr: audioArData,
+  //             audioEn: audioEnData,
+  //             audioFr: audioFrData,
+  //             videoAr: videoArData,
+  //             videoEn: videoEnData,
+  //             videoFr: videoFrData,
+  //         };
+
+  //         // التأكد من الحقول الإجبارية قبل الإرسال
+  //         if (!payload.flyer) {
+  //             throw new Error("Flyer is required");
+  //         }
+
+  //         await createBusiness(payload as any);
+
+  //         MySwal.fire({ icon: 'success', title: 'Done!', timer: 2000, showConfirmButton: false });
+  //         methods.reset();
+
+  //     } catch (error: any) {
+  //         console.error("API Error:", error);
+  //         MySwal.fire({
+  //             icon: 'error',
+  //             title: 'Error',
+  //             text: error.message || error.response?.data?.message || "Submission failed"
+  //         });
+  //     }
+  // };
 
   // const handleFinalSubmit = async (data: any) => {
   //   const MySwal = withReactContent(Swal);

@@ -11,6 +11,7 @@ import { getCities } from "@/api/cities-api";
 import { getCityAreas } from "@/api/city-areas-api";
 import { getServices } from "@/api/services-api";
 import { getBusinesses } from "@/api/businesses-api";
+import { t } from "i18next";
 
 const MapComponent = dynamic(() => import('@/components/MapComponent'), {
   ssr: false,
@@ -51,22 +52,26 @@ const CompactSelect = ({ label, icon, options, value, onChange, placeholder, dis
         type="button"
         disabled={disabled}
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full flex items-center justify-between gap-2 px-3 py-2 rounded-xl hover:bg-gray-50 transition-colors text-left overflow-hidden"
+        className="w-full flex items-center justify-between gap-3 px-4 py-2 rounded-2xl hover:bg-slate-50 transition-all text-left overflow-hidden group"
       >
-        <div className="flex items-center gap-2 overflow-hidden min-w-0">
-          <div className="text-indigo-600 shrink-0">{icon}</div>
+        <div className="flex items-center gap-3 overflow-hidden min-w-0">
+          <div className="text-indigo-600 shrink-0 p-2 bg-indigo-50 rounded-xl group-hover:bg-indigo-100 transition-colors">
+            {icon}
+          </div>
           <div className="flex flex-col overflow-hidden min-w-0">
-            <span className="text-[9px] uppercase font-bold text-gray-400 leading-none truncate">{label}</span>
-            <span className="text-gray-800 font-semibold truncate text-sm whitespace-nowrap">
+            <span className="text-[10px] uppercase font-black text-indigo-400 leading-none truncate tracking-widest mb-1">
+              {label}
+            </span>
+            <span className={`font-bold truncate text-sm whitespace-nowrap ${value ? 'text-slate-900' : 'text-slate-400'}`}>
               {value || placeholder}
             </span>
           </div>
         </div>
-        <ChevronDown size={12} className={`text-gray-400 shrink-0 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+        <ChevronDown size={14} className={`text-slate-400 shrink-0 transition-transform duration-300 ${isOpen ? 'rotate-180 text-indigo-600' : ''}`} />
       </button>
 
       {isOpen && (
-        <div className="absolute z-[110] mt-2 w-64 left-0 bg-white border border-gray-100 rounded-2xl shadow-2xl max-h-60 overflow-y-auto py-2">
+        <div className="absolute z-[110] mt-3 w-64 left-0 bg-white border border-slate-100 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.15)] max-h-64 overflow-y-auto p-2 animate-in fade-in zoom-in-95 duration-200 origin-top">
           {options.length > 0 ? (
             options.map((option) => (
               <button
@@ -76,13 +81,18 @@ const CompactSelect = ({ label, icon, options, value, onChange, placeholder, dis
                   onChange(String(option.id));
                   setIsOpen(false);
                 }}
-                className={`w-full text-left px-4 py-2.5 text-sm hover:bg-indigo-50 ${value === option.name ? 'text-indigo-600 font-bold bg-indigo-50/50' : 'text-gray-600'}`}
+                className={`w-full text-left px-4 py-3 text-sm rounded-2xl transition-all mb-1 last:mb-0 font-bold ${value === option.name
+                    ? 'bg-indigo-600 text-white'
+                    : 'text-slate-600 hover:bg-indigo-50 hover:text-indigo-600'
+                  }`}
               >
                 {option.name}
               </button>
             ))
           ) : (
-            <div className="px-4 py-2 text-xs text-gray-400 italic text-center">No data found</div>
+            <div className="px-4 py-4 text-xs text-slate-400 italic text-center font-medium">
+              {t("search.no_data") || "No data found"}
+            </div>
           )}
         </div>
       )}
@@ -102,19 +112,18 @@ export default function SearchResultsPage() {
   const [services, setServices] = useState<any[]>([]);
   const [businesses, setBusinesses] = useState<any[]>([]);
 
-  // Local state for the inputs
   const [selectedCityId, setSelectedCityId] = useState<string>("");
   const [selectedZoneId, setSelectedZoneId] = useState<string>("");
   const [selectedServiceId, setSelectedServiceId] = useState<string>("");
 
-  // 1. Sync local input state with URL
+  const [hoveredBizId, setHoveredBizId] = useState<string | null>(null);
+
   useEffect(() => {
     setSelectedCityId(searchParams.get("cityId") || "");
     setSelectedZoneId(searchParams.get("zoneId") || "");
     setSelectedServiceId(searchParams.get("service") || "");
   }, [searchParams]);
 
-  // 2. Load Filter Metadata
   useEffect(() => {
     const loadFilters = async () => {
       try {
@@ -129,13 +138,17 @@ export default function SearchResultsPage() {
 
         setCities(getData(citiesData).map((c: any) => ({
           ...c,
-          displayName: c[`name${langSuffix}`] || c.nameFr || c.nameEn || "City"
+          displayName: c[`name${langSuffix}`] || c.nameFr || c.nameEn || "City",
+          lat: c.lat,
+          lng: c.lng
         })));
 
         setAllZones(getData(zonesData).map((z: any) => ({
           ...z,
           displayName: z[`name${langSuffix}`] || z.nameFr || "Area",
-          normalizedCityId: z.city?.id || z.cityId
+          normalizedCityId: z.city?.id || z.cityId,
+          lat: z.lat,
+          lng: z.lng
         })));
 
         setServices(getData(servicesData).map((s: any) => ({
@@ -149,34 +162,25 @@ export default function SearchResultsPage() {
     loadFilters();
   }, [i18n.language]);
 
-  // 3. Main Data Fetching (Triggered ONLY when service is in URL)
   useEffect(() => {
     const fetchBusinesses = async () => {
       const serviceId = searchParams.get("service");
-
-      // Stop if no service is selected in the URL
       if (!serviceId) {
         setBusinesses([]);
         setLoading(false);
         return;
       }
-
       setLoading(true);
       try {
-        const response = await getBusinesses(1, 20, {
-          service: serviceId,
-        });
-
+        const response = await getBusinesses(1, 20, { service: serviceId });
         const data = response?.data || response || [];
         setBusinesses(Array.isArray(data) ? data : []);
       } catch (error) {
-        console.error("❌ Fetch Error:", error);
         setBusinesses([]);
       } finally {
         setLoading(false);
       }
     };
-
     fetchBusinesses();
   }, [searchParams]);
 
@@ -185,18 +189,27 @@ export default function SearchResultsPage() {
     return allZones.filter(zone => String(zone.normalizedCityId) === String(selectedCityId));
   }, [selectedCityId, allZones]);
 
-  // 4. Update the URL
+  const activeMapCenter = useMemo((): [number, number] | undefined => {
+    if (selectedZoneId) {
+      const zone = allZones.find(z => String(z.id) === String(selectedZoneId));
+      if (zone?.lat && zone?.lng) return [parseFloat(zone.lat), parseFloat(zone.lng)];
+    }
+    if (selectedCityId) {
+      const city = cities.find(c => String(c.id) === String(selectedCityId));
+      if (city?.lat && city?.lng) return [parseFloat(city.lat), parseFloat(city.lng)];
+    }
+    return undefined;
+  }, [selectedCityId, selectedZoneId, cities, allZones]);
+
   const handleSearchUpdate = () => {
     if (!selectedServiceId) {
       alert(t("search.please_select_service") || "Please select a service first");
       return;
     }
-
     const params = new URLSearchParams();
     if (selectedCityId) params.set("cityId", selectedCityId);
     if (selectedServiceId) params.set("service", selectedServiceId);
     if (selectedZoneId) params.set("zoneId", selectedZoneId);
-
     router.push(`/search?${params.toString()}`, { scroll: false });
   };
 
@@ -206,34 +219,37 @@ export default function SearchResultsPage() {
       if (loc?.latitude && loc?.longitude) {
         const langSuffix = i18n.language.charAt(0).toUpperCase() + i18n.language.slice(1);
         return {
+          id: biz.id,
           position: [parseFloat(loc.latitude), parseFloat(loc.longitude)] as [number, number],
-          label: biz[`name${langSuffix}`] || biz.nameFr
+          label: biz[`name${langSuffix}`] || biz.nameFr || biz.nameEn,
+          active: hoveredBizId === biz.id
         };
       }
       return null;
     }).filter(Boolean);
-  }, [businesses, i18n.language]);
+  }, [businesses, i18n.language, hoveredBizId]);
 
   return (
     <div className="relative min-h-screen w-full bg-slate-50/50" dir={isRtl ? 'rtl' : 'ltr'}>
-      {/* HEADER / SEARCH BAR */}
-      <div className="fixed top-15 left-0 right-0 z-[100] px-2 py-4 md:px-6 bg-white/80 backdrop-blur-md border-b border-slate-100">
+      {/* --- UPDATED SEARCH BAR --- */}
+      <div className="fixed top-15 left-0 right-0 z-[100] px-2 py-6 md:px-6 bg-white/80 backdrop-blur-xl border-b border-slate-100">
         <div className="container mx-auto max-w-6xl">
-          <div className="bg-white border border-slate-200 shadow-xl rounded-full p-1.5 flex flex-row items-center gap-1">
+          <div className="bg-white/95 backdrop-blur-md border border-slate-200 shadow-[0_20px_50px_rgba(0,0,0,0.1)] rounded-3xl md:rounded-full p-2 flex flex-col md:flex-row items-center gap-1 transition-all hover:border-indigo-200">
             <CompactSelect
               label={t("search.city")}
-              icon={<MapPin size={16} />}
+              icon={<MapPin size={20} />}
               options={cities.map(c => ({ id: c.id, name: c.displayName }))}
               value={cities.find(c => String(c.id) === String(selectedCityId))?.displayName || ""}
               onChange={(id) => { setSelectedCityId(id); setSelectedZoneId(""); }}
               placeholder={t("search.select_city")}
             />
 
-            <div className="w-px h-8 bg-slate-100 shrink-0" />
+            <div className="hidden md:block w-px h-10 bg-slate-100 shrink-0 mx-1" />
+            <div className="block md:hidden w-full h-px bg-slate-100 my-1" />
 
             <CompactSelect
               label={t("search.zone")}
-              icon={<LayoutGrid size={16} />}
+              icon={<LayoutGrid size={20} />}
               options={filteredZones.map(z => ({ id: z.id, name: z.displayName }))}
               value={filteredZones.find(z => String(z.id) === String(selectedZoneId))?.displayName || ""}
               disabled={!selectedCityId}
@@ -241,12 +257,13 @@ export default function SearchResultsPage() {
               placeholder={selectedCityId ? (filteredZones.length === 0 ? "No Areas" : t("search.select_zone")) : t("search.select_zone")}
             />
 
-            <div className="w-px h-8 bg-slate-100 shrink-0" />
+            <div className="hidden md:block w-px h-10 bg-slate-100 shrink-0 mx-1" />
+            <div className="block md:hidden w-full h-px bg-slate-100 my-1" />
 
-            <div className="flex-[1.2] flex flex-row items-center min-w-0">
+            <div className="flex-[1.4] flex flex-col md:flex-row items-center min-w-0 w-full gap-3 md:gap-0">
               <CompactSelect
                 label={t("search.service")}
-                icon={<HandPlatter size={16} />}
+                icon={<HandPlatter size={20} />}
                 options={services.map(s => ({ id: s.id, name: s.displayName }))}
                 value={services.find(s => String(s.id) === String(selectedServiceId))?.displayName || ""}
                 onChange={(id) => setSelectedServiceId(id)}
@@ -256,10 +273,10 @@ export default function SearchResultsPage() {
               <button
                 onClick={handleSearchUpdate}
                 disabled={loading}
-                className="bg-indigo-600 hover:bg-indigo-700 text-white p-3 md:px-6 rounded-full active:scale-95 transition-all flex items-center justify-center gap-2 shadow-lg shadow-indigo-200 disabled:opacity-50"
+                className="w-full md:w-auto bg-indigo-600 hover:bg-indigo-700 text-white p-4 md:px-10 rounded-2xl md:rounded-full active:scale-95 transition-all flex items-center justify-center gap-3 shadow-lg shadow-indigo-100 disabled:opacity-50 md:ml-2"
               >
-                {loading ? <Loader2 size={18} className="animate-spin" /> : <Search size={18} />}
-                <span className="hidden lg:inline font-bold text-sm uppercase tracking-wider">
+                {loading ? <Loader2 size={22} className="animate-spin" /> : <Search size={22} />}
+                <span className="font-black text-sm uppercase tracking-widest">
                   {t("search.button")}
                 </span>
               </button>
@@ -268,9 +285,7 @@ export default function SearchResultsPage() {
         </div>
       </div>
 
-      {/* MAIN CONTENT AREA */}
       <div className="flex flex-col lg:flex-row h-screen pt-36">
-        {/* LEFT: RESULTS CARDS */}
         <div className="w-full lg:w-1/2 overflow-y-auto px-4 md:px-8 pb-20 custom-scrollbar">
           {!loading && searchParams.get("service") && (
             <div className="max-w-2xl mb-8">
@@ -286,7 +301,6 @@ export default function SearchResultsPage() {
             </div>
           ) : (
             <>
-              {/* STATE 1: NO SEARCH PERFORMED YET */}
               {!searchParams.get("service") && (
                 <div className="flex flex-col items-center justify-center py-32 bg-white rounded-[3rem] border-2 border-dashed border-slate-100 text-center px-6">
                   <div className="p-6 bg-indigo-50 rounded-full mb-6">
@@ -299,7 +313,6 @@ export default function SearchResultsPage() {
                 </div>
               )}
 
-              {/* STATE 2: SEARCH PERFORMED, RESULTS FOUND */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {businesses.map((biz: any) => {
                   const langSuffix = i18n.language.charAt(0).toUpperCase() + i18n.language.slice(1);
@@ -313,6 +326,8 @@ export default function SearchResultsPage() {
                     <div
                       key={biz.id}
                       onClick={() => router.push(`/businesses/${biz.id}`)}
+                      onMouseEnter={() => setHoveredBizId(biz.id)}
+                      onMouseLeave={() => setHoveredBizId(null)}
                       className="group flex flex-col bg-white rounded-[2rem] overflow-hidden transition-all duration-500 hover:shadow-2xl hover:shadow-slate-200 cursor-pointer border border-slate-100"
                     >
                       <div className="relative h-52 w-full overflow-hidden">
@@ -340,7 +355,6 @@ export default function SearchResultsPage() {
                 })}
               </div>
 
-              {/* STATE 3: SEARCHED BUT NOTHING FOUND */}
               {searchParams.get("service") && businesses.length === 0 && (
                 <div className="text-center py-20 bg-white rounded-[2rem] border border-dashed border-slate-200">
                   <Search size={40} className="mx-auto text-slate-200 mb-4" />
@@ -351,10 +365,9 @@ export default function SearchResultsPage() {
           )}
         </div>
 
-        {/* RIGHT: MAP */}
         <div className="hidden lg:block lg:w-1/2 h-full p-4">
           <div className="w-full h-full rounded-[2.5rem] overflow-hidden shadow-inner border-4 border-white">
-            <MapComponent markers={mapMarkers as any} />
+            <MapComponent markers={mapMarkers as any} center={activeMapCenter} />
           </div>
         </div>
       </div>

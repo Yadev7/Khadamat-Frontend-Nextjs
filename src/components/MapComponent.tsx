@@ -1,11 +1,11 @@
 'use client';
 
-import { MapContainer, TileLayer, Marker, useMap, Popup } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, useMap } from 'react-leaflet';
 import L from 'leaflet';
-import { useEffect } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import 'leaflet/dist/leaflet.css';
 
-// Fix for Marker icons in Next.js
+// إصلاح الأيقونات لضمان ظهورها في Next.js
 const redIcon = typeof window !== 'undefined' ? new L.Icon({
   iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
@@ -15,77 +15,84 @@ const redIcon = typeof window !== 'undefined' ? new L.Icon({
   shadowSize: [41, 41],
 }) : null;
 
-function MapViewUpdater({ center, zoom }: { center: [number, number], zoom: number }) {
+function MapViewUpdater({ center, zoom, markerRef }: { center: [number, number], zoom: number, markerRef: React.RefObject<L.Marker | null> }) {
   const map = useMap();
 
   useEffect(() => {
-    if (!center || !Array.isArray(center) || center.length < 2) return;
-    
-    const lat = parseFloat(String(center[0]));
-    const lng = parseFloat(String(center[1]));
-    
-    // Strict numeric check
-    if (isFinite(lat) && isFinite(lng) && !isNaN(lat) && !isNaN(lng)) {
+    // التحقق من أن الإحداثيات أرقام صالحة وليست NaN أو undefined
+    const isValid = center && !isNaN(center[0]) && !isNaN(center[1]);
+
+    if (isValid) {
+      // تحديث حجم الخريطة أولاً لضمان عدم وجود أجزاء رمادية
+      map.invalidateSize();
+
+      // الانتقال للموقع الجديد بنعومة
+      map.flyTo(center, zoom, {
+        duration: 1.5,
+        easeLinearity: 0.25
+      });
+
       const timer = setTimeout(() => {
-        try {
-          map.flyTo([lat, lng], zoom, {
-            duration: 1.5,
-            easeLinearity: 0.25
-          });
-          map.invalidateSize();
-        } catch (e) {
-          console.error("Leaflet flyTo error:", e);
-        }
-      }, 100);
+        if (markerRef.current) markerRef.current.openPopup();
+      }, 1000);
+
       return () => clearTimeout(timer);
     }
-  }, [center, zoom, map]);
+  }, [center, zoom, map, markerRef]);
 
   return null;
 }
 
 interface MapComponentProps {
   center?: [number, number];
-  markers?: any[];
+  displayLabel?: string;
 }
 
-export default function MapComponent({ center, markers = [] }: MapComponentProps) {
+export default function MapComponent({ center, displayLabel }: MapComponentProps) {
   const defaultPosition: [number, number] = [34.0331, -5.0003]; // Fes
 
-  // Extremely strict coordinate extraction
-  let activeCenter: [number, number] = defaultPosition;
-  let zoomLevel = 12;
+  // تحويل القيم مسبقاً لأرقام لضمان عدم تمرير Strings من قاعدة البيانات
+  const sanitizedCenter: [number, number] | undefined = center
+    ? [Number(center[0]), Number(center[1])]
+    : undefined;
 
-  if (center && Array.isArray(center) && center.length >= 2) {
-    const parsedLat = parseFloat(String(center[0]));
-    const parsedLng = parseFloat(String(center[1]));
-    if (isFinite(parsedLat) && isFinite(parsedLng) && !isNaN(parsedLat) && !isNaN(parsedLng)) {
-      activeCenter = [parsedLat, parsedLng];
-      zoomLevel = 14;
-    }
-  }
+  const [zoomLevel, setZoomLevel] = useState(10);
+  const markerRef = useRef<L.Marker | null>(null);
+
+  useEffect(() => {
+    // تعيين مستوى الزووم بناءً على وجود المركز
+    setZoomLevel(sanitizedCenter ? 15 : 10);
+  }, [sanitizedCenter]);
+
+  // الموقع النشط للخريطة (المركز الممرر أو الافتراضي)
+  const activePosition = sanitizedCenter && !isNaN(sanitizedCenter[0])
+    ? sanitizedCenter
+    : defaultPosition;
 
   return (
     <div className="h-full w-full relative z-0">
       <MapContainer
-        center={activeCenter}
-        zoom={12}
+        center={activePosition}
+        zoom={13}
         scrollWheelZoom={true}
         className="h-full w-full"
       >
-        <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+        <TileLayer
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        />
 
-        {markers.map((marker, idx) => (
-          redIcon && (
-            <Marker key={idx} position={marker.position} icon={redIcon}>
-              <Popup>
-                <span className="font-bold text-indigo-600">{marker.label}</span>
-              </Popup>
-            </Marker>
-          )
-        ))}
+        {sanitizedCenter && !isNaN(sanitizedCenter[0]) && redIcon && (
+          <Marker position={sanitizedCenter} icon={redIcon} ref={markerRef}>
+ 
+          </Marker>
+        )}
 
-        <MapViewUpdater center={activeCenter} zoom={zoomLevel} />
+        <MapViewUpdater
+          center={activePosition}
+          zoom={zoomLevel}
+          markerRef={markerRef}
+        />
       </MapContainer>
     </div>
   );
