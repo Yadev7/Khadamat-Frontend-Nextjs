@@ -141,25 +141,25 @@ export default function CitiesPage() {
                 </select>
               </div> */}
 
-  {/* تم تصحيح المفتاح من cityId إلى countryId ليطابق الـ State */}
-<div>
-  <label className="block text-xs font-black uppercase text-slate-400 mb-2 px-1">
-    {t("dashboard.infos-general.tabs.country_tab")}
-  </label>
-  <select 
-    required 
-    className="w-full bg-slate-50 border-none rounded-2xl p-4 text-slate-800 font-bold outline-none" 
-    value={formData.countryId} // تم التغيير هنا
-    onChange={(e) => setFormData({ ...formData, countryId: e.target.value })} // تم التغيير هنا
-  >
-    <option value="">-- Select Country --</option>
-    {countries.map(country => (
-      <option key={country.id} value={country.id}>
-        {isAr ? country.nameAr : country.nameFr}
-      </option>
-    ))}
-  </select>
-</div> 
+              {/* تم تصحيح المفتاح من cityId إلى countryId ليطابق الـ State */}
+              <div>
+                <label className="block text-xs font-black uppercase text-slate-400 mb-2 px-1">
+                  {t("dashboard.infos-general.tabs.country_tab")}
+                </label>
+                <select
+                  required
+                  className="w-full bg-slate-50 border-none rounded-2xl p-4 text-slate-800 font-bold outline-none"
+                  value={formData.countryId} // تم التغيير هنا
+                  onChange={(e) => setFormData({ ...formData, countryId: e.target.value })} // تم التغيير هنا
+                >
+                  <option value="">-- Select Country --</option>
+                  {countries.map(country => (
+                    <option key={country.id} value={country.id}>
+                      {isAr ? country.nameAr : country.nameFr}
+                    </option>
+                  ))}
+                </select>
+              </div>
               <div>
                 <label className="block text-xs font-black uppercase text-slate-400 mb-2 px-1">Name (Arabic)</label>
                 <input type="text" required className="w-full bg-slate-50 border-none rounded-2xl p-4 text-slate-800 font-bold outline-none" value={formData.nameAr} onChange={(e) => setFormData({ ...formData, nameAr: e.target.value })} />

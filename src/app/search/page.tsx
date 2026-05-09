@@ -82,8 +82,8 @@ const CompactSelect = ({ label, icon, options, value, onChange, placeholder, dis
                   setIsOpen(false);
                 }}
                 className={`w-full text-left px-4 py-3 text-sm rounded-2xl transition-all mb-1 last:mb-0 font-bold ${value === option.name
-                    ? 'bg-indigo-600 text-white'
-                    : 'text-slate-600 hover:bg-indigo-50 hover:text-indigo-600'
+                  ? 'bg-indigo-600 text-white'
+                  : 'text-slate-600 hover:bg-indigo-50 hover:text-indigo-600'
                   }`}
               >
                 {option.name}

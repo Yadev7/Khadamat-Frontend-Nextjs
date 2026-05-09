@@ -84,7 +84,7 @@ export default function MapComponent({ center, displayLabel }: MapComponentProps
 
         {sanitizedCenter && !isNaN(sanitizedCenter[0]) && redIcon && (
           <Marker position={sanitizedCenter} icon={redIcon} ref={markerRef}>
- 
+
           </Marker>
         )}
 
