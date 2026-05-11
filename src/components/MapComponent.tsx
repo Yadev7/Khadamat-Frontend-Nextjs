@@ -73,7 +73,7 @@ export default function MapComponent({ center, displayLabel }: MapComponentProps
     <div className="h-full w-full relative z-0">
       <MapContainer
         center={activePosition}
-        zoom={13}
+        zoom={zoomLevel}
         scrollWheelZoom={true}
         className="h-full w-full"
       >
@@ -84,14 +84,20 @@ export default function MapComponent({ center, displayLabel }: MapComponentProps
 
         {sanitizedCenter && !isNaN(sanitizedCenter[0]) && redIcon && (
           <Marker position={sanitizedCenter} icon={redIcon} ref={markerRef}>
-
+                     
+               <div className="text-center p-1">
+                  <span className="text-indigo-600 font-extrabold text-lg">
+                    {displayLabel}
+                  </span>
+               </div>
           </Marker>
         )}
 
         <MapViewUpdater
-          center={activePosition}
+          center={center || defaultPosition}
           zoom={zoomLevel}
           markerRef={markerRef}
+          // key={sanitizedCenter?.[0] + ',' + sanitizedCenter?.[1]}
         />
       </MapContainer>
     </div>

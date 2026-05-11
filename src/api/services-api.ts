@@ -50,7 +50,7 @@ export const createService = async (data: {
   return response.data;
 };
 
-// استخدام id: any أو string | number لتفادي تعارض الأنواع مع UUID
+
 export const deleteService = async (id: string) => {
   const response = await api.delete(`/v1/services/${id}`);
   return response.data;

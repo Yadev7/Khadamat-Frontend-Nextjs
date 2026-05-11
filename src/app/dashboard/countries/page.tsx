@@ -2,16 +2,16 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { useTranslation } from "react-i18next";
-import { 
-  Trash2, Plus, Globe, Pencil, Loader2, X 
+import {
+  Trash2, Plus, Globe, Pencil, Loader2, X
 } from "lucide-react";
 import Swal from 'sweetalert2';
 
-import { 
-  getCountries, 
-  createCountry, 
-  updateCountry, 
-  deleteCountry 
+import {
+  getCountries,
+  createCountry,
+  updateCountry,
+  deleteCountry
 } from "@/api/countries-api";
 
 interface Country {
@@ -111,7 +111,7 @@ export default function CountriesPage() {
         </div>
         <button onClick={() => handleOpenModal()} className="flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-2xl font-bold hover:bg-blue-700 transition shadow-lg">
           <Plus className="w-5 h-5" />
-          <span>{t("common.add_new")}</span>
+          <span>{t("dashboard.infos-general.common.add_new")}</span>
         </button>
       </div>
 
@@ -147,19 +147,19 @@ export default function CountriesPage() {
             <form onSubmit={handleSubmit} className="space-y-5">
               <div>
                 <label className="block text-xs font-black uppercase text-slate-400 mb-2 px-1">Arabic Name</label>
-                <input type="text" required className="w-full bg-slate-50 border-none rounded-2xl p-4 text-slate-800 font-bold outline-none" value={formData.nameAr} onChange={(e) => setFormData({...formData, nameAr: e.target.value})} />
+                <input type="text" required className="w-full bg-slate-50 border-none rounded-2xl p-4 text-slate-800 font-bold outline-none" value={formData.nameAr} onChange={(e) => setFormData({ ...formData, nameAr: e.target.value })} />
               </div>
               <div>
                 <label className="block text-xs font-black uppercase text-slate-400 mb-2 px-1">French Name</label>
-                <input type="text" required className="w-full bg-slate-50 border-none rounded-2xl p-4 text-slate-800 font-bold outline-none" value={formData.nameFr} onChange={(e) => setFormData({...formData, nameFr: e.target.value})} />
+                <input type="text" required className="w-full bg-slate-50 border-none rounded-2xl p-4 text-slate-800 font-bold outline-none" value={formData.nameFr} onChange={(e) => setFormData({ ...formData, nameFr: e.target.value })} />
               </div>
               <div>
                 <label className="block text-xs font-black uppercase text-slate-400 mb-2 px-1">English Name</label>
-                <input type="text" required className="w-full bg-slate-50 border-none rounded-2xl p-4 text-slate-800 font-bold outline-none" value={formData.nameEn} onChange={(e) => setFormData({...formData, nameEn: e.target.value})} />
+                <input type="text" required className="w-full bg-slate-50 border-none rounded-2xl p-4 text-slate-800 font-bold outline-none" value={formData.nameEn} onChange={(e) => setFormData({ ...formData, nameEn: e.target.value })} />
               </div>
-                            <div>
+              <div>
                 <label className="block text-xs font-black uppercase text-slate-400 mb-2 px-1">Country Code</label>
-                <select required className="w-full bg-slate-50 border-none rounded-2xl p-4 text-slate-800 font-bold outline-none" value={formData.countryCode} onChange={(e) => setFormData({...formData, countryCode: e.target.value})}>
+                <select required className="w-full bg-slate-50 border-none rounded-2xl p-4 text-slate-800 font-bold outline-none" value={formData.countryCode} onChange={(e) => setFormData({ ...formData, countryCode: e.target.value })}>
                   <option value="">-- Select Country Code --</option>
                   <option value="MA">MA</option>
                   <option value="FR">FR</option>

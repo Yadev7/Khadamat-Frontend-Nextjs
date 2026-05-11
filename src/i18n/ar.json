@@ -262,6 +262,9 @@
       "role_title": "الدور الحالي",
       "email_title": "البريد الإلكتروني",
       "status_title": "حالة الحساب",
+      "role_subtitle": "مستخدم خدمات",
+      "email_subtitle": "[EMAIL_ADDRESS]",
+      "status_subtitle": "نشط",
       "status_active": "نشط",
       "default_role": "مستخدم"
     },
@@ -294,6 +297,30 @@
         "zone_tab": "المنطقة",
         "service_tab": "الخدمة",
         "city_area_tab": "منطقة المدينة"
+      },
+      "common": {
+        "add_new": "إضافة جديد",
+        "edit": "تعديل",
+        "save": "حفظ",
+        "cancel": "تراجع",
+        "add_success": "تمت الإضافة بنجاح",
+        "update_success": "تم التحديث بنجاح",
+        "delete_success": "تم الحذف بنجاح",
+        "error_message": "حدث خطأ",
+        "not_found": "غير موجود",
+        "not_found_description": "العنصر الذي تبحث عنه غير موجود أو تم حذفه.",
+        "loading": "جاري التحميل...",
+        "delete_confirmation": "هل أنت متأكد من رغبتك في حذف هذا العنصر؟",
+        "delete_info": "لن تتمكن من استعادة هذا العنصر بعد حذفه!",
+        "yes_delete": "نعم، احذفه الآن",
+        "deleted": "تم الحذف!",
+        "delete_error": "حدث خطأ أثناء الحذف. يرجى المحاولة مرة أخرى.",
+        "icon": "أيقونة",
+        "operations": "العمليات",
+        "name": "الاسم",
+        "description": "الوصف",
+        "upload_video": "رفع فيديو",
+        "upload_image": "رفع صورة"
       }
     },
     "business": {

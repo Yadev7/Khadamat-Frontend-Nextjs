@@ -1,13 +1,12 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
 
-const API_URL = process.env.NEXT_PUBLIC_API_ENDPOINT || 'http://localhost:3001/api';
+const API_URL = process.env.NEXT_PUBLIC_API_ENDPOINT;
 
 export const api = axios.create({
   baseURL: API_URL,
 });
 
-// Interceptor to handle JWT tokens
 api.interceptors.request.use((config) => {
   const token = Cookies.get('auth_token');
   if (token) {
@@ -30,11 +29,6 @@ api.interceptors.response.use(
   }
 );
 
-// 1. Get All City Areas
-// export const getCityAreas = async () => {
-//   const response = await api.get('/v1/city-areas');
-//   return response.data?.data || [];
-// };
 
 export const getCityAreas = async () => {
   const response = await api.get('/v1/city-areas', {

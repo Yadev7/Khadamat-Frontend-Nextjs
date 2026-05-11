@@ -98,7 +98,7 @@ export default function CitiesPage() {
         </div>
         <button onClick={() => handleOpenModal()} className="flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-2xl font-bold shadow-lg">
           <Plus className="w-5 h-5" />
-          <span>{t("common.add_new")}</span>
+          <span>{t("dashboard.infos-general.common.add_new")}</span>
         </button>
       </div>
 

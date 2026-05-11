@@ -1,7 +1,7 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
 
-const API_URL = process.env.NEXT_PUBLIC_API_ENDPOINT || 'http://localhost:3001/api';
+const API_URL = process.env.NEXT_PUBLIC_API_ENDPOINT;
 
 export const api = axios.create({
   baseURL: API_URL,
@@ -21,10 +21,10 @@ api.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       console.error("الجلسة انتهت! يتم التوجيه لصفحة تسجيل الدخول...");
-      
+
       // 1. مسح التوكن من الكوكيز
       Cookies.remove('auth_token');
-      
+
       // 2. توجيه المستخدم (إذا كنا في المتصفح)
       if (typeof window !== 'undefined') {
         window.location.href = '/sign-in';
@@ -39,7 +39,7 @@ api.interceptors.response.use(
 export const getCountries = async () => {
   const response = await api.get('/v1/countries');
   // Return the inner 'data' array from the response object
-  return response.data?.data || []; 
+  return response.data?.data || [];
 };
 
 export const getCountryById = async (id: string) => {
@@ -53,10 +53,10 @@ export const createCountry = async (data: any) => {
   return response.data;
 };
 
-export const updateCountry = async (id: string, data: any) => { 
-    console.log(`Updating Country ID ${id} with Payload:`, JSON.stringify(data, null, 2));
-    const response = await api.patch(`/v1/countries/${id}`, data);
-    return response.data;
+export const updateCountry = async (id: string, data: any) => {
+  console.log(`Updating Country ID ${id} with Payload:`, JSON.stringify(data, null, 2));
+  const response = await api.patch(`/v1/countries/${id}`, data);
+  return response.data;
 };
 
 export const deleteCountry = async (id: string) => {

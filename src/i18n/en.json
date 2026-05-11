@@ -262,6 +262,9 @@
       "email_title": "Email Address",
       "status_title": "Account Status",
       "status_active": "Active",
+      "role_subtitle": "Service User",
+      "email_subtitle": "[EMAIL_ADDRESS]",
+      "status_subtitle": "Active",
       "default_role": "User"
     },
     "operations": {
@@ -305,7 +308,12 @@
         "cancel": "Cancel",
         "deleted": "Deleted !",
         "deleted_success": "{item} is deleted successfully.",
-        "actions": "Actions"
+        "actions": "Actions",
+        "icon": "Icon",
+        "name": "Name",
+        "description": "Description",
+        "upload_video": "Upload video",
+        "upload_image": "Upload image"
       }
     },
     "business": {

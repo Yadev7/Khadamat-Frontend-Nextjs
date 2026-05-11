@@ -1,13 +1,12 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
 
-const API_URL = process.env.NEXT_PUBLIC_API_ENDPOINT || 'http://localhost:3001/api';
+const API_URL = process.env.NEXT_PUBLIC_API_ENDPOINT;
 
 export const api = axios.create({
   baseURL: API_URL,
 });
 
-// Interceptor to handle JWT tokens
 api.interceptors.request.use((config) => {
   const token = Cookies.get('auth_token');
   if (token) {
@@ -17,27 +16,16 @@ api.interceptors.request.use((config) => {
 });
 
 
-
-
-// Fetch Services for Step 1
 export const getServicesList = async () => {
   const response = await api.get('/v1/services');
   console.log("services", response.data);
-  return response.data; // Adjust based on your API structure (e.g., response.data.data)
+  return response.data;
 };
-
-// Fetch Members/Owners for Step 1
-// export const getMembersList = async () => {
-//   const response = await api.get('/v1/members');
-//   console.log("members", response.data);
-//   return response.data;
-// };
 
 
 export const getMembersList = async () => {
   const response = await api.get('/v1/members', {
     params: {
-      // Some backends use 'relations', others use 'join', others use 'populate'
       relations: 'contact',
       populate: 'contact',
       join: 'contact'
@@ -46,35 +34,11 @@ export const getMembersList = async () => {
   return response.data;
 };
 
-// Fetch Contacts for Step 2
-// export const getContactsList = async () => {
-//   const response = await api.get('/v1/contacts');
-//   console.log(response.data);
-//   return response.data;
-// };
-
-// export const getContactsList = async () => {
-//   const response = await api.get('/v1/contacts', {
-//     params: {
-//       relations: 'address.localisation' // Crucial for showing the street/city
-//     }
-//   });
-//   return response.data;
-// };
-
-
-// export const getContactsList = async () => {
-//   const response = await api.get('/v1/contacts', {
-//     params: { relations: 'address' }
-//   });
-//   return response.data;
-// };
-
 
 export const getContactsList = async () => {
   const response = await api.get('/v1/contacts', {
     params: {
-      relations: 'address' // Mandatory to see the street, city, etc.
+      relations: 'address'
     }
   });
   return response.data;
@@ -114,14 +78,6 @@ export const uploadFile = async (file: File) => {
 };
 
 
-// This is the missing function causing your error
-// export const createBusiness = async (payload: any) => {
-//   const response = await api.post('/v1/businesses', payload);
-//   return response.data;
-// };
-
-
-
 export interface CreateBusinessData {
   nameFr: string;
   nameAr: string;
@@ -149,13 +105,11 @@ export const createBusiness = async (data: CreateBusinessData) => {
   return response.data;
 }
 
-// DELETE a business
 export const deleteBusiness = async (id: string) => {
   const response = await api.delete(`/v1/businesses/${id}`);
   return response.data;
 };
 
-// UPDATE a business
 export const updateBusiness = async (id: string, payload: any) => {
   const response = await api.patch(`/v1/businesses/${id}`, payload);
   return response.data;

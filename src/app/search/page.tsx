@@ -13,6 +13,7 @@ import { getServices } from "@/api/services-api";
 import { getBusinesses } from "@/api/businesses-api";
 import { t } from "i18next";
 
+
 const MapComponent = dynamic(() => import('@/components/MapComponent'), {
   ssr: false,
   loading: () => <div className="w-full h-full bg-gray-100 animate-pulse rounded-[2rem]" />
@@ -136,11 +137,18 @@ export default function SearchResultsPage() {
         const langSuffix = i18n.language.charAt(0).toUpperCase() + i18n.language.slice(1);
         const getData = (res: any) => (Array.isArray(res) ? res : res?.data || []);
 
+        // setCities(getData(citiesData).map((c: any) => ({
+        //   ...c,
+        //   displayName: c[`name${langSuffix}`] || c.nameFr || c.nameEn || "City",
+        //   lat: c.lat,
+        //   lng: c.lng
+        // })));
+
         setCities(getData(citiesData).map((c: any) => ({
-          ...c,
-          displayName: c[`name${langSuffix}`] || c.nameFr || c.nameEn || "City",
-          lat: c.lat,
-          lng: c.lng
+          id: c.id,
+          displayName: c[`name${langSuffix}`] || c.nameFr || "City",
+          lat: c.lat, // <--- Crucial: must match backend field name (lat/latitude)
+          lng: c.lng  // <--- Crucial: must match backend field name (lng/longitude)
         })));
 
         setAllZones(getData(zonesData).map((z: any) => ({
@@ -190,16 +198,36 @@ export default function SearchResultsPage() {
   }, [selectedCityId, allZones]);
 
   const activeMapCenter = useMemo((): [number, number] | undefined => {
+    // Priority 1: Move to selected Zone
     if (selectedZoneId) {
       const zone = allZones.find(z => String(z.id) === String(selectedZoneId));
-      if (zone?.lat && zone?.lng) return [parseFloat(zone.lat), parseFloat(zone.lng)];
+      if (zone?.lat && zone?.lng) {
+        return [parseFloat(zone.lat), parseFloat(zone.lng)];
+      }
     }
+
+    // Priority 2: Move to selected City
     if (selectedCityId) {
       const city = cities.find(c => String(c.id) === String(selectedCityId));
-      if (city?.lat && city?.lng) return [parseFloat(city.lat), parseFloat(city.lng)];
+      if (city?.lat && city?.lng) {
+        return [parseFloat(city.lat), parseFloat(city.lng)];
+      }
     }
+
     return undefined;
   }, [selectedCityId, selectedZoneId, cities, allZones]);
+
+  // const activeMapCenter = useMemo((): [number, number] | undefined => {
+  //   if (selectedZoneId) {
+  //     const zone = allZones.find(z => String(z.id) === String(selectedZoneId));
+  //     if (zone?.lat && zone?.lng) return [parseFloat(zone.lat), parseFloat(zone.lng)];
+  //   }
+  //   if (selectedCityId) {
+  //     const city = cities.find(c => String(c.id) === String(selectedCityId));
+  //     if (city?.lat && city?.lng) return [parseFloat(city.lat), parseFloat(city.lng)];
+  //   }
+  //   return undefined;
+  // }, [selectedCityId, selectedZoneId, cities, allZones]);
 
   const handleSearchUpdate = () => {
     if (!selectedServiceId) {
@@ -240,7 +268,10 @@ export default function SearchResultsPage() {
               icon={<MapPin size={20} />}
               options={cities.map(c => ({ id: c.id, name: c.displayName }))}
               value={cities.find(c => String(c.id) === String(selectedCityId))?.displayName || ""}
-              onChange={(id) => { setSelectedCityId(id); setSelectedZoneId(""); }}
+              onChange={(id) => {
+                setSelectedCityId(id);
+                setSelectedZoneId(""); // Reset zone when city changes
+              }}
               placeholder={t("search.select_city")}
             />
 
@@ -367,7 +398,7 @@ export default function SearchResultsPage() {
 
         <div className="hidden lg:block lg:w-1/2 h-full p-4">
           <div className="w-full h-full rounded-[2.5rem] overflow-hidden shadow-inner border-4 border-white">
-            <MapComponent markers={mapMarkers as any} center={activeMapCenter} />
+            <MapComponent center={activeMapCenter} />
           </div>
         </div>
       </div>
