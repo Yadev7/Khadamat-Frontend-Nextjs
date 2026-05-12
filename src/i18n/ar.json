@@ -255,7 +255,7 @@
     "actions": "العمليات"
   },
   "dashboard": {
-    "welcome": "مرحباً بك، {name} 👋",
+    "welcome": "مرحباً بك",
     "default_user": "مستخدم خدمات",
     "subtitle": "لوحة التحكم الخاصة بك",
     "cards": {

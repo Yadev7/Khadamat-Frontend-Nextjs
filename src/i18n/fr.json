@@ -254,7 +254,7 @@
     "actions": "Actions"
   },
   "dashboard": {
-    "welcome": "Bienvenue, {name} 👋",
+    "welcome": "Bienvenue",
     "default_user": "Utilisateur",
     "subtitle": "Votre tableau de bord",
     "cards": {

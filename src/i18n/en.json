@@ -254,7 +254,7 @@
     "action": "Action"
   },
   "dashboard": {
-    "welcome": "Welcome, {name} 👋",
+    "welcome": "Welcome",
     "default_user": "Service User",
     "subtitle": "Your Dashboard",
     "cards": {
