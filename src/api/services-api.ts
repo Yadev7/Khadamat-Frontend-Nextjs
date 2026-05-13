@@ -1,24 +1,14 @@
-import axios from 'axios';
-import Cookies from 'js-cookie';
+import api from './auth-api'; 
 
-const API_URL = process.env.NEXT_PUBLIC_API_ENDPOINT;
-
-const api = axios.create({
-  baseURL: API_URL,
-  withCredentials: true,
-});
-
-
-api.interceptors.request.use((config) => {
-  const token = Cookies?.get('auth_token');
-
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-
-  return config;
-});
-
+export interface ServiceData {
+  nameServAr: string;
+  nameServFr: string;
+  nameServEn?: string;
+  descrAr?: string;
+  descrFr?: string;
+  descrEn?: string;
+  image?: { id: string | number };
+}
 
 export const getServices = async () => {
   const response = await api.get('/v1/services');
@@ -29,34 +19,21 @@ export const uploadFile = async (file: File) => {
   const formData = new FormData();
   formData.append('file', file);
 
-  const response = await api.post('/v1/files/upload', formData, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
-  });
+  const response = await api.post('/v1/files/upload', formData);
   return response.data;
 };
 
-export const createService = async (data: {
-  nameServAr: string;
-  nameServFr: string;
-  nameServEn?: string;
-  descrAr?: string;
-  descrFr?: string;
-  descrEn?: string;
-  image?: { id: string | number };
-}) => {
+export const createService = async (data: ServiceData) => {
   const response = await api.post('/v1/services', data);
   return response.data;
 };
-
 
 export const deleteService = async (id: string) => {
   const response = await api.delete(`/v1/services/${id}`);
   return response.data;
 };
 
-export const updateService = async (id: string, data: any) => {
+export const updateService = async (id: string, data: Partial<ServiceData>) => {
   const response = await api.patch(`/v1/services/${id}`, data);
   return response.data;
 };
