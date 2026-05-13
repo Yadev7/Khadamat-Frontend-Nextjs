@@ -62,7 +62,8 @@
     "password_placeholder": "Entrez votre mot de passe",
     "sign_in_button": "Se connecter",
     "gestion_account": "Ou gérez votre compte",
-    "forgot_password": "Mot de passe oublié ?"
+    "forgot_password": "Mot de passe oublié ?",
+    "loading": "Chargement..."
   },
   "search": {
     "please_select_city_and_service": "Veuillez sélectionner une ville et un service pour rechercher.",

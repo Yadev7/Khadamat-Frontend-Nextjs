@@ -93,7 +93,7 @@ export default function SignInPage() {
               disabled={loading} 
               className="w-full bg-blue-600 text-white rounded-lg p-3 font-semibold disabled:bg-blue-400"
             >
-              {loading ? "جاري التحميل..." : t('sign_in.sign_in_button')}
+              {loading ? t('sign_in.loading') : t('sign_in.sign_in_button')}
             </button>
           </form>
         </div>

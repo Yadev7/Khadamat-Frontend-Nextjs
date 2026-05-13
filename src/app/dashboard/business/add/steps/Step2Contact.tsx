@@ -17,6 +17,8 @@ const MapComponent = dynamic(() => import('@/components/MapComponent'), {
 export function Step2Contact() {
     const { register, watch, setValue } = useFormContext();
     const selectedContactId = watch("contactId");
+    const manualLat = watch("manualLatitude");
+    const manualLng = watch("manualLongitude");
 
     const [contacts, setContacts] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
@@ -118,8 +120,8 @@ export function Step2Contact() {
                                 isPicker={true}
                                 onLocationSelect={handleLocationSelect}
                                 center={
-                                    currentContact.address?.localisation?.latitude
-                                        ? [parseFloat(currentContact.address.localisation.latitude), parseFloat(currentContact.address.localisation.longitude)]
+                                    manualLat && manualLng
+                                        ? [parseFloat(manualLat), parseFloat(manualLng)]
                                         : undefined
                                 }
                             />

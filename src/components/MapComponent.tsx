@@ -1,6 +1,6 @@
 'use client';
 
-import { MapContainer, TileLayer, Marker, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, useMap, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 import { useEffect, useState, useRef } from 'react';
 import 'leaflet/dist/leaflet.css';
@@ -43,12 +43,23 @@ function MapViewUpdater({ center, zoom, markerRef }: { center: [number, number],
   return null;
 }
 
+function MapPicker({ onLocationSelect }: { onLocationSelect: (lat: number, lng: number) => void }) {
+  useMapEvents({
+    click(e) {
+      onLocationSelect(e.latlng.lat, e.latlng.lng);
+    },
+  });
+  return null;
+}
+
 interface MapComponentProps {
   center?: [number, number];
   displayLabel?: string;
+  isPicker?: boolean;
+  onLocationSelect?: (lat: number, lng: number) => void;
 }
 
-export default function MapComponent({ center, displayLabel }: MapComponentProps) {
+export default function MapComponent({ center, displayLabel, isPicker, onLocationSelect }: MapComponentProps) {
   const defaultPosition: [number, number] = [34.0331, -5.0003]; // Fes
 
   // تحويل القيم مسبقاً لأرقام لضمان عدم تمرير Strings من قاعدة البيانات
@@ -84,20 +95,24 @@ export default function MapComponent({ center, displayLabel }: MapComponentProps
 
         {sanitizedCenter && !isNaN(sanitizedCenter[0]) && redIcon && (
           <Marker position={sanitizedCenter} icon={redIcon} ref={markerRef}>
-                     
-               <div className="text-center p-1">
-                  <span className="text-indigo-600 font-extrabold text-lg">
-                    {displayLabel}
-                  </span>
-               </div>
+            {displayLabel && (
+              <div className="text-center p-1">
+                <span className="text-indigo-600 font-extrabold text-lg">
+                  {displayLabel}
+                </span>
+              </div>
+            )}
           </Marker>
+        )}
+
+        {isPicker && onLocationSelect && (
+          <MapPicker onLocationSelect={onLocationSelect} />
         )}
 
         <MapViewUpdater
           center={center || defaultPosition}
           zoom={zoomLevel}
           markerRef={markerRef}
-          // key={sanitizedCenter?.[0] + ',' + sanitizedCenter?.[1]}
         />
       </MapContainer>
     </div>
