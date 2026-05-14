@@ -127,7 +127,6 @@ export function Step2Contact() {
                             />
                         </div>
 
-                        {/* الإحداثيات المستخرجة */}
                         <div className="grid grid-cols-2 gap-4 mt-4">
                             <div className="bg-white p-3 rounded-2xl border border-slate-100 shadow-sm">
                                 <label className="text-[9px] font-bold text-indigo-400 uppercase block mb-1">Latitude</label>
