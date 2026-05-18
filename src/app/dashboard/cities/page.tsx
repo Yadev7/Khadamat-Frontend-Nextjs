@@ -3,9 +3,16 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import {
-  Trash2, Plus, Map, Pencil, Loader2, X, Building2
+  Trash2, Plus, Map as MapIcon, Pencil, Loader2, X, Navigation
 } from "lucide-react";
 import Swal from 'sweetalert2';
+import dynamic from 'next/dynamic';
+
+// استيراد مكون الخريطة بشكل ديناميكي لمنع أخطاء الـ SSR في Next.js
+const MapComponent = dynamic(() => import('@/components/MapComponent'), {
+  ssr: false,
+  loading: () => <div className="h-full w-full bg-slate-100 animate-pulse flex items-center justify-center text-slate-400">Loading Map...</div>
+});
 
 import { getCities, createCity, updateCity, deleteCity } from "@/api/cities-api";
 import { getCountries } from "@/api/countries-api";
@@ -15,6 +22,7 @@ interface City {
   nameAr: string;
   nameFr: string;
   nameEn: string;
+  localisation?: { id: string; latitude: number; longitude: number };
   country?: { id: string; nameAr: string; nameFr: string; nameEn: string };
 }
 
@@ -24,10 +32,19 @@ export default function CitiesPage() {
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCity, setEditingCity] = useState<City | null>(null);
-  const [formData, setFormData] = useState({ nameAr: '', nameFr: '', nameEn: '', countryId: '' });
+
+  const [formData, setFormData] = useState({
+    nameAr: '',
+    nameFr: '',
+    nameEn: '',
+    countryId: '',
+    latitude: 34.0331, // Fes الافتراضي
+    longitude: -5.0003
+  });
 
   const { i18n, t } = useTranslation();
   const isAr = i18n.language === 'ar';
+  const isEn = i18n.language === 'en';
 
   const fetchData = useCallback(async () => {
     try {
@@ -47,17 +64,36 @@ export default function CitiesPage() {
   const handleOpenModal = (city: City | null = null) => {
     if (city) {
       setEditingCity(city);
-      setFormData({ nameAr: city.nameAr, nameFr: city.nameFr, nameEn: city.nameEn, countryId: city.country?.id || '' });
+      setFormData({
+        nameAr: city.nameAr,
+        nameFr: city.nameFr,
+        nameEn: city.nameEn,
+        countryId: city.country?.id || '',
+        latitude: Number(city.localisation?.latitude) || 34.0331,
+        longitude: Number(city.localisation?.longitude) || -5.0003
+      });
     } else {
       setEditingCity(null);
-      setFormData({ nameAr: '', nameFr: '', nameEn: '', countryId: '' });
+      setFormData({ nameAr: '', nameFr: '', nameEn: '', countryId: '', latitude: 34.0331, longitude: -5.0003 });
     }
     setIsModalOpen(true);
   };
 
+  const handleLocationChange = (lat: number, lng: number) => {
+    setFormData(prev => ({ ...prev, latitude: lat, longitude: lng }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const payload = { nameAr: formData.nameAr, nameFr: formData.nameFr, nameEn: formData.nameEn, country: { id: formData.countryId } };
+    const payload = {
+      nameAr: formData.nameAr,
+      nameFr: formData.nameFr,
+      nameEn: formData.nameEn,
+      country: { id: formData.countryId },
+      latitude: formData.latitude,
+      longitude: formData.longitude
+    };
+
     try {
       if (editingCity) await updateCity(editingCity.id, payload);
       else await createCity(payload);
@@ -84,96 +120,117 @@ export default function CitiesPage() {
 
   if (loading) return (
     <div className="flex flex-col items-center justify-center min-h-[50vh]">
-      <Loader2 className="w-10 h-10 animate-spin text-blue-600 mb-2" />
-      <p className="text-blue-600 font-bold text-xs uppercase tracking-widest">Loading Cities...</p>
+      <Loader2 className="w-10 h-10 animate-spin text-indigo-600 mb-2" />
+      <p className="text-indigo-600 font-bold text-xs uppercase tracking-widest">Loading Cities...</p>
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] pb-10" dir={isAr ? 'rtl' : 'ltr'}>
-      <div className="flex justify-between items-center mb-10 bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
+    <div className="min-h-screen bg-[#F8FAFC] pb-10 px-4 md:px-8" dir={isAr ? 'rtl' : 'ltr'}>
+      {/* Header */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 bg-white p-6 rounded-3xl shadow-sm border border-slate-100 gap-4 mt-6">
         <div>
           <h1 className="text-2xl font-black text-slate-800">{t("dashboard.infos-general.tabs.city_tab")}</h1>
-          <p className="text-slate-400 text-sm font-medium">Urban network management</p>
+          <p className="text-slate-400 text-sm font-medium">Urban & Localisation Network</p>
         </div>
-        <button onClick={() => handleOpenModal()} className="flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-2xl font-bold shadow-lg">
+        <button onClick={() => handleOpenModal()} className="flex items-center gap-2 bg-indigo-600 text-white px-6 py-3 rounded-2xl font-bold shadow-lg hover:bg-indigo-700 transition-all w-full md:w-auto justify-center">
           <Plus className="w-5 h-5" />
           <span>{t("dashboard.infos-general.common.add_new")}</span>
         </button>
       </div>
 
+      {/* Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {cities.map((city) => (
-          <div key={city.id} className="bg-white rounded-[2rem] p-6 border border-slate-200 hover:shadow-xl transition-all group">
+          <div key={city.id} className="bg-white rounded-[2rem] p-6 border border-slate-200 hover:shadow-xl transition-all group relative">
             <div className="flex justify-between items-start mb-6">
-              <div className="p-4 bg-slate-50 rounded-2xl text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-colors">
-                <Map className="w-6 h-6" />
+              <div className="p-4 bg-slate-50 rounded-2xl text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                <MapIcon className="w-6 h-6" />
               </div>
               <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                <button onClick={() => handleOpenModal(city)} className="p-2 text-blue-600 hover:bg-blue-50 rounded-xl transition"><Pencil className="w-5 h-5" /></button>
+                <button onClick={() => handleOpenModal(city)} className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-xl transition"><Pencil className="w-5 h-5" /></button>
                 <button onClick={() => handleDelete(city.id)} className="p-2 text-red-600 hover:bg-red-50 rounded-xl transition"><Trash2 className="w-5 h-5" /></button>
               </div>
             </div>
             <h3 className="text-xl font-black text-slate-800 mb-1">{isAr ? city.nameAr : city.nameFr}</h3>
-            {/* <div className="flex items-center gap-2 text-slate-400">
-              <Building2 className="w-4 h-4" />
-              <span className="text-xs font-bold uppercase">{city.country ? (isAr ? city.country.nameAr : city.country.nameFr) : "---"}</span>
-            </div> */}
+            <div className="flex items-center gap-2 text-slate-400 mt-2">
+              <Navigation className="w-3 h-3 text-indigo-500" />
+              <span className="text-[10px] font-mono">
+                {city.localisation ? `${city.localisation.latitude}, ${city.localisation.longitude}` : "No GPS data"}
+              </span>
+            </div>
           </div>
         ))}
       </div>
 
+      {/* Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
-          <div className="bg-white w-full max-w-md rounded-[2.5rem] p-8 shadow-2xl">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+          <div className="bg-white w-full max-w-5xl rounded-[2.5rem] p-6 md:p-10 shadow-2xl overflow-y-auto max-h-[95vh]">
             <div className="flex justify-between items-center mb-8">
-              <h2 className="text-2xl font-black text-slate-800">{editingCity ? 'Edit City' : 'New City'}</h2>
+              <h2 className="text-2xl font-black text-slate-800">{editingCity ? 'Edit City' : 'Add New City'}</h2>
               <button onClick={() => setIsModalOpen(false)} className="p-2 hover:bg-slate-100 rounded-full transition"><X className="w-6 h-6" /></button>
             </div>
-            <form onSubmit={handleSubmit} className="space-y-5">
-              {/* <div>
-                <label className="block text-xs font-black uppercase text-slate-400 mb-2 px-1">Country</label>
-                <select required className="w-full bg-slate-50 border-none rounded-2xl p-4 text-slate-800 font-bold outline-none" value={formData.countryId} onChange={(e) => setFormData({ ...formData, countryId: e.target.value })}>
-                  <option value="">-- Select Country --</option>
-                  {countries.map(country => (
-                    <option key={country.id} value={country.id}>{isAr ? country.nameAr : country.nameFr && country.nameEn}</option>
-                  ))}
-                </select>
-              </div> */}
 
-              {/* تم تصحيح المفتاح من cityId إلى countryId ليطابق الـ State */}
-              <div>
-                <label className="block text-xs font-black uppercase text-slate-400 mb-2 px-1">
-                  {t("dashboard.infos-general.tabs.country_tab")}
-                </label>
-                <select
-                  required
-                  className="w-full bg-slate-50 border-none rounded-2xl p-4 text-slate-800 font-bold outline-none"
-                  value={formData.countryId} // تم التغيير هنا
-                  onChange={(e) => setFormData({ ...formData, countryId: e.target.value })} // تم التغيير هنا
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+              {/* Form Section */}
+              <div className="lg:col-span-5 space-y-5">
+                <div>
+                  <label className="block text-[10px] font-black uppercase text-slate-400 mb-2 px-1">Country</label>
+                  <select
+                    required
+                    className="w-full bg-slate-50 border-none rounded-2xl p-4 text-slate-800 font-bold outline-none ring-2 ring-transparent focus:ring-indigo-500/20 transition-all"
+                    value={formData.countryId}
+                    onChange={(e) => setFormData({ ...formData, countryId: e.target.value })}
+                  >
+                    <option value="">-- Select Country --</option>
+                    {countries.map(country => {
+                      // 1. Determine the correct name key dynamically
+                      let countryName = country.nameFr; // Default fallback
+                      if (isAr) countryName = country.nameAr;
+                      else if (isEn) countryName = country.nameEn; // Assumes your object has nameEn
+
+                      return (
+                        <option key={country.id} value={country.id}>
+                          {countryName}
+                        </option>
+                      );
+                    })}
+                  </select>
+                </div>
+
+                <div className="space-y-4">
+                  <input placeholder="Name (Arabic)" type="text" required className="w-full bg-slate-50 border-none rounded-2xl p-4 text-slate-800 font-bold outline-none" value={formData.nameAr} onChange={(e) => setFormData({ ...formData, nameAr: e.target.value })} />
+                  <input placeholder="Name (French)" type="text" required className="w-full bg-slate-50 border-none rounded-2xl p-4 text-slate-800 font-bold outline-none" value={formData.nameFr} onChange={(e) => setFormData({ ...formData, nameFr: e.target.value })} />
+                  <input placeholder="Name (English)" type="text" required className="w-full bg-slate-50 border-none rounded-2xl p-4 text-slate-800 font-bold outline-none" value={formData.nameEn} onChange={(e) => setFormData({ ...formData, nameEn: e.target.value })} />
+                </div>
+
+                <div className="p-4 bg-indigo-50 rounded-2xl border border-indigo-100">
+                  <h4 className="text-[10px] font-black text-indigo-400 uppercase mb-2">Coordinates (GPS)</h4>
+                  <div className="flex justify-between font-mono text-xs font-bold text-indigo-700">
+                    <span>LAT: {formData.latitude.toFixed(6)}</span>
+                    <span>LNG: {formData.longitude.toFixed(6)}</span>
+                  </div>
+                </div>
+
+                <button
+                  onClick={handleSubmit}
+                  className="w-full bg-indigo-600 text-white py-4 rounded-2xl font-black shadow-lg hover:bg-indigo-700 transition-all"
                 >
-                  <option value="">-- Select Country --</option>
-                  {countries.map(country => (
-                    <option key={country.id} value={country.id}>
-                      {isAr ? country.nameAr : country.nameFr}
-                    </option>
-                  ))}
-                </select>
+                  {editingCity ? 'Save Changes' : 'Create City'}
+                </button>
               </div>
-              <div>
-                <label className="block text-xs font-black uppercase text-slate-400 mb-2 px-1">Name (Arabic)</label>
-                <input type="text" required className="w-full bg-slate-50 border-none rounded-2xl p-4 text-slate-800 font-bold outline-none" value={formData.nameAr} onChange={(e) => setFormData({ ...formData, nameAr: e.target.value })} />
+
+              {/* Map Section */}
+              <div className="lg:col-span-7 h-[400px] lg:h-[500px] rounded-[2rem] overflow-hidden border-4 border-slate-50 shadow-inner">
+                <MapComponent
+                  center={[formData.latitude, formData.longitude]}
+                  displayLabel={isAr ? formData.nameAr : formData.nameEn}
+                  isPicker={true}
+                  onLocationSelect={handleLocationChange}
+                />
               </div>
-              <div>
-                <label className="block text-xs font-black uppercase text-slate-400 mb-2 px-1">Name (French)</label>
-                <input type="text" required className="w-full bg-slate-50 border-none rounded-2xl p-4 text-slate-800 font-bold outline-none" value={formData.nameFr} onChange={(e) => setFormData({ ...formData, nameFr: e.target.value })} />
-              </div>
-              <div>
-                <label className="block text-xs font-black uppercase text-slate-400 mb-2 px-1">Name (English)</label>
-                <input type="text" required className="w-full bg-slate-50 border-none rounded-2xl p-4 text-slate-800 font-bold outline-none" value={formData.nameEn} onChange={(e) => setFormData({ ...formData, nameEn: e.target.value })} />
-              </div>
-              <button type="submit" className="w-full bg-blue-600 text-white py-4 rounded-2xl font-black shadow-lg mt-4">{editingCity ? 'Update' : 'Create'}</button>
-            </form>
+            </div>
           </div>
         </div>
       )}

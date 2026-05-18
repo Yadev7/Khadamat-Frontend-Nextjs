@@ -1,45 +1,25 @@
 'use client';
 
-import { MapContainer, TileLayer, Marker, useMap, useMapEvents } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, useMap, useMapEvents, Popup } from 'react-leaflet';
 import L from 'leaflet';
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useMemo } from 'react';
+import { Search, Navigation2 } from 'lucide-react'; // استيراد أيقونات إضافية
 import 'leaflet/dist/leaflet.css';
 
-// إصلاح الأيقونات لضمان ظهورها في Next.js
-const redIcon = typeof window !== 'undefined' ? new L.Icon({
+const redIcon = L.icon({
   iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
   iconSize: [25, 41],
   iconAnchor: [12, 41],
   popupAnchor: [1, -34],
-  shadowSize: [41, 41],
-}) : null;
+  shadowSize: [41, 41]
+});
 
-function MapViewUpdater({ center, zoom, markerRef }: { center: [number, number], zoom: number, markerRef: React.RefObject<L.Marker | null> }) {
+function MapViewUpdater({ center, zoom }: { center: [number, number], zoom: number }) {
   const map = useMap();
-
   useEffect(() => {
-    // التحقق من أن الإحداثيات أرقام صالحة وليست NaN أو undefined
-    const isValid = center && !isNaN(center[0]) && !isNaN(center[1]);
-
-    if (isValid) {
-      // تحديث حجم الخريطة أولاً لضمان عدم وجود أجزاء رمادية
-      map.invalidateSize();
-
-      // الانتقال للموقع الجديد بنعومة
-      map.flyTo(center, zoom, {
-        duration: 1.5,
-        easeLinearity: 0.25
-      });
-
-      const timer = setTimeout(() => {
-        if (markerRef.current) markerRef.current.openPopup();
-      }, 1000);
-
-      return () => clearTimeout(timer);
-    }
-  }, [center, zoom, map, markerRef]);
-
+    map.flyTo(center, zoom, { duration: 1.5 });
+  }, [center, zoom, map]);
   return null;
 }
 
@@ -52,69 +32,102 @@ function MapPicker({ onLocationSelect }: { onLocationSelect: (lat: number, lng: 
   return null;
 }
 
-interface MapComponentProps {
-  center?: [number, number];
-  displayLabel?: string;
-  isPicker?: boolean;
-  onLocationSelect?: (lat: number, lng: number) => void;
-}
+export default function MapComponent({ center, displayLabel, isPicker, onLocationSelect, markers }: any) {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isSearching, setIsSearching] = useState(false);
+  const mapRef = useRef<L.Map | null>(null);
 
-export default function MapComponent({ center, displayLabel, isPicker, onLocationSelect }: MapComponentProps) {
-  const defaultPosition: [number, number] = [34.0331, -5.0003]; // Fes
+  // وظيفة البحث عن المدينة (Geocoding)
+  const handleSearch = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!searchQuery.trim()) return;
 
-  // تحويل القيم مسبقاً لأرقام لضمان عدم تمرير Strings من قاعدة البيانات
-  const sanitizedCenter: [number, number] | undefined = center
-    ? [Number(center[0]), Number(center[1])]
-    : undefined;
+    setIsSearching(true);
+    try {
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchQuery)}`
+      );
+      const data = await response.json();
+      if (data && data.length > 0) {
+        const { lat, lon } = data[0];
+        if (onLocationSelect) {
+          onLocationSelect(parseFloat(lat), parseFloat(lon));
+        }
+      }
+    } catch (error) {
+      console.error("Search error:", error);
+    } finally {
+      setIsSearching(false);
+    }
+  };
 
-  const [zoomLevel, setZoomLevel] = useState(10);
-  const markerRef = useRef<L.Marker | null>(null);
-
-  useEffect(() => {
-    // تعيين مستوى الزووم بناءً على وجود المركز
-    setZoomLevel(sanitizedCenter ? 15 : 10);
-  }, [sanitizedCenter]);
-
-  // الموقع النشط للخريطة (المركز الممرر أو الافتراضي)
-  const activePosition = sanitizedCenter && !isNaN(sanitizedCenter[0])
-    ? sanitizedCenter
-    : defaultPosition;
+  const activePosition: [number, number] = center || [34.0331, -5.0003];
 
   return (
-    <div className="h-full w-full relative z-0">
+    <div className="h-full w-full relative z-0 group">
+      {/* شريط البحث فوق الخريطة */}
+      {isPicker && (
+        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-[1000] w-full max-w-md px-4">
+          <form onSubmit={handleSearch} className="relative group">
+            <input
+              type="text"
+              placeholder="Search for city center (e.g. Casablanca center)..."
+              className="w-full bg-white/90 backdrop-blur-md border-none rounded-2xl py-3 px-12 shadow-2xl text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            <Search className={`absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 ${isSearching ? 'animate-pulse text-indigo-500' : 'text-slate-400'}`} />
+            <button
+              type="submit"
+              className="absolute right-2 top-1/2 -translate-y-1/2 bg-indigo-600 text-white text-[10px] font-black px-3 py-1.5 rounded-xl hover:bg-indigo-700 transition-all"
+            >
+              FIND
+            </button>
+          </form>
+        </div>
+      )}
+
       <MapContainer
         center={activePosition}
-        zoom={zoomLevel}
+        zoom={13}
         scrollWheelZoom={true}
-        className="h-full w-full"
+        className="h-full w-full rounded-[2rem]"
+        ref={mapRef}
       >
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
+        <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
 
-        {sanitizedCenter && !isNaN(sanitizedCenter[0]) && redIcon && (
-          <Marker position={sanitizedCenter} icon={redIcon} ref={markerRef}>
-            {displayLabel && (
-              <div className="text-center p-1">
-                <span className="text-indigo-600 font-extrabold text-lg">
-                  {displayLabel}
-                </span>
-              </div>
-            )}
+        {center && (
+          <Marker position={activePosition} icon={redIcon}>
+            <Popup className="custom-popup">
+              <span className="font-bold text-indigo-600">{displayLabel || "Selected Center"}</span>
+            </Popup>
           </Marker>
         )}
 
-        {isPicker && onLocationSelect && (
-          <MapPicker onLocationSelect={onLocationSelect} />
-        )}
+        {markers && markers.map((m: any) => (
+          <Marker key={m.id} position={m.position}>
+            <Popup className="custom-popup">
+              <span className="font-bold text-slate-800">{m.label}</span>
+            </Popup>
+          </Marker>
+        ))}
 
-        <MapViewUpdater
-          center={center || defaultPosition}
-          zoom={zoomLevel}
-          markerRef={markerRef}
-        />
+        {isPicker && <MapPicker onLocationSelect={onLocationSelect} />}
+        <MapViewUpdater center={activePosition} zoom={13} />
       </MapContainer>
+
+      {/* زر تحديد الموقع الحالي */}
+      <button
+        onClick={() => {
+          navigator.geolocation.getCurrentPosition((pos) => {
+            onLocationSelect(pos.coords.latitude, pos.coords.longitude);
+          });
+        }}
+        className="absolute bottom-6 right-6 z-[1000] bg-white p-3 rounded-2xl shadow-xl border border-slate-100 hover:bg-slate-50 text-indigo-600 transition-all"
+        title="My Location"
+      >
+        <Navigation2 className="w-5 h-5 fill-current" />
+      </button>
     </div>
   );
 }

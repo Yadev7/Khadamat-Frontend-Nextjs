@@ -88,7 +88,7 @@ export default function AddCityModal({ isOpen, onClose, onSuccess }: AddCityModa
                         </div>
 
                         {/* Arabic Name */}
-                        <div className="space-y-2">
+                        {/* <div className="space-y-2">
                             <label className="text-xs font-black uppercase text-slate-400 tracking-widest text-right block">
                                 الاسم (بالعربية)
                             </label>
@@ -101,7 +101,7 @@ export default function AddCityModal({ isOpen, onClose, onSuccess }: AddCityModa
                                 value={formData.nameAr}
                                 onChange={(e) => setFormData({ ...formData, nameAr: e.target.value })}
                             />
-                        </div>
+                        </div> */}
                     </div>
 
                     {/* Map Coordinates Section */}

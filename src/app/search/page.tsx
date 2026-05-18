@@ -137,26 +137,19 @@ export default function SearchResultsPage() {
         const langSuffix = i18n.language.charAt(0).toUpperCase() + i18n.language.slice(1);
         const getData = (res: any) => (Array.isArray(res) ? res : res?.data || []);
 
-        // setCities(getData(citiesData).map((c: any) => ({
-        //   ...c,
-        //   displayName: c[`name${langSuffix}`] || c.nameFr || c.nameEn || "City",
-        //   lat: c.lat,
-        //   lng: c.lng
-        // })));
-
         setCities(getData(citiesData).map((c: any) => ({
           id: c.id,
           displayName: c[`name${langSuffix}`] || c.nameFr || "City",
-          lat: c.lat, // <--- Crucial: must match backend field name (lat/latitude)
-          lng: c.lng  // <--- Crucial: must match backend field name (lng/longitude)
+          lat: c.localisation?.latitude,
+          lng: c.localisation?.longitude
         })));
 
         setAllZones(getData(zonesData).map((z: any) => ({
           ...z,
           displayName: z[`name${langSuffix}`] || z.nameFr || "Area",
           normalizedCityId: z.city?.id || z.cityId,
-          lat: z.lat,
-          lng: z.lng
+          lat: z.localisation?.latitude,
+          lng: z.localisation?.longitude
         })));
 
         setServices(getData(servicesData).map((s: any) => ({
@@ -214,6 +207,18 @@ export default function SearchResultsPage() {
       }
     }
 
+    return undefined;
+  }, [selectedCityId, selectedZoneId, cities, allZones]);
+
+  const activeMapLabel = useMemo(() => {
+    if (selectedZoneId) {
+      const zone = allZones.find(z => String(z.id) === String(selectedZoneId));
+      return zone?.displayName || "Selected Area";
+    }
+    if (selectedCityId) {
+      const city = cities.find(c => String(c.id) === String(selectedCityId));
+      return city?.displayName || "Selected City";
+    }
     return undefined;
   }, [selectedCityId, selectedZoneId, cities, allZones]);
 
@@ -398,7 +403,7 @@ export default function SearchResultsPage() {
 
         <div className="hidden lg:block lg:w-1/2 h-full p-4">
           <div className="w-full h-full rounded-[2.5rem] overflow-hidden shadow-inner border-4 border-white">
-            <MapComponent center={activeMapCenter} />
+            <MapComponent center={activeMapCenter} displayLabel={activeMapLabel} markers={mapMarkers} />
           </div>
         </div>
       </div>

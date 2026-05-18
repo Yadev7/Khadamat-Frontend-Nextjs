@@ -90,6 +90,7 @@ export default function GeneraleInfos() {
     { id: 'City', label: t('dashboard.infos-general.tabs.city_tab'), icon: MapIcon },
     { id: 'CityArea', label: t('dashboard.infos-general.tabs.city_area_tab'), icon: MapPinIcon },
     { id: 'Service', label: t('dashboard.infos-general.tabs.service_tab'), icon: WrenchScrewdriverIcon },
+    { id: 'Zone', label: t('dashboard.infos-general.tabs.zone_tab'), icon: WrenchScrewdriverIcon },
   ];
 
   // --- Handlers ---

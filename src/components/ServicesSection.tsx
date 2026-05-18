@@ -1,48 +1,94 @@
 "use client";
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
+import { getServices } from '@/api/services-api';
+
+interface Service {
+  id: string;
+  title: string;
+  description: string;
+  image: string;
+}
 
 const ServicesSection = () => {
   const router = useRouter();
   const { t, i18n } = useTranslation();
+  const [services, setServices] = useState<Service[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   
   // Determine if the current language is Arabic
   const isRtl = i18n.language === 'ar';
 
-  const services = [
-    {
-      id: "plumbing",
-      title: t("services_section.categories.plumbing"),
-      description: t("services_section.categories.plumbing_description"),
-      image: "/PlumbingCarlos.png"
-    },
-    {
-      id: "cleaning",
-      title: t("services_section.categories.cleaning"),
-      description: t("services_section.categories.cleaning_description") || "Professional deep cleaning for homes and offices.",
-      image: "/HouseCleaningMaria.png"
-    },
-    {
-      id: "handyman",
-      title: t("services_section.categories.handyman"),
-      description: t("services_section.categories.handyman_description") || "Versatile experts for furniture assembly and mounting.",
-      image: "/HandymanPatricia.png"
-    },
-    {
-      id: "gardening",
-      title: t("services_section.categories.gardening"),
-      description: t("services_section.categories.gardening_description") || "Complete lawn care and outdoor maintenance.",
-      image: "/GardeningJames.png"
-    }
-  ];
+  useEffect(() => {
+    const fetchServices = async () => {
+      try {
+        setLoading(true);
+        const data = await getServices();
+        
+        // Map API data to our Service interface
+        const mappedServices = data.map((s: any) => {
+          // Determine title and description based on current language
+          let title = s.nameServEn || s.nameServFr; // default fallback
+          let description = s.descrEn || s.descrFr;
+          
+          if (i18n.language === 'ar') {
+            title = s.nameServAr || title;
+            description = s.descrAr || description;
+          } else if (i18n.language === 'fr') {
+            title = s.nameServFr || title;
+            description = s.descrFr || description;
+          }
+          
+          return {
+            id: s.id,
+            title: title || t("services_section.categories.default_title"),
+            description: description || t("services_section.categories.default_description"),
+            image: s.image?.path || "/PlumbingCarlos.png" // Fallback to a default image
+          };
+        });
+        
+        setServices(mappedServices);
+      } catch (err) {
+        console.error("Failed to fetch services:", err);
+        setError("Could not load services.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchServices();
+  }, [i18n.language, t]);
 
   const handleNavigate = (serviceId: string) => {
     router.push(`/search?service=${serviceId}`);
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20 min-h-[400px]">
+        <Loader2 className="w-12 h-12 text-blue-600 animate-spin" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-20 text-red-500 font-medium min-h-[400px]">
+        <p className="mb-4">{error}</p>
+        <button 
+          onClick={() => window.location.reload()}
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+        >
+          Retry
+        </button>
+      </div>
+    );
+  }
 
   return (
     <section 

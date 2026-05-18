@@ -3,15 +3,22 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import {
-  Trash2, Plus, Globe, Pencil, Loader2, X
+  Trash2, Plus, Globe, Pencil, Loader2, X, Navigation
 } from "lucide-react";
+import dynamic from 'next/dynamic';
 import Swal from 'sweetalert2';
+
+const MapComponent = dynamic(() => import('@/components/MapComponent'), {
+  ssr: false,
+  loading: () => <div className="h-full w-full bg-slate-100 animate-pulse flex items-center justify-center text-slate-400">Loading Map...</div>
+});
 
 import {
   getCountries,
   createCountry,
   updateCountry,
-  deleteCountry
+  deleteCountry,
+  uploadFile
 } from "@/api/countries-api";
 
 interface Country {
@@ -20,6 +27,8 @@ interface Country {
   nameFr: string;
   nameEn?: string;
   countryCode?: string;
+  localisation?: { id: string; latitude: number; longitude: number };
+  flagImg?: any;
 }
 
 export default function CountriesPage() {
@@ -27,7 +36,9 @@ export default function CountriesPage() {
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCountry, setEditingCountry] = useState<Country | null>(null);
-  const [formData, setFormData] = useState({ nameAr: '', nameFr: '', nameEn: '', countryCode: '' });
+  const [formData, setFormData] = useState<any>({ nameAr: '', nameFr: '', nameEn: '', countryCode: '', latitude: 34.0331, longitude: -5.0003, flagImg: null });
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { i18n, t } = useTranslation();
   const isAr = i18n.language === 'ar';
@@ -51,27 +62,53 @@ export default function CountriesPage() {
   const handleOpenModal = (country: Country | null = null) => {
     if (country) {
       setEditingCountry(country);
-      setFormData({ nameAr: country.nameAr, nameFr: country.nameFr, nameEn: country.nameEn || '', countryCode: country.countryCode || '' });
+      setFormData({
+        nameAr: country.nameAr,
+        nameFr: country.nameFr,
+        nameEn: country.nameEn || '',
+        countryCode: country.countryCode || '',
+        latitude: Number(country.localisation?.latitude) || 34.0331,
+        longitude: Number(country.localisation?.longitude) || -5.0003,
+        flagImg: country.flagImg || null
+      });
+      setSelectedFile(null);
     } else {
       setEditingCountry(null);
-      setFormData({ nameAr: '', nameFr: '', nameEn: '', countryCode: '' });
+      setFormData({ nameAr: '', nameFr: '', nameEn: '', countryCode: '', latitude: 34.0331, longitude: -5.0003, flagImg: null });
+      setSelectedFile(null);
     }
     setIsModalOpen(true);
   };
 
+  const handleLocationChange = (lat: number, lng: number) => {
+    setFormData(prev => ({ ...prev, latitude: lat, longitude: lng }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSubmitting(true);
     try {
+      let finalPayload = { ...formData };
+      
+      if (selectedFile) {
+        const uploadedFileResponse = await uploadFile(selectedFile);
+        // Assuming uploadFile returns { file: { id: ... } } or { id: ... }
+        const fileId = uploadedFileResponse?.file?.id || uploadedFileResponse?.id || uploadedFileResponse;
+        finalPayload.flagImg = { id: fileId };
+      }
+
       if (editingCountry) {
-        await updateCountry(editingCountry.id, formData);
+        await updateCountry(editingCountry.id, finalPayload);
       } else {
-        await createCountry(formData);
+        await createCountry(finalPayload);
       }
       setIsModalOpen(false);
       fetchCountries();
       Swal.fire({ icon: 'success', title: t('common.success_msg', 'نجاح'), timer: 1500, showConfirmButton: false });
     } catch (err) {
       Swal.fire({ icon: 'error', title: 'Error', text: 'Operation failed' });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -119,8 +156,12 @@ export default function CountriesPage() {
         {countries.map((country) => (
           <div key={country.id} className="bg-white rounded-[2rem] p-6 border border-slate-200 hover:shadow-xl transition-all group">
             <div className="flex justify-between items-start mb-6">
-              <div className="p-4 bg-blue-50 rounded-2xl text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-colors">
-                <Globe className="w-6 h-6" />
+              <div className="p-4 bg-blue-50 rounded-2xl text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-colors overflow-hidden relative w-14 h-14 flex items-center justify-center">
+                {country.flagImg?.path ? (
+                  <img src={country.flagImg.path} alt="flag" className="absolute inset-0 w-full h-full object-cover" />
+                ) : (
+                  <Globe className="w-6 h-6" />
+                )}
               </div>
               <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                 <button onClick={() => handleOpenModal(country)} className="p-2 text-blue-600 hover:bg-blue-50 rounded-xl transition">
@@ -133,40 +174,73 @@ export default function CountriesPage() {
             </div>
             <h3 className="text-xl font-black text-slate-800 mb-1">{isAr ? country.nameAr : country.nameFr}</h3>
             <p className="text-sm text-slate-400 font-medium uppercase">{country.nameFr}</p>
+            <div className="flex items-center gap-2 text-slate-400 mt-3 pt-3 border-t border-slate-50">
+              <Navigation className="w-3 h-3 text-blue-500" />
+              <span className="text-[10px] font-mono">
+                {country.localisation ? `${country.localisation.latitude}, ${country.localisation.longitude}` : "No GPS data"}
+              </span>
+            </div>
           </div>
         ))}
       </div>
 
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
-          <div className="bg-white w-full max-w-md rounded-[2.5rem] p-8 shadow-2xl scale-in-center">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+          <div className="bg-white w-full max-w-5xl rounded-[2.5rem] p-6 md:p-10 shadow-2xl scale-in-center overflow-y-auto max-h-[95vh]">
             <div className="flex justify-between items-center mb-8">
               <h2 className="text-2xl font-black text-slate-800">{editingCountry ? 'Edit Country' : 'New Country'}</h2>
               <button onClick={() => setIsModalOpen(false)} className="p-2 hover:bg-slate-100 rounded-full transition"><X className="w-6 h-6" /></button>
             </div>
-            <form onSubmit={handleSubmit} className="space-y-5">
-              <div>
-                <label className="block text-xs font-black uppercase text-slate-400 mb-2 px-1">Arabic Name</label>
-                <input type="text" required className="w-full bg-slate-50 border-none rounded-2xl p-4 text-slate-800 font-bold outline-none" value={formData.nameAr} onChange={(e) => setFormData({ ...formData, nameAr: e.target.value })} />
+
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+              <div className="lg:col-span-5 space-y-5">
+                <div className="space-y-4">
+                  <input placeholder="Arabic Name" type="text" required className="w-full bg-slate-50 border-none rounded-2xl p-4 text-slate-800 font-bold outline-none ring-2 ring-transparent focus:ring-blue-500/20 transition-all" value={formData.nameAr} onChange={(e) => setFormData({ ...formData, nameAr: e.target.value })} />
+                  <input placeholder="French Name" type="text" required className="w-full bg-slate-50 border-none rounded-2xl p-4 text-slate-800 font-bold outline-none ring-2 ring-transparent focus:ring-blue-500/20 transition-all" value={formData.nameFr} onChange={(e) => setFormData({ ...formData, nameFr: e.target.value })} />
+                  <input placeholder="English Name" type="text" required className="w-full bg-slate-50 border-none rounded-2xl p-4 text-slate-800 font-bold outline-none ring-2 ring-transparent focus:ring-blue-500/20 transition-all" value={formData.nameEn} onChange={(e) => setFormData({ ...formData, nameEn: e.target.value })} />
+                </div>
+                
+                <div>
+                  <select required className="w-full bg-slate-50 border-none rounded-2xl p-4 text-slate-800 font-bold outline-none ring-2 ring-transparent focus:ring-blue-500/20 transition-all" value={formData.countryCode} onChange={(e) => setFormData({ ...formData, countryCode: e.target.value })}>
+                    <option value="">-- Select Country Code --</option>
+                    <option value="MA">Morocco (MA)</option>
+                    <option value="FR">France (FR)</option>
+                  </select>
+                </div>
+
+                <div className="p-4 bg-blue-50 rounded-2xl border border-blue-100">
+                  <h4 className="text-[10px] font-black text-blue-400 uppercase mb-2">Coordinates (GPS)</h4>
+                  <div className="flex justify-between font-mono text-xs font-bold text-blue-700">
+                    <span>LAT: {formData.latitude.toFixed(6)}</span>
+                    <span>LNG: {formData.longitude.toFixed(6)}</span>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="block text-xs font-black uppercase text-slate-400 px-1">Country Flag</label>
+                  <div className="flex items-center gap-4">
+                    {formData.flagImg?.path && !selectedFile && (
+                      <img src={formData.flagImg.path} alt="flag" className="w-12 h-12 rounded-xl object-cover border-2 border-slate-200" />
+                    )}
+                    <input type="file" accept="image/*" onChange={(e) => setSelectedFile(e.target.files?.[0] || null)} className="w-full text-sm text-slate-500 file:mr-4 file:py-3 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition-all cursor-pointer" />
+                  </div>
+                </div>
+
+                <button onClick={handleSubmit} disabled={isSubmitting} className="w-full bg-blue-600 text-white py-4 rounded-2xl font-black shadow-lg hover:bg-blue-700 transition mt-4 disabled:opacity-50 flex justify-center items-center gap-2">
+                  {isSubmitting && <Loader2 className="w-5 h-5 animate-spin" />}
+                  {editingCountry ? 'Save Changes' : 'Create Country'}
+                </button>
               </div>
-              <div>
-                <label className="block text-xs font-black uppercase text-slate-400 mb-2 px-1">French Name</label>
-                <input type="text" required className="w-full bg-slate-50 border-none rounded-2xl p-4 text-slate-800 font-bold outline-none" value={formData.nameFr} onChange={(e) => setFormData({ ...formData, nameFr: e.target.value })} />
+
+              <div className="lg:col-span-7 h-[400px] lg:h-[500px] rounded-[2rem] overflow-hidden border-4 border-slate-50 shadow-inner">
+                <MapComponent
+                  center={[formData.latitude, formData.longitude]}
+                  displayLabel={isAr ? formData.nameAr : formData.nameFr}
+                  isPicker={true}
+                  onLocationSelect={handleLocationChange}
+                />
               </div>
-              <div>
-                <label className="block text-xs font-black uppercase text-slate-400 mb-2 px-1">English Name</label>
-                <input type="text" required className="w-full bg-slate-50 border-none rounded-2xl p-4 text-slate-800 font-bold outline-none" value={formData.nameEn} onChange={(e) => setFormData({ ...formData, nameEn: e.target.value })} />
-              </div>
-              <div>
-                <label className="block text-xs font-black uppercase text-slate-400 mb-2 px-1">Country Code</label>
-                <select required className="w-full bg-slate-50 border-none rounded-2xl p-4 text-slate-800 font-bold outline-none" value={formData.countryCode} onChange={(e) => setFormData({ ...formData, countryCode: e.target.value })}>
-                  <option value="">-- Select Country Code --</option>
-                  <option value="MA">MA</option>
-                  <option value="FR">FR</option>
-                </select>
-              </div>
-              <button type="submit" className="w-full bg-blue-600 text-white py-4 rounded-2xl font-black shadow-lg hover:bg-blue-700 transition mt-4">{editingCountry ? 'Update' : 'Create'}</button>
-            </form>
+            </div>
           </div>
         </div>
       )}
