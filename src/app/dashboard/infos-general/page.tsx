@@ -90,7 +90,6 @@ export default function GeneraleInfos() {
     { id: 'City', label: t('dashboard.infos-general.tabs.city_tab'), icon: MapIcon },
     { id: 'CityArea', label: t('dashboard.infos-general.tabs.city_area_tab'), icon: MapPinIcon },
     { id: 'Service', label: t('dashboard.infos-general.tabs.service_tab'), icon: WrenchScrewdriverIcon },
-    { id: 'Zone', label: t('dashboard.infos-general.tabs.zone_tab'), icon: WrenchScrewdriverIcon },
   ];
 
   // --- Handlers ---
@@ -143,11 +142,11 @@ export default function GeneraleInfos() {
           {activeTab === 'City' && <CitiesPage />}
           {activeTab === 'CityArea' && <CityAreas />}
 
-          {activeTab === 'Zone' && (
+          {/* {activeTab === 'Zone' && (
             <div className="bg-white p-20 rounded-2xl border border-dashed border-gray-300 text-center text-gray-400">
               {t('dashboard.infos-general.loading')}
             </div>
-          )}
+          )} */}
         </div>
       </div>
 
