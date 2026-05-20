@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, Fragment, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import {
   GlobeAltIcon,
@@ -21,7 +22,7 @@ import CountriesPage from '../countries/page';
 import CitiesPage from '../cities/page';
 import CityAreas from '../city-areas/page'
 
-import router from 'next/router';
+
 import { getCountries } from '@/api/countries-api';
 import { getCities } from '@/api/cities-api';
 import { getCityAreas } from '@/api/city-areas-api';
@@ -29,6 +30,7 @@ import { getCityAreas } from '@/api/city-areas-api';
 type TabType = 'Country' | 'City' | 'CityArea' | 'Service' | 'Zone';
 
 export default function GeneraleInfos() {
+  const router = useRouter();
   const { t, i18n } = useTranslation();
   const [activeTab, setActiveTab] = useState<TabType>('Country');
   const isRTL = i18n.language === 'ar';

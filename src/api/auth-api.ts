@@ -51,40 +51,6 @@ api.interceptors.response.use(
   }
 );
 
-// api.interceptors.response.use(
-//   (response) => response,
-//   async (error) => {
-//     const originalRequest = error.config;
-
-//     // التحقق من أن الخطأ 401 وأن الطلب ليس موجهاً لمسار تسجيل الدخول أصلاً
-//     if (error.response?.status === 401 && !originalRequest._retry && !originalRequest.url.includes('/auth/email/login')) {
-//       originalRequest._retry = true;
-
-//       try {
-//         // محاولة تحديث الـ Token
-//         await axios.post(`${API_URL}/v1/auth/refresh`, {}, { withCredentials: true });
-
-//         // جلب الـ Token الجديد (تأكد أن NestJS يضعه في الكوكيز)
-//         const newToken = Cookies.get('auth_token');
-
-//         if (newToken) {
-//           originalRequest.headers.Authorization = `Bearer ${newToken}`;
-//           return api(originalRequest); // إعادة محاولة الطلب الأصلي
-//         }
-//       } catch (refreshError) {
-//         // إذا فشل الـ Refresh أيضاً، هنا فقط نحذف الكوكي ونوجه المستخدم
-//         console.error("فشلت عملية تحديث الجلسة، يجب تسجيل الدخول مجدداً");
-//         Cookies.remove('auth_token');
-//         if (typeof window !== 'undefined') {
-//           window.location.href = '/sign-in';
-//         }
-//       }
-//     }
-
-//     return Promise.reject(error);
-//   }
-// );
-
 export const loginUser = async (email: string, password: string) => {
   const response = await api.post('/v1/auth/email/login', { email, password });
   return response.data;
