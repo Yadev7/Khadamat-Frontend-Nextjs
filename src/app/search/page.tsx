@@ -11,15 +11,12 @@ import { getCities } from "@/api/cities-api";
 import { getCityAreas } from "@/api/city-areas-api";
 import { getServices } from "@/api/services-api";
 import { getBusinesses } from "@/api/businesses-api";
-import { t } from "i18next";
-
 
 const MapComponent = dynamic(() => import('@/components/MapComponent'), {
   ssr: false,
-  loading: () => <div className="w-full h-full bg-gray-100 animate-pulse rounded-[2rem]" />
+  loading: () => <div className="w-full h-full bg-gray-100 animate-pulse rounded-4xl" />
 });
 
-// --- REUSABLE SELECT COMPONENT ---
 interface Option {
   id: string | number;
   name: string;
@@ -38,6 +35,7 @@ interface CompactSelectProps {
 const CompactSelect = ({ label, icon, options, value, onChange, placeholder, disabled }: CompactSelectProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const { t } = useTranslation();
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -72,7 +70,7 @@ const CompactSelect = ({ label, icon, options, value, onChange, placeholder, dis
       </button>
 
       {isOpen && (
-        <div className="absolute z-[110] mt-3 w-64 left-0 bg-white border border-slate-100 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.15)] max-h-64 overflow-y-auto p-2 animate-in fade-in zoom-in-95 duration-200 origin-top">
+        <div className="absolute z-110 mt-3 w-64 left-0 bg-white border border-slate-100 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.15)] max-h-64 overflow-y-auto p-2 animate-in fade-in zoom-in-95 duration-200 origin-top">
           {options.length > 0 ? (
             options.map((option) => (
               <button
@@ -82,10 +80,11 @@ const CompactSelect = ({ label, icon, options, value, onChange, placeholder, dis
                   onChange(String(option.id));
                   setIsOpen(false);
                 }}
-                className={`w-full text-left px-4 py-3 text-sm rounded-2xl transition-all mb-1 last:mb-0 font-bold ${value === option.name
-                  ? 'bg-indigo-600 text-white'
-                  : 'text-slate-600 hover:bg-indigo-50 hover:text-indigo-600'
-                  }`}
+                className={`w-full text-left px-4 py-3 text-sm rounded-2xl transition-all mb-1 last:mb-0 font-bold ${
+                  value === option.name
+                    ? 'bg-indigo-600 text-white'
+                    : 'text-slate-600 hover:bg-indigo-50 hover:text-indigo-600'
+                }`}
               >
                 {option.name}
               </button>
@@ -118,6 +117,9 @@ export default function SearchResultsPage() {
   const [selectedServiceId, setSelectedServiceId] = useState<string>("");
 
   const [hoveredBizId, setHoveredBizId] = useState<string | null>(null);
+
+  // مرجع للاحتفاظ بالدبابيس السابقة ومنع تصفيرها أثناء الـ Loading
+  const stableMarkersRef = useRef<any[]>([]);
 
   useEffect(() => {
     setSelectedCityId(searchParams.get("cityId") || "");
@@ -168,6 +170,7 @@ export default function SearchResultsPage() {
       const serviceId = searchParams.get("service");
       if (!serviceId) {
         setBusinesses([]);
+        stableMarkersRef.current = [];
         setLoading(false);
         return;
       }
@@ -191,22 +194,14 @@ export default function SearchResultsPage() {
   }, [selectedCityId, allZones]);
 
   const activeMapCenter = useMemo((): [number, number] | undefined => {
-    // Priority 1: Move to selected Zone
     if (selectedZoneId) {
       const zone = allZones.find(z => String(z.id) === String(selectedZoneId));
-      if (zone?.lat && zone?.lng) {
-        return [parseFloat(zone.lat), parseFloat(zone.lng)];
-      }
+      if (zone?.lat && zone?.lng) return [parseFloat(zone.lat), parseFloat(zone.lng)];
     }
-
-    // Priority 2: Move to selected City
     if (selectedCityId) {
       const city = cities.find(c => String(c.id) === String(selectedCityId));
-      if (city?.lat && city?.lng) {
-        return [parseFloat(city.lat), parseFloat(city.lng)];
-      }
+      if (city?.lat && city?.lng) return [parseFloat(city.lat), parseFloat(city.lng)];
     }
-
     return undefined;
   }, [selectedCityId, selectedZoneId, cities, allZones]);
 
@@ -222,18 +217,6 @@ export default function SearchResultsPage() {
     return undefined;
   }, [selectedCityId, selectedZoneId, cities, allZones]);
 
-  // const activeMapCenter = useMemo((): [number, number] | undefined => {
-  //   if (selectedZoneId) {
-  //     const zone = allZones.find(z => String(z.id) === String(selectedZoneId));
-  //     if (zone?.lat && zone?.lng) return [parseFloat(zone.lat), parseFloat(zone.lng)];
-  //   }
-  //   if (selectedCityId) {
-  //     const city = cities.find(c => String(c.id) === String(selectedCityId));
-  //     if (city?.lat && city?.lng) return [parseFloat(city.lat), parseFloat(city.lng)];
-  //   }
-  //   return undefined;
-  // }, [selectedCityId, selectedZoneId, cities, allZones]);
-
   const handleSearchUpdate = () => {
     if (!selectedServiceId) {
       alert(t("search.please_select_service") || "Please select a service first");
@@ -246,26 +229,46 @@ export default function SearchResultsPage() {
     router.push(`/search?${params.toString()}`, { scroll: false });
   };
 
+  // استخراج الإحداثيات وتحديث المرجع المستقر (Stable Cache)
   const mapMarkers = useMemo(() => {
-    return businesses.map((biz: any) => {
-      const loc = biz.contact?.address?.localisation;
-      if (loc?.latitude && loc?.longitude) {
+    const freshMarkers = businesses.map((biz: any) => {
+      let rawLat = biz.contact?.address?.localisation?.latitude || biz.localisation?.latitude || biz.lat || biz.latitude;
+      let rawLng = biz.contact?.address?.localisation?.longitude || biz.localisation?.longitude || biz.lng || biz.longitude;
+
+      const lat = parseFloat(String(rawLat));
+      const lng = parseFloat(String(rawLng));
+
+      if (!isNaN(lat) && !isNaN(lng)) {
         const langSuffix = i18n.language.charAt(0).toUpperCase() + i18n.language.slice(1);
         return {
           id: biz.id,
-          position: [parseFloat(loc.latitude), parseFloat(loc.longitude)] as [number, number],
-          label: biz[`name${langSuffix}`] || biz.nameFr || biz.nameEn,
+          position: [lat, lng] as [number, number],
+          label: biz[`name${langSuffix}`] || biz.nameFr || biz.nameEn || "Business",
+          address: biz.contact?.address?.lineAddressFr || "",
           active: hoveredBizId === biz.id
         };
       }
       return null;
     }).filter(Boolean);
+
+    // إذا كانت البيانات الجديدة متوفرة، نحدث الكاش، وإلا نترك الكاش القديم مع تفاعلات الـ Hover
+    if (freshMarkers.length > 0) {
+      stableMarkersRef.current = freshMarkers;
+    } else if (businesses.length > 0) {
+      stableMarkersRef.current = [];
+    }
+
+    // تحديث حالة الـ Active للـ Hover الحالي على الكاش الثابت
+    return stableMarkersRef.current.map((m: any) => ({
+      ...m,
+      active: hoveredBizId === m.id
+    }));
   }, [businesses, i18n.language, hoveredBizId]);
 
   return (
     <div className="relative min-h-screen w-full bg-slate-50/50" dir={isRtl ? 'rtl' : 'ltr'}>
-      {/* --- UPDATED SEARCH BAR --- */}
-      <div className="fixed top-15 left-0 right-0 z-[100] px-2 py-6 md:px-6 bg-white/80 backdrop-blur-xl border-b border-slate-100">
+      {/* --- SEARCH BAR --- */}
+      <div className="fixed top-15 left-0 right-0 z-100 px-2 py-6 md:px-6 bg-white/80 backdrop-blur-xl border-b border-slate-100">
         <div className="container mx-auto max-w-6xl">
           <div className="bg-white/95 backdrop-blur-md border border-slate-200 shadow-[0_20px_50px_rgba(0,0,0,0.1)] rounded-3xl md:rounded-full p-2 flex flex-col md:flex-row items-center gap-1 transition-all hover:border-indigo-200">
             <CompactSelect
@@ -275,7 +278,7 @@ export default function SearchResultsPage() {
               value={cities.find(c => String(c.id) === String(selectedCityId))?.displayName || ""}
               onChange={(id) => {
                 setSelectedCityId(id);
-                setSelectedZoneId(""); // Reset zone when city changes
+                setSelectedZoneId(""); 
               }}
               placeholder={t("search.select_city")}
             />
@@ -364,7 +367,7 @@ export default function SearchResultsPage() {
                       onClick={() => router.push(`/businesses/${biz.id}`)}
                       onMouseEnter={() => setHoveredBizId(biz.id)}
                       onMouseLeave={() => setHoveredBizId(null)}
-                      className="group flex flex-col bg-white rounded-[2rem] overflow-hidden transition-all duration-500 hover:shadow-2xl hover:shadow-slate-200 cursor-pointer border border-slate-100"
+                      className="group flex flex-col bg-white rounded-4xl overflow-hidden transition-all duration-500 hover:shadow-2xl hover:shadow-slate-200 cursor-pointer border border-slate-100"
                     >
                       <div className="relative h-52 w-full overflow-hidden">
                         <img src={img} alt={title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
@@ -374,7 +377,7 @@ export default function SearchResultsPage() {
                           </span>
                         </div>
                       </div>
-                      <div className="p-6 flex flex-col flex-grow">
+                      <div className="p-6 flex flex-col grow">
                         <h3 className="text-xl font-bold text-slate-900 mb-2 group-hover:text-indigo-600 transition-colors line-clamp-1">{title}</h3>
                         <div className="flex items-center gap-1.5 text-slate-400 mb-3">
                           <MapPin size={14} />
@@ -392,7 +395,7 @@ export default function SearchResultsPage() {
               </div>
 
               {searchParams.get("service") && businesses.length === 0 && (
-                <div className="text-center py-20 bg-white rounded-[2rem] border border-dashed border-slate-200">
+                <div className="text-center py-20 bg-white rounded-2rem border border-dashed border-slate-200">
                   <Search size={40} className="mx-auto text-slate-200 mb-4" />
                   <p className="text-slate-500 font-bold">{t("search.no_results")}</p>
                 </div>
@@ -401,8 +404,9 @@ export default function SearchResultsPage() {
           )}
         </div>
 
-        <div className="hidden lg:block lg:w-1/2 h-full p-4">
-          <div className="w-full h-full rounded-[2.5rem] overflow-hidden shadow-inner border-4 border-white">
+        {/* جانب الخريطة المنفصل المستقر */}
+        <div className="hidden lg:block lg:w-1/2 h-full p-4 relative">
+          <div className="w-full h-full rounded-4xl overflow-hidden shadow-inner border-4 border-white relative z-10">
             <MapComponent center={activeMapCenter} displayLabel={activeMapLabel} markers={mapMarkers} />
           </div>
         </div>

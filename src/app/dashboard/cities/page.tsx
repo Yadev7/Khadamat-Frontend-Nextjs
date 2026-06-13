@@ -84,7 +84,7 @@ export default function CitiesPage() {
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault(); // Prevents page reload
     const payload = {
       nameAr: formData.nameAr,
       nameFr: formData.nameFr,
@@ -164,76 +164,81 @@ export default function CitiesPage() {
       </div>
 
       {/* Modal */}
-      {isModalOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
-          <div className="bg-white w-full max-w-5xl rounded-[2.5rem] p-6 md:p-10 shadow-2xl overflow-y-auto max-h-[95vh]">
-            <div className="flex justify-between items-center mb-8">
-              <h2 className="text-2xl font-black text-slate-800">{editingCity ? 'Edit City' : 'Add New City'}</h2>
-              <button onClick={() => setIsModalOpen(false)} className="p-2 hover:bg-slate-100 rounded-full transition"><X className="w-6 h-6" /></button>
-            </div>
+{/* Modal */}
+{isModalOpen && (
+  <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+    <div className="bg-white w-full max-w-5xl rounded-[2.5rem] p-6 md:p-10 shadow-2xl overflow-y-auto max-h-[95vh]">
+      
+      {/* Modal Header */}
+      <div className="flex justify-between items-center mb-8">
+        <h2 className="text-2xl font-black text-slate-800">{editingCity ? 'Edit City' : 'Add New City'}</h2>
+        <button onClick={() => setIsModalOpen(false)} className="p-2 hover:bg-slate-100 rounded-full transition"><X className="w-6 h-6" /></button>
+      </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-              {/* Form Section */}
-              <div className="lg:col-span-5 space-y-5">
-                <div>
-                  <label className="block text-[10px] font-black uppercase text-slate-400 mb-2 px-1">Country</label>
-                  <select
-                    required
-                    className="w-full bg-slate-50 border-none rounded-2xl p-4 text-slate-800 font-bold outline-none ring-2 ring-transparent focus:ring-indigo-500/20 transition-all"
-                    value={formData.countryId}
-                    onChange={(e) => setFormData({ ...formData, countryId: e.target.value })}
-                  >
-                    <option value="">-- Select Country --</option>
-                    {countries.map(country => {
-                      // 1. Determine the correct name key dynamically
-                      let countryName = country.nameFr; // Default fallback
-                      if (isAr) countryName = country.nameAr;
-                      else if (isEn) countryName = country.nameEn; // Assumes your object has nameEn
+      {/* Main Grid Wrapper with explicit layout heights */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        
+        {/* Form Section (Forces left side on desktop, top on mobile) */}
+        <div className="order-2 lg:order-1 lg:col-span-5 space-y-5 w-full">
+          <div>
+            <label className="block text-[10px] font-black uppercase text-slate-400 mb-2 px-1">Country</label>
+            <select
+              required
+              className="w-full bg-slate-50 border-none rounded-2xl p-4 text-slate-800 font-bold outline-none ring-2 ring-transparent focus:ring-indigo-500/20 transition-all"
+              value={formData.countryId}
+              onChange={(e) => setFormData({ ...formData, countryId: e.target.value })}
+            >
+              <option value="">-- Select Country --</option>
+              {countries.map(country => {
+                let countryName = country.nameFr;
+                if (isAr) countryName = country.nameAr;
+                else if (isEn) countryName = country.nameEn;
 
-                      return (
-                        <option key={country.id} value={country.id}>
-                          {countryName}
-                        </option>
-                      );
-                    })}
-                  </select>
-                </div>
+                return (
+                  <option key={country.id} value={country.id}>
+                    {countryName}
+                  </option>
+                );
+              })}
+            </select>
+          </div>
 
-                <div className="space-y-4">
-                  <input placeholder="Name (Arabic)" type="text" required className="w-full bg-slate-50 border-none rounded-2xl p-4 text-slate-800 font-bold outline-none" value={formData.nameAr} onChange={(e) => setFormData({ ...formData, nameAr: e.target.value })} />
-                  <input placeholder="Name (French)" type="text" required className="w-full bg-slate-50 border-none rounded-2xl p-4 text-slate-800 font-bold outline-none" value={formData.nameFr} onChange={(e) => setFormData({ ...formData, nameFr: e.target.value })} />
-                  <input placeholder="Name (English)" type="text" required className="w-full bg-slate-50 border-none rounded-2xl p-4 text-slate-800 font-bold outline-none" value={formData.nameEn} onChange={(e) => setFormData({ ...formData, nameEn: e.target.value })} />
-                </div>
+          <div className="space-y-4">
+            <input placeholder="Name (Arabic)" type="text" required className="w-full bg-slate-50 border-none rounded-2xl p-4 text-slate-800 font-bold outline-none" value={formData.nameAr} onChange={(e) => setFormData({ ...formData, nameAr: e.target.value })} />
+            <input placeholder="Name (French)" type="text" required className="w-full bg-slate-50 border-none rounded-2xl p-4 text-slate-800 font-bold outline-none" value={formData.nameFr} onChange={(e) => setFormData({ ...formData, nameFr: e.target.value })} />
+            <input placeholder="Name (English)" type="text" required className="w-full bg-slate-50 border-none rounded-2xl p-4 text-slate-800 font-bold outline-none" value={formData.nameEn} onChange={(e) => setFormData({ ...formData, nameEn: e.target.value })} />
+          </div>
 
-                <div className="p-4 bg-indigo-50 rounded-2xl border border-indigo-100">
-                  <h4 className="text-[10px] font-black text-indigo-400 uppercase mb-2">Coordinates (GPS)</h4>
-                  <div className="flex justify-between font-mono text-xs font-bold text-indigo-700">
-                    <span>LAT: {formData.latitude.toFixed(6)}</span>
-                    <span>LNG: {formData.longitude.toFixed(6)}</span>
-                  </div>
-                </div>
-
-                <button
-                  onClick={handleSubmit}
-                  className="w-full bg-indigo-600 text-white py-4 rounded-2xl font-black shadow-lg hover:bg-indigo-700 transition-all"
-                >
-                  {editingCity ? 'Save Changes' : 'Create City'}
-                </button>
-              </div>
-
-              {/* Map Section */}
-              <div className="lg:col-span-7 h-[400px] lg:h-[500px] rounded-[2rem] overflow-hidden border-4 border-slate-50 shadow-inner">
-                <MapComponent
-                  center={[formData.latitude, formData.longitude]}
-                  displayLabel={isAr ? formData.nameAr : formData.nameEn}
-                  isPicker={true}
-                  onLocationSelect={handleLocationChange}
-                />
-              </div>
+          <div className="p-4 bg-indigo-50 rounded-2xl border border-indigo-100">
+            <h4 className="text-[10px] font-black text-indigo-400 uppercase mb-2">Coordinates (GPS)</h4>
+            <div className="flex justify-between font-mono text-xs font-bold text-indigo-700">
+              <span>LAT: {formData.latitude.toFixed(6)}</span>
+              <span>LNG: {formData.longitude.toFixed(6)}</span>
             </div>
           </div>
+
+          <button
+            onClick={handleSubmit}
+            className="w-full bg-indigo-600 text-white py-4 rounded-2xl font-black shadow-lg hover:bg-indigo-700 transition-all"
+          >
+            {editingCity ? 'Save Changes' : 'Create City'}
+          </button>
         </div>
-      )}
+
+        {/* Map Section (Forces right side on desktop, bottom on mobile, sandboxed via relative z-0) */}
+        <div className="order-1 lg:order-2 lg:col-span-7 h-[350px] lg:h-[500px] w-full rounded-[2rem] overflow-hidden border-4 border-slate-50 shadow-inner relative z-0">
+          <MapComponent
+            center={[formData.latitude, formData.longitude]}
+            displayLabel={isAr ? formData.nameAr : formData.nameEn}
+            isPicker={true}
+            onLocationSelect={handleLocationChange}
+          />
+        </div>
+
+      </div>
+    </div>
+  </div>
+)}
     </div>
   );
 }
