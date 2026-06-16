@@ -20,6 +20,9 @@ export default function AddBusinessModal({ isOpen, onClose, onSuccess }: any) {
         ownerId: "", managerId: "",
         serviceId: "",
         contactId: "",
+        // Optional coords (strings from inputs) — parsed to floats when building payload
+        latitude: "",
+        longitude: "",
     });
 
     const [files, setFiles] = useState<{ [key: string]: File | null }>({
@@ -246,21 +249,38 @@ export default function AddBusinessModal({ isOpen, onClose, onSuccess }: any) {
                 }
             }
 
-            const payload: CreateBusinessData = {
-                nameFr: formData.nameFr,
-                nameAr: formData.nameAr,
-                nameEn: formData.nameEn,
-                descrFr: formData.descrFr,
-                descrAr: formData.descrAr,
-                descrEn: formData.descrEn,
-                socialMedia: formData.socialMedia,
-                businessUrlSite: formData.businessUrlSite,
-                owner: { id: formData.ownerId },
-                manager: { id: formData.managerId || formData.ownerId },
-                contact: { id: formData.contactId },
-                service: formData.serviceId ? { id: formData.serviceId } : null,
-                ...uploadedFiles,
-            };
+            // بداخل handleSubmit في ملف AddBusinessModal:
+const payload = {
+    ...formData,
+    owner: formData.ownerId ? { id: formData.ownerId } : undefined,
+    manager: { id: formData.managerId || formData.ownerId },
+    contact: { id: formData.contactId },
+    service: formData.serviceId ? { id: formData.serviceId } : undefined,
+    
+    // حقن الإحداثيات إذا كانت مضافة في فورم المودال
+    localisation: formData.latitude && formData.longitude ? {
+        latitude: parseFloat(formData.latitude),
+        longitude: parseFloat(formData.longitude)
+    } : undefined,
+    
+    ...uploadedFiles,
+};
+
+            // const payload: CreateBusinessData = {
+            //     nameFr: formData.nameFr,
+            //     nameAr: formData.nameAr,
+            //     nameEn: formData.nameEn,
+            //     descrFr: formData.descrFr,
+            //     descrAr: formData.descrAr,
+            //     descrEn: formData.descrEn,
+            //     socialMedia: formData.socialMedia,
+            //     businessUrlSite: formData.businessUrlSite,
+            //     owner: { id: formData.ownerId },
+            //     manager: { id: formData.managerId || formData.ownerId },
+            //     contact: { id: formData.contactId },
+            //     service: formData.serviceId ? { id: formData.serviceId } : null,
+            //     ...uploadedFiles,
+            // };
 
             await createBusiness(payload);
             onSuccess();

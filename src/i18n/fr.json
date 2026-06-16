@@ -106,25 +106,43 @@
     "whatsapp": "WhatsApp"
   },
   "how_it_works": {
-    "process": "Le processus",
-    "title": "Comment ça marche",
-    "description": "Faire vos tâches au Maroc n'a jamais été aussi facile. Suivez ces trois étapes simples pour commencer.",
-    "steps": {
-      "1": {
-        "title": "Trouvez votre expert",
-        "description": "Parcourez les professionnels les mieux notés au Maroc. Filtrez par prix, compétences et avis réels des utilisateurs."
-      },
-      "2": {
-        "title": "Réservez et planifiez",
-        "description": "Choisissez un horaire qui correspond à votre emploi du temps. Réservation instantanée avec des experts locaux disponibles dès aujourd'hui."
-      },
-      "3": {
-        "title": "Gérez tout",
-        "description": "Discutez en toute sécurité, suivez les progrès, payez et laissez un avis - tout cela via notre tableau de bord simplifié."
-      }
-    },
-    "details": "Details"
+  "process": "Le processus",
+  "title": "Comment ça marche",
+  "description": "Faire vos tâches au Maroc n'a jamais été aussi facile. Suivez ces trois étapes simples pour commencer.",
+  "tabs": {
+    "client": "Pour les Clients",
+    "provider": "Pour les Experts"
   },
+  "client_steps": {
+    "1": {
+      "title": "Trouvez votre expert",
+      "description": "Parcourez les professionnels les mieux notés au Maroc. Filtrez par prix, compétences et avis réels des utilisateurs."
+    },
+    "2": {
+      "title": "Réservez et planifiez",
+      "description": "Choisissez un horaire qui correspond à votre emploi du temps. Réservation instantanée avec des experts locaux disponibles dès aujourd'hui."
+    },
+    "3": {
+      "title": "Gérez tout",
+      "description": "Discutez en toute sécurité, suivez les progrès, payez et laissez un avis - tout cela via notre tableau de bord simplifié."
+    }
+  },
+  "provider_steps": {
+    "1": {
+      "title": "Créez votre profil",
+      "description": "Inscrivez-vous gratuitement, mettez en avant vos compétences, vos tarifs et vos services pour attirer des clients au Maroc."
+    },
+    "2": {
+      "title": "Gérez vos demandes",
+      "description": "Recevez des demandes de réservation directes et gérez votre emploi du temps via votre tableau de bord dédié."
+    },
+    "3": {
+      "title": "Développez votre activité",
+      "description": "Réalisez vos missions, recevez vos paiements de manière sécurisée et boostez votre réputation grâce aux avis des clients."
+    }
+  },
+  "details": "Détails"
+},
   "services_section": {
     "title": "Services Premium",
     "description": "Qualité exceptionnelle et professionnels vérifiés pour tous vos besoins à travers le Maroc.",

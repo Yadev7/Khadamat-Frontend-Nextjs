@@ -22,6 +22,8 @@ export const BusinessSchema = z.object({
     videoAr: z.any().optional(),
     videoEn: z.any().optional(),
     videoFr: z.any().optional(),
+    manualLatitude: z.string().optional(),
+    manualLongitude: z.string().optional(),
 });
 
 export type BusinessFormValues = z.infer<typeof BusinessSchema>;

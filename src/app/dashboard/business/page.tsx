@@ -92,7 +92,7 @@ export default function BusinessesPage() {
         return null;
       };
 
-      // 3. تنفيذ عمليات الرفع (Flyer, Audio, Video)
+      // 3. تنفيذ عمليات الرفع للملفات
       const flyerData = await upload(data.flyer);
       const audioArData = await upload(data.audioAr);
       const audioEnData = await upload(data.audioEn);
@@ -101,32 +101,13 @@ export default function BusinessesPage() {
       const videoEnData = await upload(data.videoEn);
       const videoFrData = await upload(data.videoFr);
 
-      // 4. معالجة الموقع الجغرافي (Localisation -> Address)
-      // نتحقق مما إذا كان المستخدم قد اختار موقعاً جديداً على الخريطة
+      // 4. صياغة كائن الموقع الجغرافي (Localisation) إذا تم تحديده على الخريطة
+      let localisationPayload = null;
       if (data.manualLatitude && data.manualLongitude) {
-        try {
-          // أ. إنشاء سجل Localisation جديد
-          // ملاحظة: استبدل المسار بمسار الـ API الفعلي لديك لإنشاء الإحداثيات
-          const locRes = await api.post('/v1/localisations', {
-            latitude: String(data.manualLatitude),
-            longitude: String(data.manualLongitude)
-          });
-          const newLocalisationId = locRes.data.id;
-
-          // ب. تحديث جدول Address ليرتبط بـ LocalisationId الجديد
-          // نحصل على addressId من جهة الاتصال المختارة (Current Contact)
-          const currentContact = businesses.find(b => b.contact.id === data.contactId)?.contact;
-          const addressId = currentContact?.address?.id;
-
-          if (addressId) {
-            await api.patch(`/v1/addresses/${addressId}`, {
-              localisation: { id: newLocalisationId }
-            });
-          }
-        } catch (err) {
-          console.error("خطأ في تحديث الموقع الجغرافي:", err);
-          // يمكننا الاستمرار حتى لو فشل تحديث الخريطة، أو إيقاف العملية حسب رغبتك
-        }
+        localisationPayload = {
+          latitude: parseFloat(data.manualLatitude),
+          longitude: parseFloat(data.manualLongitude)
+        };
       }
 
       // 5. بناء الـ Payload النهائي للـ Business
@@ -140,11 +121,14 @@ export default function BusinessesPage() {
         businessUrlSite: data.siteUrl || "",
         socialMedia: data.socialMedia || "",
 
-        // الربط مع الخدمات وجهات الاتصال (Relations)
+        // الربط المباشر مع العلاقات (Relations) ككائنات تحتوي على id
         service: data.serviceId ? { id: data.serviceId } : null,
         owner: { id: data.ownerId },
         contact: { id: data.contactId },
-        manager: { id: data.ownerId }, // يمكن تعديله ليكون managerId ديناميكي
+        manager: { id: data.ownerId }, 
+
+        // 👇 هنا السر: تمرير كائن الـ localisation مباشرة للـ Business ليقوم الباك إند بإنشائه وربطه بفضل الـ cascade: true
+        localisation: localisationPayload,
 
         // ربط الملفات المرفوعة
         flyer: flyerData,
@@ -156,7 +140,7 @@ export default function BusinessesPage() {
         videoFr: videoFrData,
       };
 
-      // 6. التحقق من الحقول الإجبارية (مثلاً الـ Flyer)
+      // 6. التحقق من الحقول الإجبارية
       if (!payload.flyer) {
         throw new Error("يجب اختيار صورة (Flyer) للنشاط التجاري.");
       }
@@ -168,15 +152,15 @@ export default function BusinessesPage() {
       await MySwal.fire({
         icon: 'success',
         title: 'تم بنجاح!',
-        text: 'تم إضافة النشاط التجاري وتحديث بيانات الموقع الجغرافي.',
+        text: 'تم إضافة النشاط التجاري وحفظ موقعه الجغرافي الجديد.',
         timer: 2000,
         showConfirmButton: false
       });
 
-      // 9. تنظيف الفورم والعودة للقائمة وتحديث البيانات
+      // 9. تنظيف وتنظيف الحالات
       methods.reset();
-      fetchData(); // جلب البيانات الجديدة من السيرفر
-      setView("list"); // العودة لواجهة القائمة
+      fetchData(); // تحديث قائمة الشركات
+      setView("list"); // العودة لواجهة الجدول
 
     } catch (error: any) {
       console.error("❌ Submission Error:", error);
@@ -189,6 +173,128 @@ export default function BusinessesPage() {
       });
     }
   };
+
+
+
+  // const handleFinalSubmit = async (data: any) => {
+  //   const MySwal = withReactContent(Swal);
+
+  //   try {
+  //     // 1. إظهار مؤشر التحميل
+  //     MySwal.fire({
+  //       title: 'جاري الحفظ...',
+  //       text: 'يتم الآن معالجة البيانات ورفع الملفات، يرجى الانتظار.',
+  //       allowOutsideClick: false,
+  //       didOpen: () => { Swal.showLoading(); }
+  //     });
+
+  //     // 2. دالة رفع الملفات
+  //     const upload = async (fileList: any) => {
+  //       if (fileList && fileList.length > 0) {
+  //         const res = await uploadFile(fileList[0]);
+  //         const finalId = res?.id || res?.data?.id || res?.file?.id;
+  //         return finalId ? { id: String(finalId) } : null;
+  //       }
+  //       return null;
+  //     };
+
+  //     // 3. تنفيذ عمليات الرفع (Flyer, Audio, Video)
+  //     const flyerData = await upload(data.flyer);
+  //     const audioArData = await upload(data.audioAr);
+  //     const audioEnData = await upload(data.audioEn);
+  //     const audioFrData = await upload(data.audioFr);
+  //     const videoArData = await upload(data.videoAr);
+  //     const videoEnData = await upload(data.videoEn);
+  //     const videoFrData = await upload(data.videoFr);
+
+  //     // 4. معالجة الموقع الجغرافي (Localisation -> Address)
+  //     // نتحقق مما إذا كان المستخدم قد اختار موقعاً جديداً على الخريطة
+  //     if (data.manualLatitude && data.manualLongitude) {
+  //       try {
+  //         // أ. إنشاء سجل Localisation جديد
+  //         // ملاحظة: استبدل المسار بمسار الـ API الفعلي لديك لإنشاء الإحداثيات
+  //         const locRes = await api.post('/v1/localisations', {
+  //           latitude: String(data.manualLatitude),
+  //           longitude: String(data.manualLongitude)
+  //         });
+  //         const newLocalisationId = locRes.data.id;
+
+  //         // ب. تحديث جدول Address ليرتبط بـ LocalisationId الجديد
+  //         // نحصل على addressId من جهة الاتصال المختارة (Current Contact)
+  //         const currentContact = businesses.find(b => b.contact.id === data.contactId)?.contact;
+  //         const addressId = currentContact?.address?.id;
+
+  //         if (addressId) {
+  //           await api.patch(`/v1/addresses/${addressId}`, {
+  //             localisation: { id: newLocalisationId }
+  //           });
+  //         }
+  //       } catch (err) {
+  //         console.error("خطأ في تحديث الموقع الجغرافي:", err);
+  //         // يمكننا الاستمرار حتى لو فشل تحديث الخريطة، أو إيقاف العملية حسب رغبتك
+  //       }
+  //     }
+
+  //     // 5. بناء الـ Payload النهائي للـ Business
+  //     const payload = {
+  //       nameFr: data.nameFr,
+  //       nameAr: data.nameAr,
+  //       nameEn: data.nameEn || "",
+  //       descrFr: data.descrFr || "",
+  //       descrAr: data.descrAr || "",
+  //       descrEn: data.descrEn || "",
+  //       businessUrlSite: data.siteUrl || "",
+  //       socialMedia: data.socialMedia || "",
+
+  //       // الربط مع الخدمات وجهات الاتصال (Relations)
+  //       service: data.serviceId ? { id: data.serviceId } : null,
+  //       owner: { id: data.ownerId },
+  //       contact: { id: data.contactId },
+  //       manager: { id: data.ownerId }, // يمكن تعديله ليكون managerId ديناميكي
+
+  //       // ربط الملفات المرفوعة
+  //       flyer: flyerData,
+  //       audioAr: audioArData,
+  //       audioEn: audioEnData,
+  //       audioFr: audioFrData,
+  //       videoAr: videoArData,
+  //       videoEn: videoEnData,
+  //       videoFr: videoFrData,
+  //     };
+
+  //     // 6. التحقق من الحقول الإجبارية (مثلاً الـ Flyer)
+  //     if (!payload.flyer) {
+  //       throw new Error("يجب اختيار صورة (Flyer) للنشاط التجاري.");
+  //     }
+
+  //     // 7. إرسال الطلب النهائي لإنشاء النشاط التجاري
+  //     await createBusiness(payload as any);
+
+  //     // 8. النجاح وتحديث الواجهة
+  //     await MySwal.fire({
+  //       icon: 'success',
+  //       title: 'تم بنجاح!',
+  //       text: 'تم إضافة النشاط التجاري وتحديث بيانات الموقع الجغرافي.',
+  //       timer: 2000,
+  //       showConfirmButton: false
+  //     });
+
+  //     // 9. تنظيف الفورم والعودة للقائمة وتحديث البيانات
+  //     methods.reset();
+  //     fetchData(); // جلب البيانات الجديدة من السيرفر
+  //     setView("list"); // العودة لواجهة القائمة
+
+  //   } catch (error: any) {
+  //     console.error("❌ Submission Error:", error);
+  //     const msg = error.response?.data?.message || error.message || "حدث خطأ غير متوقع";
+
+  //     MySwal.fire({
+  //       icon: 'error',
+  //       title: 'فشلت العملية',
+  //       text: Array.isArray(msg) ? msg.join(', ') : msg
+  //     });
+  //   }
+  // };
 
 
   // const handleFinalSubmit = async (data: any) => {
@@ -642,7 +748,7 @@ export default function BusinessesPage() {
               return (
                 <div key={business.id} className="bg-white rounded-3xl shadow-sm hover:shadow-xl transition-all duration-300 border border-slate-100 flex flex-col overflow-hidden">
                   {/* Image Banner */}
-                  <div className="relative h-40 bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center overflow-hidden">
+                  <div className="relative h-40 bg-linear-to-br from-indigo-500 to-purple-600 flex items-center justify-center overflow-hidden">
                     {flyerUrl ? (
                       <img
                         src={flyerUrl}
@@ -679,7 +785,7 @@ export default function BusinessesPage() {
                   </div>
 
                   {/* Card Body */}
-                  <div className="p-5 flex flex-col flex-grow">
+                  <div className="p-5 flex flex-col grow">
                     {/* Name */}
                     <h3 className="font-bold text-lg text-slate-800 line-clamp-1 mb-1" title={business.nameEn || business.nameFr || business.nameAr}>
                       {business.nameEn || business.nameFr || business.nameAr || "Unnamed Business"}

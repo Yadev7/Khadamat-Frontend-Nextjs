@@ -106,25 +106,43 @@
     "whatsapp": "WhatsApp"
   },
   "how_it_works": {
-    "process": "The Process",
-    "title": "How It Works",
-    "description": "Getting your tasks done in Morocco has never been easier. Follow these three simple steps to start.",
-    "steps": {
-      "1": {
-        "title": "Search for services or offer your skills",
-        "description": "Whether you're looking for a plumber, an electrician, or a tutor, our platform connects you with the right professionals. If you have skills to offer, create your profile and start attracting clients."
-      },
-      "2": {
-        "title": "Connect with clients or workers",
-        "description": "Communicate directly with clients or service providers through our secure messaging system. Discuss your needs, negotiate prices, and schedule appointments with ease."
-      },
-      "3": {
-        "title": "Enjoy quality services or grow your business",
-        "description": "Experience top-notch services delivered by trusted professionals. If you're a service provider, build your reputation and grow your business by delivering excellent service to your clients."
-      }
-    },
-    "details": "Details"
+  "process": "The Process",
+  "title": "How It Works",
+  "description": "Getting things done in Morocco has never been easier. Follow these three simple steps to get started.",
+  "tabs": {
+    "client": "For Clients",
+    "provider": "For Experts"
   },
+  "client_steps": {
+    "1": {
+      "title": "Find your expert",
+      "description": "Browse top-rated professionals in Morocco. Filter by price, skills, and real user reviews."
+    },
+    "2": {
+      "title": "Book and schedule",
+      "description": "Pick a time that fits your schedule. Instant booking with local experts available today."
+    },
+    "3": {
+      "title": "Manage everything",
+      "description": "Chat securely, track progress, pay, and leave a review - all through our simplified dashboard."
+    }
+  },
+  "provider_steps": {
+    "1": {
+      "title": "Create your profile",
+      "description": "Sign up for free, showcase your skills, rates, and services to attract clients across Morocco."
+    },
+    "2": {
+      "title": "Manage bookings",
+      "description": "Receive direct booking requests and easily organize your schedule through your dedicated dashboard."
+    },
+    "3": {
+      "title": "Grow your business",
+      "description": "Complete your tasks, get paid securely, and boost your reputation through client reviews."
+    }
+  },
+  "details": "Details"
+},
   "services_section": {
     "title": "Premium Services",
     "description": "Exceptional quality and verified professionals for your every need across Morocco.",

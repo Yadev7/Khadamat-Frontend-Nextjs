@@ -91,6 +91,10 @@ export interface CreateBusinessData {
   manager: { id: string };
   service?: { id: string } | null;
   contact: { id: string };
+  localisation?: {
+    latitude: number;
+    longitude: number;
+  } | null;
   flyer?: { id: string } | null;
   audioAr?: { id: string } | null;
   audioFr?: { id: string } | null;

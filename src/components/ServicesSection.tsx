@@ -20,7 +20,7 @@ const ServicesSection = () => {
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
+
   // Determine if the current language is Arabic
   const isRtl = i18n.language === 'ar';
 
@@ -29,13 +29,13 @@ const ServicesSection = () => {
       try {
         setLoading(true);
         const data = await getServices();
-        
+
         // Map API data to our Service interface
         const mappedServices = data.map((s: any) => {
           // Determine title and description based on current language
           let title = s.nameServEn || s.nameServFr; // default fallback
           let description = s.descrEn || s.descrFr;
-          
+
           if (i18n.language === 'ar') {
             title = s.nameServAr || title;
             description = s.descrAr || description;
@@ -43,7 +43,7 @@ const ServicesSection = () => {
             title = s.nameServFr || title;
             description = s.descrFr || description;
           }
-          
+
           return {
             id: s.id,
             title: title || t("services_section.categories.default_title"),
@@ -51,7 +51,7 @@ const ServicesSection = () => {
             image: s.image?.path || "/PlumbingCarlos.png" // Fallback to a default image
           };
         });
-        
+
         setServices(mappedServices);
       } catch (err) {
         console.error("Failed to fetch services:", err);
@@ -70,7 +70,7 @@ const ServicesSection = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-20 min-h-[400px]">
+      <div className="flex items-center justify-center py-20 min-h-400px">
         <Loader2 className="w-12 h-12 text-blue-600 animate-spin" />
       </div>
     );
@@ -78,9 +78,9 @@ const ServicesSection = () => {
 
   if (error) {
     return (
-      <div className="text-center py-20 text-red-500 font-medium min-h-[400px]">
+      <div className="text-center py-20 text-red-500 font-medium min-h-400px">
         <p className="mb-4">{error}</p>
-        <button 
+        <button
           onClick={() => window.location.reload()}
           className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
         >
@@ -91,8 +91,8 @@ const ServicesSection = () => {
   }
 
   return (
-    <section 
-      dir={isRtl ? 'rtl' : 'ltr'} 
+    <section
+      dir={isRtl ? 'rtl' : 'ltr'}
       className="relative z-10 py-20 md:py-28 bg-white"
     >
       <div className="container mx-auto px-6">
@@ -115,7 +115,7 @@ const ServicesSection = () => {
             <div
               key={index}
               onClick={() => handleNavigate(service.id)}
-              className="group relative flex flex-col bg-white rounded-[2rem] overflow-hidden transition-all duration-500 hover:shadow-[0_30px_60px_-15px_rgba(0,0,0,0.15)] cursor-pointer"
+              className="group relative flex flex-col bg-white rounded-2rem overflow-hidden transition-all duration-500 hover:shadow-[0_30px_60px_-15px_rgba(0,0,0,0.15)] cursor-pointer"
             >
               {/* Image Container */}
               <div className="relative h-64 w-full overflow-hidden">
@@ -128,7 +128,7 @@ const ServicesSection = () => {
               </div>
 
               {/* Content Section */}
-              <div className="p-8 flex flex-col flex-grow">
+              <div className="p-8 flex flex-col grow">
                 <h3 className="text-2xl font-bold text-slate-900 mb-3 tracking-tight transition-colors group-hover:text-blue-600">
                   {service.title}
                 </h3>
@@ -137,10 +137,10 @@ const ServicesSection = () => {
                 </p>
 
                 {/* Arrow icon flips 180 degrees for Arabic */}
-                <div className="mt-6 flex items-center text-blue-600 font-bold text-sm gap-2 opacity-0 group-hover:opacity-100 transition-all translate-y-2 group-hover:translate-y-0">
+                {/* <div className="mt-6 flex items-center text-blue-600 font-bold text-sm gap-2 opacity-0 group-hover:opacity-100 transition-all translate-y-2 group-hover:translate-y-0">
                   {t("services_section.book_expert")} 
                   <ArrowRight size={16} className={isRtl ? "rotate-180" : ""} />
-                </div>
+                </div> */}
               </div>
             </div>
           ))}

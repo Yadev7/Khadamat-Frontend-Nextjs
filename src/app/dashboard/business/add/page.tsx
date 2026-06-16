@@ -93,6 +93,11 @@ export default function AddBusinessPage() {
 
                 manager: { id: managerId },
 
+                localisation: data.manualLatitude && data.manualLongitude ? {
+                    latitude: parseFloat(data.manualLatitude),
+                    longitude: parseFloat(data.manualLongitude)
+                } : undefined,
+
                 flyer: flyerId,
                 audioAr: audioArId,
                 audioEn: audioEnId,

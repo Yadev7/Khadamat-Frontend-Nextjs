@@ -80,11 +80,10 @@ const CompactSelect = ({ label, icon, options, value, onChange, placeholder, dis
                   onChange(String(option.id));
                   setIsOpen(false);
                 }}
-                className={`w-full text-left px-4 py-3 text-sm rounded-2xl transition-all mb-1 last:mb-0 font-bold ${
-                  value === option.name
-                    ? 'bg-indigo-600 text-white'
-                    : 'text-slate-600 hover:bg-indigo-50 hover:text-indigo-600'
-                }`}
+                className={`w-full text-left px-4 py-3 text-sm rounded-2xl transition-all mb-1 last:mb-0 font-bold ${value === option.name
+                  ? 'bg-indigo-600 text-white'
+                  : 'text-slate-600 hover:bg-indigo-50 hover:text-indigo-600'
+                  }`}
               >
                 {option.name}
               </button>
@@ -117,9 +116,6 @@ export default function SearchResultsPage() {
   const [selectedServiceId, setSelectedServiceId] = useState<string>("");
 
   const [hoveredBizId, setHoveredBizId] = useState<string | null>(null);
-
-  // مرجع للاحتفاظ بالدبابيس السابقة ومنع تصفيرها أثناء الـ Loading
-  const stableMarkersRef = useRef<any[]>([]);
 
   useEffect(() => {
     setSelectedCityId(searchParams.get("cityId") || "");
@@ -156,7 +152,7 @@ export default function SearchResultsPage() {
 
         setServices(getData(servicesData).map((s: any) => ({
           ...s,
-          displayName: s[`nameServ${langSuffix}`] || s.nameServFr || "Service"
+          displayName: s[`nameServ${langSuffix}`] || s.nameServFr || s[`name${langSuffix}`] || s.nameFr || "Service"
         })));
       } catch (error) {
         console.error("❌ Fetch Filters Error:", error);
@@ -165,21 +161,25 @@ export default function SearchResultsPage() {
     loadFilters();
   }, [i18n.language]);
 
+
+
+
   useEffect(() => {
     const fetchBusinesses = async () => {
       const serviceId = searchParams.get("service");
       if (!serviceId) {
         setBusinesses([]);
-        stableMarkersRef.current = [];
         setLoading(false);
         return;
       }
       setLoading(true);
       try {
-        const response = await getBusinesses(1, 20, { service: serviceId });
+        const relations = 'service,flyer,contact.address.localisation';
+        const response = await getBusinesses(1, 20, { service: serviceId }, relations);
         const data = response?.data || response || [];
         setBusinesses(Array.isArray(data) ? data : []);
       } catch (error) {
+        console.error("❌ Fetch Businesses Error:", error);
         setBusinesses([]);
       } finally {
         setLoading(false);
@@ -229,40 +229,68 @@ export default function SearchResultsPage() {
     router.push(`/search?${params.toString()}`, { scroll: false });
   };
 
-  // استخراج الإحداثيات وتحديث المرجع المستقر (Stable Cache)
+
+  // const mapMarkers = useMemo(() => {
+  //   const langSuffix = i18n.language.charAt(0).toUpperCase() + i18n.language.slice(1);
+    
+  //   if (!businesses || !Array.isArray(businesses)) return [];
+
+  //   return businesses.map((biz: any) => {
+  //     if (!biz) return null;
+
+  //     // تحديث منطق الاستخراج للوصول إلى الإحداثيات العميقة القادمة من الـ API
+  //     const rawLat = biz.localisation?.latitude || 
+  //                    biz.localisation?.lat || 
+  //                    biz.contact?.address?.localisation?.latitude || 
+  //                    biz.contact?.address?.localisation?.lat;
+
+  //     const rawLng = biz.localisation?.longitude || 
+  //                    biz.localisation?.lng || 
+  //                    biz.contact?.address?.localisation?.longitude || 
+  //                    biz.contact?.address?.localisation?.lng;
+
+  //     const lat = parseFloat(String(rawLat));
+  //     const lng = parseFloat(String(rawLng));
+
+  //     // التحقق من صحة الإحداثيات قبل تمريرها للخريطة لتجنب انهيار التطبيق
+  //     if (!isNaN(lat) && !isNaN(lng) && lat !== 0 && lng !== 0) {
+  //       return {
+  //         id: biz.id,
+  //         position: [lat, lng] as [number, number],
+  //         label: biz[`name${langSuffix}`] || biz.nameFr || biz.nameEn || "Business",
+  //         address: biz.contact?.address?.lineAddressFr || biz.contact?.lineAddressFr || "",
+  //         active: hoveredBizId === biz.id
+  //       };
+  //     }
+  //     return null;
+  //   }).filter((m): m is NonNullable<typeof m> => m !== null);
+  // }, [businesses, i18n.language, hoveredBizId]);
+
   const mapMarkers = useMemo(() => {
-    const freshMarkers = businesses.map((biz: any) => {
-      let rawLat = biz.contact?.address?.localisation?.latitude || biz.localisation?.latitude || biz.lat || biz.latitude;
-      let rawLng = biz.contact?.address?.localisation?.longitude || biz.localisation?.longitude || biz.lng || biz.longitude;
+    const langSuffix = i18n.language.charAt(0).toUpperCase() + i18n.language.slice(1);
+    
+    if (!businesses || !Array.isArray(businesses)) return [];
+
+    return businesses.map((biz: any) => {
+      if (!biz) return null;
+
+      const rawLat = biz.localisation?.latitude || biz.localisation?.lat;
+      const rawLng = biz.localisation?.longitude || biz.localisation?.lng;
 
       const lat = parseFloat(String(rawLat));
       const lng = parseFloat(String(rawLng));
 
-      if (!isNaN(lat) && !isNaN(lng)) {
-        const langSuffix = i18n.language.charAt(0).toUpperCase() + i18n.language.slice(1);
+      if (!isNaN(lat) && !isNaN(lng) && lat !== 0 && lng !== 0) {
         return {
           id: biz.id,
           position: [lat, lng] as [number, number],
           label: biz[`name${langSuffix}`] || biz.nameFr || biz.nameEn || "Business",
-          address: biz.contact?.address?.lineAddressFr || "",
+          address: biz.contact?.address?.lineAddressFr || biz.contact?.lineAddressFr || "",
           active: hoveredBizId === biz.id
         };
       }
       return null;
-    }).filter(Boolean);
-
-    // إذا كانت البيانات الجديدة متوفرة، نحدث الكاش، وإلا نترك الكاش القديم مع تفاعلات الـ Hover
-    if (freshMarkers.length > 0) {
-      stableMarkersRef.current = freshMarkers;
-    } else if (businesses.length > 0) {
-      stableMarkersRef.current = [];
-    }
-
-    // تحديث حالة الـ Active للـ Hover الحالي على الكاش الثابت
-    return stableMarkersRef.current.map((m: any) => ({
-      ...m,
-      active: hoveredBizId === m.id
-    }));
+    }).filter((m): m is NonNullable<typeof m> => m !== null);
   }, [businesses, i18n.language, hoveredBizId]);
 
   return (
@@ -278,7 +306,7 @@ export default function SearchResultsPage() {
               value={cities.find(c => String(c.id) === String(selectedCityId))?.displayName || ""}
               onChange={(id) => {
                 setSelectedCityId(id);
-                setSelectedZoneId(""); 
+                setSelectedZoneId("");
               }}
               placeholder={t("search.select_city")}
             />
@@ -355,11 +383,28 @@ export default function SearchResultsPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {businesses.map((biz: any) => {
                   const langSuffix = i18n.language.charAt(0).toUpperCase() + i18n.language.slice(1);
-                  const title = biz[`name${langSuffix}`] || biz.nameFr || biz.nameEn;
+                  const title = biz[`name${langSuffix}`] || biz.nameFr || biz.nameEn || "Business";
                   const desc = biz[`descr${langSuffix}`] || biz.descrFr || biz.descrEn;
-                  const img = biz.flyer?.path
-                    ? `${process.env.NEXT_PUBLIC_API_ENDPOINT}/v1/files/${biz.flyer.path}`
-                    : "/placeholder.png";
+                  
+                  // مطابقة منطق الاستخراج تماماً مع جدول لوحة التحكم الناجح
+                  const flyerUrl = biz.flyer?.url || biz.flyer?.path;
+                  let img = "https://images.unsplash.com/photo-1560179707-f14e90ef3623?q=80&w=500"; // التبديل الافتراضي المستقر بدلاً من الفراغ
+
+                  if (flyerUrl) {
+                    // إذا كان الرابط القادم يحتوي بالفعل على http أو https فلا نقوم بالتعديل عليه
+                    if (flyerUrl.startsWith("http://") || flyerUrl.startsWith("https://")) {
+                      img = flyerUrl;
+                    } else {
+                      // بناء المسار استناداً للبيئة المحلية أو السحابية
+                      const cleanPath = flyerUrl.replace(/^\//, "");
+                      if (process.env.NODE_ENV === 'development') {
+                        img = `http://127.0.0.1:3000/api/v1/files/${cleanPath}`;
+                      } else {
+                        const baseEndpoint = process.env.NEXT_PUBLIC_API_ENDPOINT?.replace(/\/$/, "") || "";
+                        img = `${baseEndpoint}/api/v1/files/${cleanPath}`;
+                      }
+                    }
+                  }
 
                   return (
                     <div
@@ -369,11 +414,21 @@ export default function SearchResultsPage() {
                       onMouseLeave={() => setHoveredBizId(null)}
                       className="group flex flex-col bg-white rounded-4xl overflow-hidden transition-all duration-500 hover:shadow-2xl hover:shadow-slate-200 cursor-pointer border border-slate-100"
                     >
-                      <div className="relative h-52 w-full overflow-hidden">
-                        <img src={img} alt={title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                      <div className="relative h-52 w-full overflow-hidden bg-slate-100">
+                        <img 
+                          src={img} 
+                          alt={title} 
+                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            if (target.src !== "https://images.unsplash.com/photo-1560179707-f14e90ef3623?q=80&w=500") {
+                              target.src = "https://images.unsplash.com/photo-1560179707-f14e90ef3623?q=80&w=500";
+                            }
+                          }}
+                        />
                         <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-md px-3 py-1 rounded-full">
                           <span className="text-[10px] font-black text-indigo-600 uppercase">
-                            {biz.service?.[`nameServ${langSuffix}`] || biz.service?.nameServFr}
+                            {biz.service?.[`name${langSuffix}`] || biz.service?.[`nameServ${langSuffix}`] || biz.service?.nameFr || biz.service?.nameServFr}
                           </span>
                         </div>
                       </div>
@@ -404,10 +459,15 @@ export default function SearchResultsPage() {
           )}
         </div>
 
-        {/* جانب الخريطة المنفصل المستقر */}
+        {/* جانب الخريطة المنفصل المستقر بأسفل ملف البحث */}
         <div className="hidden lg:block lg:w-1/2 h-full p-4 relative">
-          <div className="w-full h-full rounded-4xl overflow-hidden shadow-inner border-4 border-white relative z-10">
-            <MapComponent center={activeMapCenter} displayLabel={activeMapLabel} markers={mapMarkers} />
+          <div className="w-full h-full rounded-4xl overflow-hidden shadow-inner border-4 border-white relative">
+            <MapComponent
+              key={`map-layer-trigger-${mapMarkers.length}-${selectedCityId}-${selectedZoneId}`}
+              center={activeMapCenter}
+              displayLabel={activeMapLabel}
+              markers={mapMarkers}
+            />
           </div>
         </div>
       </div>

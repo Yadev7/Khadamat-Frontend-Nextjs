@@ -18,18 +18,19 @@ const createLeafletIcon = (url: string) => {
   });
 };
 
-function MapViewUpdater({ center, zoom }: { center: [number, number]; zoom: number }) {
+function MapViewUpdater({ center, zoom, hasMarkers }: { center: [number, number]; zoom: number; hasMarkers: boolean }) {
   const map = useMap();
   useEffect(() => {
-    if (center && !isNaN(center[0]) && !isNaN(center[1])) {
+    if (!hasMarkers && center && !isNaN(center[0]) && !isNaN(center[1])) {
       map.flyTo(center, zoom, { duration: 1.2 });
     }
-  }, [center, zoom, map]);
+  }, [center, zoom, map, hasMarkers]);
   return null;
 }
 
 function FitBoundsOnMarkers({ markers }: { markers: any[] }) {
   const map = useMap();
+  
   useEffect(() => {
     if (markers && markers.length > 0) {
       const validPositions = markers
@@ -38,14 +39,22 @@ function FitBoundsOnMarkers({ markers }: { markers: any[] }) {
 
       if (validPositions.length > 0) {
         const bounds = L.latLngBounds(validPositions);
-        if (validPositions.length === 1) {
-          map.flyTo(validPositions[0], 14, { duration: 1 });
-        } else {
-          map.fitBounds(bounds, { padding: [60, 60], duration: 1 });
-        }
+        
+        // تأخير بسيط لضمان رندرة الـ DOM بالكامل وحساب مقاسات الحاوية بشكل صحيح
+        const timer = setTimeout(() => {
+          map.invalidateSize();
+          if (validPositions.length === 1) {
+            map.flyTo(validPositions[0], 14, { duration: 1 });
+          } else {
+            map.fitBounds(bounds, { padding: [50, 50], duration: 1 });
+          }
+        }, 300);
+
+        return () => clearTimeout(timer);
       }
     }
   }, [markers, map]);
+  
   return null;
 }
 
@@ -130,10 +139,12 @@ export default function MapComponent({ center, displayLabel, isPicker, onLocatio
     }
   };
 
+  const hasMarkers = markers && markers.length > 0;
+
   return (
-    <div className="h-full w-full absolute inset-0 z-10 group">
+    <div className="w-full h-full relative group">
       {isPicker && (
-        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-500 w-full max-w-md px-4">
+        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-[500] w-full max-w-md px-4">
           <form onSubmit={handleSearch} className="relative group">
             <input
               type="text"
@@ -158,13 +169,17 @@ export default function MapComponent({ center, displayLabel, isPicker, onLocatio
         zoom={13}
         scrollWheelZoom={true}
         className="h-full w-full rounded-4xl"
-        ref={mapRef}
+        whenReady={(mapInstance: any) => {
+          mapRef.current = mapInstance.target;
+          setTimeout(() => {
+            mapInstance.target.invalidateSize();
+          }, 100);
+        }}
         style={{ height: '100%', width: '100%', zIndex: 1 }}
       >
         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
 
-        {/* علامة المركز الأساسي للبحث باللون الأحمر */}
-        {center && !isNaN(activePosition[0]) && !isNaN(activePosition[1]) && redIcon && (
+        {!hasMarkers && center && !isNaN(activePosition[0]) && !isNaN(activePosition[1]) && redIcon && (
           <Marker position={activePosition} icon={redIcon}>
             <Popup>
               <span className="font-bold text-indigo-600">{displayLabel || "Selected Center"}</span>
@@ -172,8 +187,7 @@ export default function MapComponent({ center, displayLabel, isPicker, onLocatio
           </Marker>
         )}
 
-        {/* رسم دبابيس الشركات المبحوث عنها بدقة وعزلها عن الـ Dynamic Null */}
-        {markers && blueIcon && violetIcon && markers.map((m: any) => {
+        {hasMarkers && blueIcon && violetIcon && markers.map((m: any) => {
           if (!m || !m.position || isNaN(m.position[0]) || isNaN(m.position[1])) return null;
           return (
             <InteractiveMarker 
@@ -186,7 +200,7 @@ export default function MapComponent({ center, displayLabel, isPicker, onLocatio
 
         {isPicker && <MapPicker onLocationSelect={onLocationSelect} />}
         
-        <MapViewUpdater center={activePosition} zoom={13} />
+        <MapViewUpdater center={activePosition} zoom={13} hasMarkers={hasMarkers} />
         <FitBoundsOnMarkers markers={markers} />
       </MapContainer>
 
@@ -198,7 +212,7 @@ export default function MapComponent({ center, displayLabel, isPicker, onLocatio
             }
           });
         }}
-        className="absolute bottom-6 right-6 z-500 bg-white p-3 rounded-2xl shadow-xl border border-slate-100 hover:bg-slate-50 text-indigo-600 transition-all"
+        className="absolute bottom-6 right-6 z-[500] bg-white p-3 rounded-2xl shadow-xl border border-slate-100 hover:bg-slate-50 text-indigo-600 transition-all"
         title="My Location"
       >
         <Navigation2 className="w-5 h-5 fill-current" />
