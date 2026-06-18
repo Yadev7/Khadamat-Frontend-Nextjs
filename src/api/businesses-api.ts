@@ -44,6 +44,7 @@ export const getContactsList = async () => {
   return response.data;
 };
 
+
 export const getBusinesses = async (
   page: number = 1,
   limit: number = 20,
@@ -58,12 +59,16 @@ export const getBusinesses = async (
     params: {
       page,
       limit,
-      ...filters,
+      // ⚠️ تمرير المعاملات صراحة هنا يمنع اختفاء القيم أو إرسال مفاتيح بأسماء خاطئة للسيرفر
+      service: filters.service || undefined,
+      cityId: filters.cityId || undefined,
+      zoneId: filters.zoneId || undefined,
       relations
     }
   });
   return response.data;
 };
+
 
 export const uploadFile = async (file: File) => {
   const formData = new FormData();

@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useSearchParams, useRouter } from "next/navigation";
@@ -161,21 +162,29 @@ export default function SearchResultsPage() {
     loadFilters();
   }, [i18n.language]);
 
-
-
-
   useEffect(() => {
     const fetchBusinesses = async () => {
       const serviceId = searchParams.get("service");
+      const cityId = searchParams.get("cityId");
+      const zoneId = searchParams.get("zoneId");
+
       if (!serviceId) {
         setBusinesses([]);
         setLoading(false);
         return;
       }
+
       setLoading(true);
       try {
         const relations = 'service,flyer,contact.address.localisation';
-        const response = await getBusinesses(1, 20, { service: serviceId }, relations);
+        
+        // تمرير المتغيرات المستخرجة صراحة إلى الدالة لتفادي أخطاء النطاق البرمجي ومزامنتها مع Axios
+        const response = await getBusinesses(1, 20, {
+          service: serviceId,
+          cityId: cityId,
+          zoneId: zoneId
+        }, relations);
+
         const data = response?.data || response || [];
         setBusinesses(Array.isArray(data) ? data : []);
       } catch (error) {
@@ -229,43 +238,6 @@ export default function SearchResultsPage() {
     router.push(`/search?${params.toString()}`, { scroll: false });
   };
 
-
-  // const mapMarkers = useMemo(() => {
-  //   const langSuffix = i18n.language.charAt(0).toUpperCase() + i18n.language.slice(1);
-    
-  //   if (!businesses || !Array.isArray(businesses)) return [];
-
-  //   return businesses.map((biz: any) => {
-  //     if (!biz) return null;
-
-  //     // تحديث منطق الاستخراج للوصول إلى الإحداثيات العميقة القادمة من الـ API
-  //     const rawLat = biz.localisation?.latitude || 
-  //                    biz.localisation?.lat || 
-  //                    biz.contact?.address?.localisation?.latitude || 
-  //                    biz.contact?.address?.localisation?.lat;
-
-  //     const rawLng = biz.localisation?.longitude || 
-  //                    biz.localisation?.lng || 
-  //                    biz.contact?.address?.localisation?.longitude || 
-  //                    biz.contact?.address?.localisation?.lng;
-
-  //     const lat = parseFloat(String(rawLat));
-  //     const lng = parseFloat(String(rawLng));
-
-  //     // التحقق من صحة الإحداثيات قبل تمريرها للخريطة لتجنب انهيار التطبيق
-  //     if (!isNaN(lat) && !isNaN(lng) && lat !== 0 && lng !== 0) {
-  //       return {
-  //         id: biz.id,
-  //         position: [lat, lng] as [number, number],
-  //         label: biz[`name${langSuffix}`] || biz.nameFr || biz.nameEn || "Business",
-  //         address: biz.contact?.address?.lineAddressFr || biz.contact?.lineAddressFr || "",
-  //         active: hoveredBizId === biz.id
-  //       };
-  //     }
-  //     return null;
-  //   }).filter((m): m is NonNullable<typeof m> => m !== null);
-  // }, [businesses, i18n.language, hoveredBizId]);
-
   const mapMarkers = useMemo(() => {
     const langSuffix = i18n.language.charAt(0).toUpperCase() + i18n.language.slice(1);
     
@@ -274,8 +246,15 @@ export default function SearchResultsPage() {
     return businesses.map((biz: any) => {
       if (!biz) return null;
 
-      const rawLat = biz.localisation?.latitude || biz.localisation?.lat;
-      const rawLng = biz.localisation?.longitude || biz.localisation?.lng;
+      const rawLat = biz.localisation?.latitude || 
+                     biz.localisation?.lat || 
+                     biz.contact?.address?.localisation?.latitude || 
+                     biz.contact?.address?.localisation?.lat;
+
+      const rawLng = biz.localisation?.longitude || 
+                     biz.localisation?.lng || 
+                     biz.contact?.address?.localisation?.longitude || 
+                     biz.contact?.address?.localisation?.lng;
 
       const lat = parseFloat(String(rawLat));
       const lng = parseFloat(String(rawLng));
@@ -386,16 +365,13 @@ export default function SearchResultsPage() {
                   const title = biz[`name${langSuffix}`] || biz.nameFr || biz.nameEn || "Business";
                   const desc = biz[`descr${langSuffix}`] || biz.descrFr || biz.descrEn;
                   
-                  // مطابقة منطق الاستخراج تماماً مع جدول لوحة التحكم الناجح
                   const flyerUrl = biz.flyer?.url || biz.flyer?.path;
-                  let img = "https://images.unsplash.com/photo-1560179707-f14e90ef3623?q=80&w=500"; // التبديل الافتراضي المستقر بدلاً من الفراغ
+                  let img = "https://images.unsplash.com/photo-1560179707-f14e90ef3623?q=80&w=500";
 
                   if (flyerUrl) {
-                    // إذا كان الرابط القادم يحتوي بالفعل على http أو https فلا نقوم بالتعديل عليه
                     if (flyerUrl.startsWith("http://") || flyerUrl.startsWith("https://")) {
                       img = flyerUrl;
                     } else {
-                      // بناء المسار استناداً للبيئة المحلية أو السحابية
                       const cleanPath = flyerUrl.replace(/^\//, "");
                       if (process.env.NODE_ENV === 'development') {
                         img = `http://127.0.0.1:3000/api/v1/files/${cleanPath}`;
@@ -480,3 +456,4 @@ export default function SearchResultsPage() {
     </div>
   );
 }
+
