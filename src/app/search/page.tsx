@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useSearchParams, useRouter } from "next/navigation";
@@ -28,12 +27,13 @@ interface CompactSelectProps {
   icon: React.ReactNode;
   options: Option[];
   value: string;
+  selectedValueId: string; // Tracks the ID for exact highlighting match
   onChange: (id: string) => void;
   placeholder: string;
   disabled?: boolean;
 }
 
-const CompactSelect = ({ label, icon, options, value, onChange, placeholder, disabled }: CompactSelectProps) => {
+const CompactSelect = ({ label, icon, options, value, selectedValueId, onChange, placeholder, disabled }: CompactSelectProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const { t } = useTranslation();
@@ -81,10 +81,11 @@ const CompactSelect = ({ label, icon, options, value, onChange, placeholder, dis
                   onChange(String(option.id));
                   setIsOpen(false);
                 }}
-                className={`w-full text-left px-4 py-3 text-sm rounded-2xl transition-all mb-1 last:mb-0 font-bold ${value === option.name
-                  ? 'bg-indigo-600 text-white'
-                  : 'text-slate-600 hover:bg-indigo-50 hover:text-indigo-600'
-                  }`}
+                className={`w-full text-left px-4 py-3 text-sm rounded-2xl transition-all mb-1 last:mb-0 font-bold ${
+                  String(selectedValueId) === String(option.id)
+                    ? 'bg-indigo-600 text-white'
+                    : 'text-slate-600 hover:bg-indigo-50 hover:text-indigo-600'
+                }`}
               >
                 {option.name}
               </button>
@@ -118,12 +119,14 @@ export default function SearchResultsPage() {
 
   const [hoveredBizId, setHoveredBizId] = useState<string | null>(null);
 
+  // Sync component states when URL parameters change
   useEffect(() => {
     setSelectedCityId(searchParams.get("cityId") || "");
     setSelectedZoneId(searchParams.get("zoneId") || "");
     setSelectedServiceId(searchParams.get("service") || "");
   }, [searchParams]);
 
+  // Load configuration and filter option lookups
   useEffect(() => {
     const loadFilters = async () => {
       try {
@@ -139,20 +142,22 @@ export default function SearchResultsPage() {
         setCities(getData(citiesData).map((c: any) => ({
           id: c.id,
           displayName: c[`name${langSuffix}`] || c.nameFr || "City",
-          lat: c.localisation?.latitude,
-          lng: c.localisation?.longitude
+          lat: c.localisation?.latitude || c.localisation?.lat,
+          lng: c.localisation?.longitude || c.localisation?.lng
         })));
 
         setAllZones(getData(zonesData).map((z: any) => ({
           ...z,
+          id: z.id,
           displayName: z[`name${langSuffix}`] || z.nameFr || "Area",
           normalizedCityId: z.city?.id || z.cityId,
-          lat: z.localisation?.latitude,
-          lng: z.localisation?.longitude
+          lat: z.localisation?.latitude || z.localisation?.lat,
+          lng: z.localisation?.longitude || z.localisation?.lng
         })));
 
         setServices(getData(servicesData).map((s: any) => ({
           ...s,
+          id: s.id,
           displayName: s[`nameServ${langSuffix}`] || s.nameServFr || s[`name${langSuffix}`] || s.nameFr || "Service"
         })));
       } catch (error) {
@@ -162,40 +167,80 @@ export default function SearchResultsPage() {
     loadFilters();
   }, [i18n.language]);
 
-  useEffect(() => {
-    const fetchBusinesses = async () => {
-      const serviceId = searchParams.get("service");
-      const cityId = searchParams.get("cityId");
-      const zoneId = searchParams.get("zoneId");
+  // Fetch businesses dynamically according to URL parameters changes
+  // useEffect(() => {
+  //   const fetchBusinesses = async () => {
+  //     const serviceId = searchParams.get("service");
+  //     const cityId = searchParams.get("cityId");
+  //     const zoneId = searchParams.get("zoneId");
 
-      if (!serviceId) {
-        setBusinesses([]);
-        setLoading(false);
-        return;
-      }
+  //     if (!serviceId) {
+  //       setBusinesses([]);
+  //       setLoading(false);
+  //       return;
+  //     }
 
-      setLoading(true);
-      try {
-        const relations = 'service,flyer,contact.address.localisation';
-        
-        // تمرير المتغيرات المستخرجة صراحة إلى الدالة لتفادي أخطاء النطاق البرمجي ومزامنتها مع Axios
-        const response = await getBusinesses(1, 20, {
-          service: serviceId,
-          cityId: cityId,
-          zoneId: zoneId
-        }, relations);
+  //     setLoading(true);
+  //     try {
+  //       const relations = 'service,flyer,contact.address.localisation';
+  //       const response = await getBusinesses(1, 20, {
+  //         service: serviceId,
+  //         cityId: cityId || undefined,
+  //         zoneId: zoneId || undefined
+  //       }, relations);
 
-        const data = response?.data || response || [];
-        setBusinesses(Array.isArray(data) ? data : []);
-      } catch (error) {
-        console.error("❌ Fetch Businesses Error:", error);
-        setBusinesses([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchBusinesses();
-  }, [searchParams]);
+  //       const data = response?.data || response || [];
+  //       setBusinesses(Array.isArray(data) ? data : []);
+  //     } catch (error) {
+  //       console.error("❌ Fetch Businesses Error:", error);
+  //       setBusinesses([]);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+  //   fetchBusinesses();
+  // }, [searchParams]);
+
+
+  // Fetch businesses dynamically according to URL parameters changes
+
+  // Fetch businesses dynamically according to URL parameters changes
+useEffect(() => {
+  const fetchBusinesses = async () => {
+    const serviceId = searchParams.get("service");
+    const cityId = searchParams.get("cityId");
+    const zoneId = searchParams.get("zoneId");
+
+    if (!serviceId) {
+      setBusinesses([]);
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const relations = 'service,flyer,contact.address.localisation,localisation';
+      const response = await getBusinesses(1, 20, {
+        service: serviceId,
+        cityId: cityId || undefined,
+        zoneId: zoneId || undefined
+      }, relations);
+
+      // 💡 هنا تكمن الخدعة: دالة infinityPagination تعيد كائن يحتوي على { data: [...] }
+      // نقوم بالتحقق من كافة مسارات البيانات المحتملة لمنع المصفوفة الفارغة
+      const extractedData = response?.data || response?.results || response || [];
+      
+      setBusinesses(Array.isArray(extractedData) ? extractedData : []);
+    } catch (error) {
+      console.error("❌ Fetch Businesses Error:", error);
+      setBusinesses([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  fetchBusinesses();
+}, [searchParams]);
 
   const filteredZones = useMemo(() => {
     if (!selectedCityId) return [];
@@ -226,21 +271,31 @@ export default function SearchResultsPage() {
     return undefined;
   }, [selectedCityId, selectedZoneId, cities, allZones]);
 
-  const handleSearchUpdate = () => {
-    if (!selectedServiceId) {
-      alert(t("search.please_select_service") || "Please select a service first");
-      return;
-    }
+  // const handleSearchUpdate = () => {
+  //   if (!selectedServiceId) {
+  //     alert(t("search.please_select_service") || "Please select a service first");
+  //     return;
+  //   }
+  //   const params = new URLSearchParams();
+  //   if (selectedCityId) params.set("cityId", selectedCityId);
+  //   if (selectedServiceId) params.set("service", selectedServiceId);
+  //   if (selectedZoneId) params.set("zoneId", selectedZoneId);
+  //   router.push(`/search?${params.toString()}`, { scroll: false });
+  // };
+
+    const handleSearchUpdate = () => {
+    setLoading(true);
     const params = new URLSearchParams();
-    if (selectedCityId) params.set("cityId", selectedCityId);
+    if (selectedCityId) params.set("city", selectedCityId);
+    if (selectedZoneId) params.set("zone", selectedZoneId);
     if (selectedServiceId) params.set("service", selectedServiceId);
-    if (selectedZoneId) params.set("zoneId", selectedZoneId);
-    router.push(`/search?${params.toString()}`, { scroll: false });
+
+    router.push(`/search?${params.toString()}`);
+    setTimeout(() => setLoading(false), 800);
   };
 
   const mapMarkers = useMemo(() => {
     const langSuffix = i18n.language.charAt(0).toUpperCase() + i18n.language.slice(1);
-    
     if (!businesses || !Array.isArray(businesses)) return [];
 
     return businesses.map((biz: any) => {
@@ -274,15 +329,17 @@ export default function SearchResultsPage() {
 
   return (
     <div className="relative min-h-screen w-full bg-slate-50/50" dir={isRtl ? 'rtl' : 'ltr'}>
-      {/* --- SEARCH BAR --- */}
+      {/* --- SEARCH BAR BAR LAYOUT --- */}
       <div className="fixed top-15 left-0 right-0 z-100 px-2 py-6 md:px-6 bg-white/80 backdrop-blur-xl border-b border-slate-100">
         <div className="container mx-auto max-w-6xl">
           <div className="bg-white/95 backdrop-blur-md border border-slate-200 shadow-[0_20px_50px_rgba(0,0,0,0.1)] rounded-3xl md:rounded-full p-2 flex flex-col md:flex-row items-center gap-1 transition-all hover:border-indigo-200">
+            
             <CompactSelect
               label={t("search.city")}
               icon={<MapPin size={20} />}
               options={cities.map(c => ({ id: c.id, name: c.displayName }))}
               value={cities.find(c => String(c.id) === String(selectedCityId))?.displayName || ""}
+              selectedValueId={selectedCityId}
               onChange={(id) => {
                 setSelectedCityId(id);
                 setSelectedZoneId("");
@@ -298,6 +355,7 @@ export default function SearchResultsPage() {
               icon={<LayoutGrid size={20} />}
               options={filteredZones.map(z => ({ id: z.id, name: z.displayName }))}
               value={filteredZones.find(z => String(z.id) === String(selectedZoneId))?.displayName || ""}
+              selectedValueId={selectedZoneId}
               disabled={!selectedCityId}
               onChange={(id) => setSelectedZoneId(id)}
               placeholder={selectedCityId ? (filteredZones.length === 0 ? "No Areas" : t("search.select_zone")) : t("search.select_zone")}
@@ -312,6 +370,7 @@ export default function SearchResultsPage() {
                 icon={<HandPlatter size={20} />}
                 options={services.map(s => ({ id: s.id, name: s.displayName }))}
                 value={services.find(s => String(s.id) === String(selectedServiceId))?.displayName || ""}
+                selectedValueId={selectedServiceId}
                 onChange={(id) => setSelectedServiceId(id)}
                 placeholder={t("search.select_service")}
               />
@@ -331,6 +390,7 @@ export default function SearchResultsPage() {
         </div>
       </div>
 
+      {/* --- BUSINESS CARDS AND MAP VIEWPORTS --- */}
       <div className="flex flex-col lg:flex-row h-screen pt-36">
         <div className="w-full lg:w-1/2 overflow-y-auto px-4 md:px-8 pb-20 custom-scrollbar">
           {!loading && searchParams.get("service") && (
@@ -435,7 +495,7 @@ export default function SearchResultsPage() {
           )}
         </div>
 
-        {/* جانب الخريطة المنفصل المستقر بأسفل ملف البحث */}
+        {/* --- MAP PANELS GRAPHIC INTERFACE --- */}
         <div className="hidden lg:block lg:w-1/2 h-full p-4 relative">
           <div className="w-full h-full rounded-4xl overflow-hidden shadow-inner border-4 border-white relative">
             <MapComponent
@@ -456,4 +516,3 @@ export default function SearchResultsPage() {
     </div>
   );
 }
-
