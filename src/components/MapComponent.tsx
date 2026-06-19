@@ -83,6 +83,17 @@ function InteractiveMarker({ marker, icon }: { marker: any; icon: L.Icon }) {
   );
 }
 
+function MapInitializer() {
+  const map = useMap();
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      map.invalidateSize();
+    }, 100);
+    return () => clearTimeout(timer);
+  }, [map]);
+  return null;
+}
+
 function MapPicker({ onLocationSelect }: { onLocationSelect: (lat: number, lng: number) => void }) {
   useMapEvents({
     click(e) {
@@ -96,7 +107,6 @@ export default function MapComponent({ center, displayLabel, isPicker, onLocatio
   const [isMounted, setIsMounted] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearching, setIsSearching] = useState(false);
-  const mapRef = useRef<L.Map | null>(null);
 
   useEffect(() => {
     setIsMounted(true);
@@ -169,15 +179,10 @@ export default function MapComponent({ center, displayLabel, isPicker, onLocatio
         zoom={13}
         scrollWheelZoom={true}
         className="h-full w-full rounded-4xl"
-        whenReady={(mapInstance: any) => {
-          mapRef.current = mapInstance.target;
-          setTimeout(() => {
-            mapInstance.target.invalidateSize();
-          }, 100);
-        }}
         style={{ height: '100%', width: '100%', zIndex: 1 }}
       >
         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+        <MapInitializer />
 
         {!hasMarkers && center && !isNaN(activePosition[0]) && !isNaN(activePosition[1]) && redIcon && (
           <Marker position={activePosition} icon={redIcon}>
