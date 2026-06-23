@@ -297,7 +297,7 @@ const payload = {
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
+        <div className="fixed inset-0 z-100 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
             <div className="bg-white w-full max-w-5xl rounded-[2.5rem] shadow-2xl flex flex-col max-h-[95vh]">
 
                 {/* Header */}
@@ -394,9 +394,9 @@ const payload = {
                             <h3 className="font-black text-slate-800 uppercase text-sm">Descriptions & Bios</h3>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <textarea name="descrFr" placeholder="Description détaillée (FR)" className="input-style min-h-[100px]" onChange={handleInputChange} />
-                            <textarea name="descrAr" placeholder="وصف مفصل (AR)" dir="rtl" className="input-style min-h-[100px] text-right" onChange={handleInputChange} />
-                            <textarea name="descrEn" placeholder="Description détaillée (EN)" className="input-style min-h-[100px]" onChange={handleInputChange} />
+                            <textarea name="descrFr" placeholder="Description détaillée (FR)" className="input-style min-h-100px" onChange={handleInputChange} />
+                            <textarea name="descrAr" placeholder="وصف مفصل (AR)" dir="rtl" className="input-style min-h-100px text-right" onChange={handleInputChange} />
+                            <textarea name="descrEn" placeholder="Description détaillée (EN)" className="input-style min-h-100px" onChange={handleInputChange} />
                         </div>
                     </div>
 
@@ -427,7 +427,7 @@ const payload = {
                     </div>
 
                     {/* 4. MULTIMEDIA ASSETS */}
-                    <div className="space-y-6 bg-slate-50 p-6 rounded-[2rem] border border-slate-100">
+                    <div className="space-y-6 bg-slate-50 p-6 rounded-2rem border border-slate-100">
                         <div className="flex items-center gap-2 border-l-4 border-indigo-600 pl-3">
                             <FileStack className="text-indigo-600" size={20} />
                             <h3 className="font-black text-slate-800 uppercase text-sm">Multimedia Content</h3>

@@ -11,8 +11,8 @@ const nextConfig: NextConfig = {
       {
         protocol: 'http',
         hostname: '127.0.0.1',
-        port: '3001', // Changed from 3000 to 3001
-        pathname: '/uploads/**', // Changed to match your error path
+        port: '3001',
+        pathname: '/uploads/**',
       },
       {
         protocol: 'http',
@@ -26,8 +26,6 @@ const nextConfig: NextConfig = {
         pathname: '/api/**',
       },
     ],
-    // 'domains' is deprecated in newer Next.js versions; 
-    // remotePatterns is the modern way to do it.
   },
 };
 

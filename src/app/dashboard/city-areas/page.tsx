@@ -68,9 +68,9 @@ export default function CityAreasPage() {
     setIsModalOpen(true);
   };
 
-  const handleLocationChange = (lat: number, lng: number) => {
+  const handleLocationChange = useCallback((lat: number, lng: number) => {
     setFormData(prev => ({ ...prev, latitude: lat, longitude: lng }));
-  };
+  }, []);
 
   const handleCityChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedCityId = e.target.value;
@@ -145,7 +145,7 @@ export default function CityAreasPage() {
       {/* Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {areas.map((area) => (
-          <div key={area.id} className="bg-white rounded-4xl p-6 border border-slate-200 hover:shadow-xl transition-all group relative">
+          <div key={area.id} className="bg-white rounded-2rem p-6 border border-slate-200 hover:shadow-xl transition-all group relative">
             <div className="flex justify-between items-start mb-6">
               <div className="p-4 bg-violet-50 rounded-2xl text-violet-600 group-hover:bg-violet-600 group-hover:text-white transition-colors">
                 <MapPin className="w-6 h-6" />
@@ -179,11 +179,11 @@ export default function CityAreasPage() {
               <button onClick={() => setIsModalOpen(false)} className="p-2 hover:bg-slate-100 rounded-full transition"><X className="w-6 h-6" /></button>
             </div>
 
-            {/* Semantic Layout Grid form configuration wrapper */}
-            <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            {/* Layout Grid wrapper is now a standard div element to decouple the nested map forms */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
               
-              {/* Form Input fields container */}
-              <div className="order-2 lg:order-1 lg:col-span-5 space-y-5 w-full">
+              {/* Form Fields Column wrapped securely in its own isolated form context */}
+              <form onSubmit={handleSubmit} className="order-2 lg:order-1 lg:col-span-5 space-y-5 w-full">
                 <div>
                   <label className="block text-[10px] font-black uppercase text-slate-400 mb-2 px-1">City</label>
                   <select required className="w-full bg-slate-50 border-none rounded-2xl p-4 text-slate-800 font-bold outline-none ring-2 ring-transparent focus:ring-violet-500/20 transition-all" value={formData.cityId} onChange={handleCityChange}>
@@ -208,11 +208,12 @@ export default function CityAreasPage() {
                 <button type="submit" className="w-full bg-violet-600 text-white py-4 rounded-2xl font-black shadow-lg hover:bg-violet-700 transition-all">
                   {editingArea ? 'Save Changes' : 'Create Area'}
                 </button>
-              </div>
+              </form>
 
-              {/* Map rendering layer block container */}
-              <div className="order-1 lg:order-2 lg:col-span-7 h-87.5 lg:h-125 w-full rounded-4xl overflow-hidden border-4 border-slate-50 shadow-inner relative z-0">
+              {/* Map Column (Now perfectly safe from structural HTML invalid nestings) */}
+              <div className="order-1 lg:order-2 lg:col-span-7 h-350px lg:h-500px w-full rounded-2rem overflow-hidden border-4 border-slate-50 shadow-inner relative z-0">
                 <MapComponent
+                  key={`${editingArea?.id || 'new'}-${formData.cityId}`}
                   center={[formData.latitude, formData.longitude]}
                   displayLabel={isAr ? formData.nameAr : formData.nameFr}
                   isPicker={true}
@@ -220,7 +221,7 @@ export default function CityAreasPage() {
                 />
               </div>
 
-            </form>
+            </div>
           </div>
         </div>
       )}

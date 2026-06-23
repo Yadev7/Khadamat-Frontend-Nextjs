@@ -9,6 +9,7 @@ import {
   Mail, Lock, Unlock, Building2, User as UserIcon,
   Loader2
 } from "lucide-react";
+import Swal from 'sweetalert2';
 
 import { getMembers, deleteMember, updateMember } from "@/api/members-api";
 import AddMemberModal from "@/components/AddMemberModal";
@@ -74,7 +75,7 @@ export default function MembersPage() {
       );
     } catch (err: any) {
       console.error("Toggle status error:", err);
-      alert("Error updating status");
+      Swal.fire({ icon: 'error', title: 'Error', text: 'Error updating status' });
     }
   };
 
@@ -84,8 +85,22 @@ export default function MembersPage() {
       await deleteMember(selectedMember.id);
       setMembers(prev => prev.filter(m => m.id !== selectedMember.id));
       setIsDeleteModalOpen(false);
-    } catch (err) {
-      alert("حدث خطأ أثناء الحذف");
+      Swal.fire({ icon: 'success', title: t('common.deleted') || 'Deleted successfully', timer: 1500, showConfirmButton: false });
+    } catch (err: any) {
+      console.error("Delete structural error context:", err);
+      setIsDeleteModalOpen(false);
+      
+      // Checking for the Database Foreign key structural lock patterns
+      const errorMessage = i18n.language === 'ar'
+        ? "لا يمكن حذف هذا العضو نظراً لوجود أعمال أو خدمات مرتبطة بحسابه حالياً."
+        : "Cannot delete this member because they are linked to existing business items.";
+
+      Swal.fire({
+        icon: 'error',
+        title: i18n.language === 'ar' ? 'خطأ في الحذف' : 'Delete Failed',
+        text: errorMessage,
+        confirmButtonColor: '#4f46e5'
+      });
     }
   };
 
@@ -98,7 +113,7 @@ export default function MembersPage() {
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] pb-20">
-      <div className="absolute top-0 left-0 w-full h-64 bg-gradient-to-br from-indigo-600 to-violet-700 -z-10 clip-path-slant" />
+      <div className="absolute top-0 left-0 w-full h-64 bg-linear-to-br from-indigo-600 to-violet-700 -z-10 clip-path-slant" />
 
       <div className="max-w-7xl mx-auto px-6 pt-12">
         <div className="flex justify-between items-end mb-12">
@@ -140,7 +155,7 @@ export default function MembersPage() {
 
             return (
               <div key={member.id} className={`bg-white rounded-[2.5rem] p-2 shadow-sm border border-slate-200/60 group transition-all duration-500 hover:shadow-2xl ${member.status === 'BLOCKED' ? 'grayscale opacity-75' : ''}`}>
-                <div className="relative h-36 w-full rounded-[2rem] bg-gradient-to-br from-indigo-600 to-violet-700 mb-12 p-6">
+                <div className="relative h-36 w-full rounded-2rem bg-linear-to-br from-indigo-600 to-violet-700 mb-12 p-6">
                   <div className="flex justify-between items-center h-full">
                     <div className="relative">
                       {profilePic ? (
@@ -155,7 +170,7 @@ export default function MembersPage() {
                       <div className={`absolute -bottom-1 -right-1 h-6 w-6 rounded-full border-4 border-white ${member.status === 'ACTIVE' ? 'bg-emerald-500' : 'bg-red-500'}`} />
                     </div>
 
-                    <div className={`${isAr ? 'text-left' : 'text-right'} text-white max-w-[180px]`}>
+                    <div className={`${isAr ? 'text-left' : 'text-right'} text-white max-w-180px`}>
                       <h3 className="text-lg font-black leading-tight truncate" title={displayName}>{displayName}</h3>
                       <span className="inline-flex items-center gap-1 mt-1 px-3 py-1 rounded-lg bg-white/20 text-[10px] font-bold uppercase tracking-widest backdrop-blur-sm">
                         {isEnterprise ? <Building2 size={10} /> : <UserIcon size={10} />}

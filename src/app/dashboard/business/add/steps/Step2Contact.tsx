@@ -1,12 +1,11 @@
 // src/components/steps/Step2Contact.tsx
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { useFormContext } from "react-hook-form";
 import { getContactsList } from "@/api/businesses-api";
 import { Phone, Mail, MapPin, Search, Languages, Map as MapIcon, Loader2 } from "lucide-react";
 import dynamic from "next/dynamic";
-
 
 // استيراد الخريطة بشكل ديناميكي
 const MapComponent = dynamic(() => import('@/components/MapComponent'), {
@@ -22,7 +21,6 @@ export function Step2Contact() {
 
     const [contacts, setContacts] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
-    
 
     useEffect(() => {
         const loadContacts = async () => {
@@ -43,18 +41,12 @@ export function Step2Contact() {
     const currentContact = contacts.find((c) => String(c.id) === String(selectedContactId));
 
     // تحديث الإحداثيات عند النقر على الخريطة
-    // const handleLocationSelect = (lat: number, lng: number) => {
-    //     setValue("manualLatitude", lat.toFixed(6));
-    //     setValue("manualLongitude", lng.toFixed(6));
-    // };
-
     const handleLocationSelect = (lat: number, lng: number) => {
-    // تحديث القيم في الفورم لتظهر في الـ inputs الـ readOnly
-    setValue("manualLatitude", lat.toFixed(6));
-    setValue("manualLongitude", lng.toFixed(6));
-};
+        setValue("manualLatitude", lat.toFixed(6));
+        setValue("manualLongitude", lng.toFixed(6));
+    };
 
-    // مزامنة الإحداثيات الحقيقية مع الحقول عند اختيار جهة اتصال
+    // مزامنة الإحداثيات الحقيقية مع الحقول عند اختيار جهة اتصال لأول مرة
     useEffect(() => {
         if (currentContact?.address?.localisation) {
             setValue("manualLatitude", currentContact.address.localisation.latitude);
@@ -64,6 +56,20 @@ export function Step2Contact() {
             setValue("manualLongitude", "");
         }
     }, [selectedContactId, currentContact, setValue]);
+
+    // 💡 إنشاء كائن الـ Pin ديناميكياً ليقرأه كود الـ MapComponent المحدث لديك
+    const activeMarker = useMemo(() => {
+        if (manualLat && manualLng) {
+            return [{
+                id: selectedContactId || "temporary-preview-id",
+                position: [parseFloat(manualLat), parseFloat(manualLng)] as [number, number],
+                label: currentContact ? `${currentContact.firstName} ${currentContact.lastName}` : "Selected Location",
+                address: currentContact?.address?.lineAddressFr || "",
+                active: true // لفتح القائمة المنبثقة تلقائياً فوق الدبوس
+            }];
+        }
+        return [];
+    }, [manualLat, manualLng, currentContact, selectedContactId]);
 
     return (
         <div className="space-y-6 animate-in fade-in duration-500">
@@ -124,6 +130,7 @@ export function Step2Contact() {
                                         ? [parseFloat(manualLat), parseFloat(manualLng)]
                                         : undefined
                                 }
+                                markers={activeMarker} // 🌟 تمرير العلامة ليتم رسمها كـ Pin ملون
                             />
                         </div>
 

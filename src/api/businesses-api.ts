@@ -45,27 +45,53 @@ export const getContactsList = async () => {
 };
 
 
+// export const getBusinesses = async (
+//   page: number = 1,
+//   limit: number = 20,
+//   filters: {
+//     cityId?: string | null;
+//     serviceId?: string | null;
+//     zoneId?: string | null;
+//   } = {},
+//   relations: string = 'service,flyer,contact.address.localisation,owner'
+// ) => {
+//   const response = await api.get('/v1/businesses', {
+//     params: {
+//       page,
+//       limit,
+//       serviceId: filters.serviceId || undefined,
+//       cityId: filters.cityId || undefined,
+//       zoneId: filters.zoneId || undefined,
+//       relations,
+//     },
+//   });
+//   return response.data;
+// };
+
+
+
+
+
 export const getBusinesses = async (
   page: number = 1,
-  limit: number = 20,
-  filters: {
-    cityId?: string | null;
-    service?: string | null;
-    zoneId?: string | null;
-  } = {},
-  relations: string = 'service,flyer,contact.address.localisation,owner'
+  limit: number = 10,
+  filters?: { cityId?: string; zoneId?: string; service?: string },
+  relations?: string
 ) => {
-  const response = await api.get('/v1/businesses', {
-    params: {
-      page,
-      limit,
-      // ⚠️ تمرير المعاملات صراحة هنا يمنع اختفاء القيم أو إرسال مفاتيح بأسماء خاطئة للسيرفر
-      service: filters.service || undefined,
-      cityId: filters.cityId || undefined,
-      zoneId: filters.zoneId || undefined,
-      relations
-    }
-  });
+  // بناء الـ Query Parameters بشكل مسطح وصريح
+  const params = new URLSearchParams();
+  params.append("page", String(page));
+  params.append("limit", String(limit));
+  
+  if (relations) params.append("relations", relations);
+  
+  // تفكيك الفلاتر وإضافتها مباشرة للرابط
+  if (filters?.cityId) params.append("cityId", filters.cityId);
+  if (filters?.zoneId) params.append("zoneId", filters.zoneId);
+  if (filters?.service) params.append("service", filters.service);
+
+  // استبدل '/businesses' بالمسار الصحيح الخاص بالـ API لديك
+  const response = await api.get(`/v1/businesses?${params.toString()}`);
   return response.data;
 };
 

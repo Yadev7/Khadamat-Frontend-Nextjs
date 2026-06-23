@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { X, Upload, CheckCircle2, User, Building2, Loader2 } from "lucide-react";
 import Image from "next/image";
+import Swal from 'sweetalert2';
 import { uploadFile, createMember, api } from "@/api/members-api";
 
 interface ModalProps {
@@ -82,8 +83,8 @@ export default function AddMemberModal({ isOpen, onClose, onSuccess }: ModalProp
           firstNameAr: formData.firstNameAr,
           lastNameAr: formData.lastNameAr,
           email: formData.email,
-          phoneCell: String(formData.phoneCell), // Must be String
-          phoneGround: String(formData.phoneGround), // Must be String
+          phoneCell: String(formData.phoneCell),
+          phoneGround: String(formData.phoneGround),
           address: {
             lineAddressFr: formData.lineAddressFr,
             lineAddressAr: formData.lineAddressAr,
@@ -91,8 +92,6 @@ export default function AddMemberModal({ isOpen, onClose, onSuccess }: ModalProp
             country: { id: formData.countryId },
           }
         },
-        // DO NOT send entreprise: null if it's an individual. 
-        // Only include the key if the type is ENTERPRISE.
         ...(memberType === 'ENTERPRISE' && {
           entreprise: {
             nameAr: formData.entrepriseNameAr,
@@ -103,17 +102,46 @@ export default function AddMemberModal({ isOpen, onClose, onSuccess }: ModalProp
       };
 
       await createMember(payload);
+      
+      Swal.fire({
+        icon: 'success',
+        title: 'تم التسجيل بنجاح',
+        text: 'تم إضافة العضو الجديد للدليل العالمي للخدمات.',
+        timer: 2000,
+        showConfirmButton: false
+      });
+
       onSuccess();
       onClose();
     } catch (err: any) {
-      // BETTER ERROR LOGGING: This helps find exactly what field failed
+      // استخراج هيكلة الخطأ التفصيلية القادمة من NestJS ValidationPipe
       const responseData = err.response?.data;
-      console.error("Backend Validation Error Details:", responseData);
+      console.log("Detailed Backend Response Object:", JSON.parse(JSON.stringify(responseData || {})));
 
-      // Extract message (NestJS usually puts it in response.data.message as string or array)
-      const errorMsg = responseData?.message || responseData?.errors || "Validation Failed";
+      let detailedMessage = "فشل التحقق من البيانات المرسلة.";
 
-      alert(Array.isArray(errorMsg) ? errorMsg.join("\n") : JSON.stringify(errorMsg));
+      if (responseData) {
+        if (Array.isArray(responseData.message)) {
+          // في حال أرجعت Class-validator مصفوفة من الأخطاء للحقول
+          detailedMessage = responseData.message.join("\n");
+        } else if (typeof responseData.message === 'string') {
+          detailedMessage = responseData.message;
+        } else if (responseData.errors) {
+          detailedMessage = typeof responseData.errors === 'string' 
+            ? responseData.errors 
+            : JSON.stringify(responseData.errors);
+        }
+      }
+
+      // عرض الخطأ بشكل احترافي للمسؤول بدلاً من تنبيه النظام المزعج
+      Swal.fire({
+        icon: 'error',
+        title: 'خطأ في التحقق من البيانات',
+        text: detailedMessage,
+        confirmButtonColor: '#4f46e5',
+        confirmButtonText: 'موافق'
+      });
+      
     } finally {
       setLoading(false);
     }
@@ -122,8 +150,8 @@ export default function AddMemberModal({ isOpen, onClose, onSuccess }: ModalProp
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
-      <div className="bg-white w-full max-w-3xl rounded-[2rem] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+    <div className="fixed inset-0 z-110 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+      <div className="bg-white w-full max-w-3xl rounded-2rem shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
 
         {/* Header */}
         <div className="px-8 py-6 border-b flex justify-between items-center bg-slate-50">
