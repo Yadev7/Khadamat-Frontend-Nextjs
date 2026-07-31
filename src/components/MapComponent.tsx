@@ -18,13 +18,42 @@ const createLeafletIcon = (url: string) => {
   });
 };
 
+// function MapViewUpdater({ center, zoom, hasMarkers }: { center: [number, number]; zoom: number; hasMarkers: boolean }) {
+//   const map = useMap();
+//   useEffect(() => {
+//     if (!hasMarkers && center && !isNaN(center[0]) && !isNaN(center[1])) {
+//       map.flyTo(center, zoom, { duration: 1.2 });
+//     }
+//   }, [center, zoom, map, hasMarkers]);
+//   return null;
+// }
+
+
+
+// src/components/MapComponent.tsx
 function MapViewUpdater({ center, zoom, hasMarkers }: { center: [number, number]; zoom: number; hasMarkers: boolean }) {
   const map = useMap();
+  
   useEffect(() => {
-    if (!hasMarkers && center && !isNaN(center[0]) && !isNaN(center[1])) {
-      map.flyTo(center, zoom, { duration: 1.2 });
+    // 🌟 ENHANCED CHECK: Deeply inspects that coordinates exist, are arrays, and contain real numbers
+    if (
+      !hasMarkers && 
+      center && 
+      Array.isArray(center) && 
+      center.length === 2 &&
+      !isNaN(center[0]) && 
+      !isNaN(center[1]) &&
+      isFinite(center[0]) &&
+      isFinite(center[1])
+    ) {
+      try {
+        map.flyTo(center, zoom, { duration: 1.2 });
+      } catch (error) {
+        console.error("Leaflet flyTo animation error bypassed safely:", error);
+      }
     }
   }, [center, zoom, map, hasMarkers]);
+  
   return null;
 }
 

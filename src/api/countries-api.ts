@@ -1,38 +1,5 @@
-import axios from 'axios';
-import Cookies from 'js-cookie';
-
-const API_URL = process.env.NEXT_PUBLIC_API_ENDPOINT;
-
-export const api = axios.create({
-  baseURL: API_URL,
-});
-
-// Interceptor to handle JWT tokens
-api.interceptors.request.use((config) => {
-  const token = Cookies.get('auth_token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
-
-api.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
-      console.error("الجلسة انتهت! يتم التوجيه لصفحة تسجيل الدخول...");
-
-      // 1. مسح التوكن من الكوكيز
-      Cookies.remove('auth_token');
-
-      // 2. توجيه المستخدم (إذا كنا في المتصفح)
-      if (typeof window !== 'undefined') {
-        window.location.href = '/sign-in';
-      }
-    }
-    return Promise.reject(error);
-  }
-);
+import api from './auth-api';
+export { api };
 
 
 // 1. Get All Members

@@ -1,20 +1,4 @@
-import axios from 'axios';
-import Cookies from 'js-cookie';
-
-const API_URL = process.env.NEXT_PUBLIC_API_ENDPOINT;
-
-export const api = axios.create({
-    baseURL: API_URL,
-});
-
-// Interceptor to handle JWT tokens
-api.interceptors.request.use((config) => {
-    const token = Cookies.get('auth_token');
-    if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-});
+import api from './auth-api';
 
 // GET all contacts with pagination
 export const getContacts = async (page = 1, limit = 10) => {

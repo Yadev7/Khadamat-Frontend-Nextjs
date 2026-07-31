@@ -1,4 +1,4 @@
-import api from './auth-api'; // استيراد النسخة المركزية
+import api from './auth-api';
 
 export interface CityData {
   nameAr?: string;
@@ -15,10 +15,15 @@ export const getCities = async () => {
   const response = await api.get('/v1/cities', {
     params: { relations: 'localisation' }
   });
-  return Array.isArray(response.data) ? response.data : (response.data?.data || []);
+  
+  // Handles standard arrays as well as NestJS infinity/paginated response formats ({ data: [...] })
+  return Array.isArray(response.data) 
+    ? response.data 
+    : (response.data?.data || []);
 };
 
 export const getCityById = async (id: string) => {
+  if (!id || id === 'undefined') return null;
   const response = await api.get(`/v1/cities/${id}`);
   return response.data;
 };

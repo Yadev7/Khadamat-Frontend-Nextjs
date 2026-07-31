@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Trash2, Plus, Pencil, Loader2, X,
@@ -40,8 +40,12 @@ export default function CityAreasPage() {
     try {
       setLoading(true);
       const [areasData, citiesData] = await Promise.all([getCityAreas(), getCities()]);
-      setAreas(areasData);
-      setCities(citiesData);
+      
+      const cleanAreas = Array.isArray(areasData) ? areasData : (areasData as any)?.data || [];
+      const cleanCities = Array.isArray(citiesData) ? citiesData : (citiesData as any)?.data || [];
+
+      setAreas(cleanAreas);
+      setCities(cleanCities);
     } catch (err) {
       console.error(err);
     } finally {
@@ -80,8 +84,8 @@ export default function CityAreasPage() {
       setFormData(prev => ({
         ...prev,
         cityId: selectedCityId,
-        latitude: Number(selectedCity.localisation.latitude),
-        longitude: Number(selectedCity.localisation.longitude)
+        latitude: Number(selectedCity.localisation.latitude || selectedCity.localisation.lat),
+        longitude: Number(selectedCity.localisation.longitude || selectedCity.localisation.lng)
       }));
     } else {
       setFormData(prev => ({ ...prev, cityId: selectedCityId }));
@@ -102,24 +106,38 @@ export default function CityAreasPage() {
       else await createCityArea(payload);
       setIsModalOpen(false);
       fetchData();
-      Swal.fire({ icon: 'success', title: t('common.success_msg'), timer: 1500, showConfirmButton: false });
+      Swal.fire({ icon: 'success', title: t('common.success_msg') || 'Success', timer: 1500, showConfirmButton: false });
     } catch (err) {
       Swal.fire({ icon: 'error', title: 'Error' });
     }
   };
 
   const handleDelete = async (id: string) => {
-    const result = await Swal.fire({ title: t('common.confirm_delete_title'), icon: 'warning', showCancelButton: true });
+    const result = await Swal.fire({ title: t('common.confirm_delete_title') || 'Are you sure?', icon: 'warning', showCancelButton: true });
     if (result.isConfirmed) {
       try {
         await deleteCityArea(id);
         setAreas(prev => prev.filter(a => a.id !== id));
-        Swal.fire(t('common.deleted'), '', 'success');
+        Swal.fire(t('common.deleted') || 'Deleted', '', 'success');
       } catch (err) {
         Swal.fire('Error', '', 'error');
       }
     }
   };
+
+  // 💡 SCRIPT TRICK: Computes an active picker marker array on-the-fly to link directly with your Map Component layers
+  const activePickerMarker = useMemo(() => {
+    if (formData.latitude && formData.longitude) {
+      return [{
+        id: editingArea?.id || "new-zone-picker",
+        position: [formData.latitude, formData.longitude] as [number, number],
+        label: (isAr ? formData.nameAr : formData.nameFr) || "Selected Target Position",
+        address: "Zone Coordinates Set",
+        active: true
+      }];
+    }
+    return [];
+  }, [formData.latitude, formData.longitude, formData.nameAr, formData.nameFr, editingArea, isAr]);
 
   if (loading) return (
     <div className="flex flex-col items-center justify-center min-h-[50vh]">
@@ -133,12 +151,12 @@ export default function CityAreasPage() {
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 bg-white p-6 rounded-3xl shadow-sm border border-slate-100 gap-4 mt-6">
         <div>
-          <h1 className="text-2xl font-black text-slate-800">{t("dashboard.infos-general.tabs.city_area_tab")}</h1>
+          <h1 className="text-2xl font-black text-slate-800">{t("dashboard.infos-general.tabs.city_area_tab") || "City Areas"}</h1>
           <p className="text-slate-400 text-sm font-medium">Zone and sector management</p>
         </div>
         <button onClick={() => handleOpenModal()} className="flex items-center gap-2 bg-violet-600 text-white px-6 py-3 rounded-2xl font-bold shadow-lg w-full md:w-auto justify-center">
           <Plus className="w-5 h-5" />
-          <span>{t("dashboard.infos-general.common.add_new")}</span>
+          <span>{t("dashboard.infos-general.common.add_new") || "Add New"}</span>
         </button>
       </div>
 
@@ -162,7 +180,7 @@ export default function CityAreasPage() {
             </div>
             <div className="flex items-center gap-2 text-slate-400 mt-2">
               <Navigation className="w-3 h-3 text-violet-500" />
-              <span className="text-[10px] font-mono">
+              <span className="text-xs font-mono">
                 {area.localisation ? `${area.localisation.latitude}, ${area.localisation.longitude}` : "No GPS data"}
               </span>
             </div>
@@ -179,10 +197,9 @@ export default function CityAreasPage() {
               <button onClick={() => setIsModalOpen(false)} className="p-2 hover:bg-slate-100 rounded-full transition"><X className="w-6 h-6" /></button>
             </div>
 
-            {/* Layout Grid wrapper is now a standard div element to decouple the nested map forms */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
               
-              {/* Form Fields Column wrapped securely in its own isolated form context */}
+              {/* Form Fields Column */}
               <form onSubmit={handleSubmit} className="order-2 lg:order-1 lg:col-span-5 space-y-5 w-full">
                 <div>
                   <label className="block text-[10px] font-black uppercase text-slate-400 mb-2 px-1">City</label>
@@ -210,14 +227,15 @@ export default function CityAreasPage() {
                 </button>
               </form>
 
-              {/* Map Column (Now perfectly safe from structural HTML invalid nestings) */}
-              <div className="order-1 lg:order-2 lg:col-span-7 h-350px lg:h-500px w-full rounded-2rem overflow-hidden border-4 border-slate-50 shadow-inner relative z-0">
+              {/* Map Column with dynamic Pin integration */}
+              <div className="order-1 lg:order-2 lg:col-span-7 h-[350px] lg:h-[500px] w-full rounded-2rem overflow-hidden border-4 border-slate-50 shadow-inner relative z-0">
                 <MapComponent
                   key={`${editingArea?.id || 'new'}-${formData.cityId}`}
                   center={[formData.latitude, formData.longitude]}
                   displayLabel={isAr ? formData.nameAr : formData.nameFr}
                   isPicker={true}
                   onLocationSelect={handleLocationChange}
+                  markers={activePickerMarker} // 🌟 Passed the picker array to trigger pins instantly!
                 />
               </div>
 

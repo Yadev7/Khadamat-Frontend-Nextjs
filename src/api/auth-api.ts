@@ -1,4 +1,3 @@
-// auth-api.ts
 import axios from 'axios';
 import Cookies from 'js-cookie';
 
@@ -9,15 +8,26 @@ const api = axios.create({
   withCredentials: true,
 });
 
-// إرفاق الـ Token في كل طلب
 api.interceptors.request.use((config) => {
+  // Endpoints that strictly never use a Bearer token
+  const authRoutes = ['/v1/auth/email/login', '/v1/auth/refresh'];
+  const isAuthRoute = authRoutes.some(endpoint => config.url?.includes(endpoint));
+
+  // Public GET endpoints (only skip token if it's a GET request)
+  const publicGetEndpoints = ['/v1/cities', '/v1/services', '/v1/city-areas'];
+  const isPublicGet = config.method?.toLowerCase() === 'get' && 
+                      publicGetEndpoints.some(endpoint => config.url?.includes(endpoint));
+
+  if (isAuthRoute) return config;
+
+  // Attach token if present (especially critical for POST / PATCH / DELETE)
   const token = Cookies.get('auth_token');
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+
   return config;
 });
-
 
 api.interceptors.response.use(
   (response) => response,
@@ -25,23 +35,32 @@ api.interceptors.response.use(
     const originalRequest = error.config;
 
     if (error.response?.status === 401 && !originalRequest._retry) {
-      // Check if we are on a page that actually REQUIRES login
-      // If it's a public data fetch, maybe just return the error instead of redirecting
       const publicEndpoints = ['/v1/cities', '/v1/services', '/v1/city-areas'];
-      const isPublicEndpoint = publicEndpoints.some(endpoint => originalRequest.url.includes(endpoint));
+      const isPublicGet = originalRequest.method?.toLowerCase() === 'get' &&
+                          publicEndpoints.some(endpoint => originalRequest.url?.includes(endpoint));
 
-      if (isPublicEndpoint) {
-        return Promise.reject(error); // Just fail the call, don't redirect
+      // Don't attempt refresh for public GET endpoints
+      if (isPublicGet) {
+        return Promise.reject(error);
       }
 
       originalRequest._retry = true;
       try {
-        await axios.post(`${API_URL}/v1/auth/refresh`, {}, { withCredentials: true });
+        const refreshRes = await axios.post(`${API_URL}/v1/auth/refresh`, {}, { withCredentials: true });
+        const newToken = refreshRes.data?.token || refreshRes.data?.accessToken;
+        
+        if (newToken) {
+          Cookies.set('auth_token', newToken, {
+            expires: 7,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict'
+          });
+          originalRequest.headers.Authorization = `Bearer ${newToken}`;
+        }
         return api(originalRequest);
       } catch (refreshError) {
         Cookies.remove('auth_token');
-        // Only redirect if NOT on the home page or public pages
-        if (typeof window !== 'undefined' && window.location.pathname !== '/') {
+        if (typeof window !== 'undefined' && window.location.pathname !== '/sign-in') {
           window.location.href = '/sign-in';
         }
         return Promise.reject(refreshError);

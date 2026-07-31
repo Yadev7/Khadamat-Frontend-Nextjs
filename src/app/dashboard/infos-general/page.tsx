@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, Fragment, useCallback } from 'react';
+import { useState, Fragment, useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import {
@@ -8,26 +8,21 @@ import {
   MapIcon,
   MapPinIcon,
   WrenchScrewdriverIcon,
-  Squares2X2Icon,
-  PlusIcon,
-  PencilSquareIcon,
-  TrashIcon,
   XMarkIcon
 } from '@heroicons/react/24/outline';
 import { Dialog, Transition } from '@headlessui/react';
 
-// Import your existing Services sub-page
+// Import sub-pages
 import ServicesPage from "../services/page";
 import CountriesPage from '../countries/page';
 import CitiesPage from '../cities/page';
-import CityAreas from '../city-areas/page'
-
+import CityAreas from '../city-areas/page';
 
 import { getCountries } from '@/api/countries-api';
 import { getCities } from '@/api/cities-api';
 import { getCityAreas } from '@/api/city-areas-api';
 
-type TabType = 'Country' | 'City' | 'CityArea' | 'Service' | 'Zone';
+type TabType = 'Country' | 'City' | 'CityArea' | 'Service';
 
 export default function GeneraleInfos() {
   const router = useRouter();
@@ -40,52 +35,53 @@ export default function GeneraleInfos() {
   const [editingItem, setEditingItem] = useState<any>(null);
   const [formData, setFormData] = useState({ nameAr: '', nameFr: '', nameEn: '' });
 
-  // --- Mock Data (Replace with API calls later) ---
+  // --- Data States ---
   const [countries, setCountries] = useState([]);
   const [cities, setCities] = useState([]);
   const [areas, setAreas] = useState([]);
 
-  const fetchCountiresData = useCallback(async () => {
-    try {
-      const data = await getCountries();
-      setCountries(data);
-    } catch (error: any) {
-      console.error("Error fetching countries:", error);
-      if (error.response?.status === 401) {
-        console.error("الجلسة انتهت! يتم التوجيه لصفحة تسجيل الدخول...");
-        router.push('/sign-in');
-      }
+  // Central error handler for 401s
+  const handleApiError = useCallback((error: any) => {
+    console.error("API Error:", error);
+    if (error.response?.status === 401) {
+      console.warn("Session expired or token missing. Redirecting to login...");
+      router.push('/sign-in');
     }
   }, [router]);
 
+  const fetchCountriesData = useCallback(async () => {
+    try {
+      const data = await getCountries();
+      setCountries(data);
+    } catch (error) {
+      handleApiError(error);
+    }
+  }, [handleApiError]);
+
   const fetchCitiesData = useCallback(async () => {
     try {
-      // Placeholder for fetching cities data
       const data = await getCities();
       setCities(data);
-    } catch (error: any) {
-      console.error("Error fetching cities:", error);
-      if (error.response?.status === 401) {
-        console.error("الجلسة انتهت! يتم التوجيه لصفحة تسجيل الدخول...");
-        router.push('/sign-in');
-      }
+    } catch (error) {
+      handleApiError(error);
     }
-  }, [router]);
+  }, [handleApiError]);
 
   const fetchAreasData = useCallback(async () => {
     try {
       const data = await getCityAreas();
-      // Placeholder for fetching city areas data
       setAreas(data);
-    } catch (error: any) {
-      console.error("Error fetching city areas:", error);
-      if (error.response?.status === 401) {
-        console.error("الجلسة انتهت! يتم التوجيه لصفحة تسجيل الدخول...");
-        router.push('/sign-in');
-      }
+    } catch (error) {
+      handleApiError(error);
     }
-  }, [router]);
+  }, [handleApiError]);
 
+  // Load data dynamically when tab changes
+  useEffect(() => {
+    if (activeTab === 'Country') fetchCountriesData();
+    if (activeTab === 'City') fetchCitiesData();
+    if (activeTab === 'CityArea') fetchAreasData();
+  }, [activeTab, fetchCountriesData, fetchCitiesData, fetchAreasData]);
 
   const tabs = [
     { id: 'Country', label: t('dashboard.infos-general.tabs.country_tab'), icon: GlobeAltIcon },
@@ -94,20 +90,11 @@ export default function GeneraleInfos() {
     { id: 'Service', label: t('dashboard.infos-general.tabs.service_tab'), icon: WrenchScrewdriverIcon },
   ];
 
-  // --- Handlers ---
-  const openModal = (item: any = null) => {
-    setEditingItem(item);
-    setFormData(item ? { nameAr: item.nameAr, nameFr: item.nameFr, nameEn: item.nameEn } : { nameAr: '', nameFr: '', nameEn: '' });
-    setIsModalOpen(true);
-  };
-
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
-    // Logic to save (Update or Create) would go here (API call)
     console.log("Saving Data:", formData, "for tab:", activeTab);
     setIsModalOpen(false);
   };
-
 
   return (
     <div className="min-h-screen bg-gray-50/50 p-4 md:p-8" dir={isRTL ? 'rtl' : 'ltr'}>
@@ -127,8 +114,9 @@ export default function GeneraleInfos() {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as TabType)}
-                className={`flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-bold transition-all ${isActive ? 'bg-blue-600 text-white shadow-md' : 'text-gray-500 hover:bg-gray-50'
-                  }`}
+                className={`flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-bold transition-all ${
+                  isActive ? 'bg-blue-600 text-white shadow-md' : 'text-gray-500 hover:bg-gray-50'
+                }`}
               >
                 <tab.icon className="w-5 h-5" />
                 {tab.label}
@@ -143,12 +131,6 @@ export default function GeneraleInfos() {
           {activeTab === 'Country' && <CountriesPage />}
           {activeTab === 'City' && <CitiesPage />}
           {activeTab === 'CityArea' && <CityAreas />}
-
-          {/* {activeTab === 'Zone' && (
-            <div className="bg-white p-20 rounded-2xl border border-dashed border-gray-300 text-center text-gray-400">
-              {t('dashboard.infos-general.loading')}
-            </div>
-          )} */}
         </div>
       </div>
 
@@ -161,7 +143,7 @@ export default function GeneraleInfos() {
               <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 shadow-xl transition-all">
                 <div className="flex justify-between items-center mb-6">
                   <Dialog.Title className="text-xl font-bold text-gray-900">
-                    {activeTab === 'Country' && editingItem ? t('dashboard.infos-general.common.edit') : t('dashboard.infos-general.common.add_new')}
+                    {editingItem ? t('dashboard.infos-general.common.edit') : t('dashboard.infos-general.common.add_new')}
                   </Dialog.Title>
                   <button onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-gray-600">
                     <XMarkIcon className="w-6 h-6" />

@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useSearchParams, useRouter } from "next/navigation";
@@ -17,21 +18,25 @@ const MapComponent = dynamic(() => import('@/components/MapComponent'), {
   loading: () => <div className="w-full h-full bg-gray-100 animate-pulse rounded-4xl" />
 });
 
+
 interface Option {
   id: string | number;
   name: string;
 }
+
 
 interface CompactSelectProps {
   label: string;
   icon: React.ReactNode;
   options: Option[];
   value: string;
-  selectedValueId: string; // Tracks the ID for exact highlighting match
+  selectedValueId: string;
   onChange: (id: string) => void;
   placeholder: string;
   disabled?: boolean;
 }
+
+
 
 const CompactSelect = ({ label, icon, options, value, selectedValueId, onChange, placeholder, disabled }: CompactSelectProps) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -45,6 +50,8 @@ const CompactSelect = ({ label, icon, options, value, selectedValueId, onChange,
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+
 
   return (
     <div ref={containerRef} className={`relative flex-1 min-w-0 ${disabled ? 'opacity-40' : ''}`}>
@@ -81,11 +88,10 @@ const CompactSelect = ({ label, icon, options, value, selectedValueId, onChange,
                   onChange(String(option.id));
                   setIsOpen(false);
                 }}
-                className={`w-full text-left px-4 py-3 text-sm rounded-2xl transition-all mb-1 last:mb-0 font-bold ${
-                  String(selectedValueId) === String(option.id)
+                className={`w-full text-left px-4 py-3 text-sm rounded-2xl transition-all mb-1 last:mb-0 font-bold ${String(selectedValueId) === String(option.id)
                     ? 'bg-indigo-600 text-white'
                     : 'text-slate-600 hover:bg-indigo-50 hover:text-indigo-600'
-                }`}
+                  }`}
               >
                 {option.name}
               </button>
@@ -101,22 +107,21 @@ const CompactSelect = ({ label, icon, options, value, selectedValueId, onChange,
   );
 };
 
+
+
 export default function SearchResultsPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const { t, i18n } = useTranslation();
   const isRtl = i18n.language === 'ar';
-
   const [loading, setLoading] = useState(false);
   const [cities, setCities] = useState<any[]>([]);
   const [allZones, setAllZones] = useState<any[]>([]);
   const [services, setServices] = useState<any[]>([]);
   const [businesses, setBusinesses] = useState<any[]>([]);
-
   const [selectedCityId, setSelectedCityId] = useState<string>("");
   const [selectedZoneId, setSelectedZoneId] = useState<string>("");
   const [selectedServiceId, setSelectedServiceId] = useState<string>("");
-
   const [hoveredBizId, setHoveredBizId] = useState<string | null>(null);
 
   // Sync component states when URL parameters change
@@ -126,280 +131,486 @@ export default function SearchResultsPage() {
     setSelectedServiceId(searchParams.get("service") || "");
   }, [searchParams]);
 
+
+
   // Load configuration and filter option lookups
+
   useEffect(() => {
+
     const loadFilters = async () => {
+
       try {
+
         const [citiesData, zonesData, servicesData] = await Promise.all([
+
           getCities(),
+
           getCityAreas(),
+
           getServices()
+
         ]);
 
+
+
         const langSuffix = i18n.language.charAt(0).toUpperCase() + i18n.language.slice(1);
+
         const getData = (res: any) => (Array.isArray(res) ? res : res?.data || []);
 
+
+
         setCities(getData(citiesData).map((c: any) => ({
+
           id: c.id,
+
           displayName: c[`name${langSuffix}`] || c.nameFr || "City",
+
           lat: c.localisation?.latitude || c.localisation?.lat,
+
           lng: c.localisation?.longitude || c.localisation?.lng
+
         })));
+
+
 
         setAllZones(getData(zonesData).map((z: any) => ({
+
           ...z,
+
           id: z.id,
+
           displayName: z[`name${langSuffix}`] || z.nameFr || "Area",
+
           normalizedCityId: z.city?.id || z.cityId,
+
           lat: z.localisation?.latitude || z.localisation?.lat,
+
           lng: z.localisation?.longitude || z.localisation?.lng
+
         })));
+
+
 
         setServices(getData(servicesData).map((s: any) => ({
+
           ...s,
+
           id: s.id,
+
           displayName: s[`nameServ${langSuffix}`] || s.nameServFr || s[`name${langSuffix}`] || s.nameFr || "Service"
+
         })));
+
       } catch (error) {
+
         console.error("❌ Fetch Filters Error:", error);
+
       }
+
     };
+
     loadFilters();
+
   }, [i18n.language]);
 
-  // Fetch businesses dynamically according to URL parameters changes
-  // useEffect(() => {
-  //   const fetchBusinesses = async () => {
-  //     const serviceId = searchParams.get("service");
-  //     const cityId = searchParams.get("cityId");
-  //     const zoneId = searchParams.get("zoneId");
-
-  //     if (!serviceId) {
-  //       setBusinesses([]);
-  //       setLoading(false);
-  //       return;
-  //     }
-
-  //     setLoading(true);
-  //     try {
-  //       const relations = 'service,flyer,contact.address.localisation';
-  //       const response = await getBusinesses(1, 20, {
-  //         service: serviceId,
-  //         cityId: cityId || undefined,
-  //         zoneId: zoneId || undefined
-  //       }, relations);
-
-  //       const data = response?.data || response || [];
-  //       setBusinesses(Array.isArray(data) ? data : []);
-  //     } catch (error) {
-  //       console.error("❌ Fetch Businesses Error:", error);
-  //       setBusinesses([]);
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
-  //   fetchBusinesses();
-  // }, [searchParams]);
 
 
   // Fetch businesses dynamically according to URL parameters changes
 
-  // Fetch businesses dynamically according to URL parameters changes
-useEffect(() => {
-  const fetchBusinesses = async () => {
-    const serviceId = searchParams.get("service");
-    const cityId = searchParams.get("cityId");
-    const zoneId = searchParams.get("zoneId");
+  useEffect(() => {
 
-    if (!serviceId) {
-      setBusinesses([]);
-      setLoading(false);
-      return;
-    }
+    const fetchBusinesses = async () => {
 
-    setLoading(true);
-    try {
-      const relations = 'service,flyer,contact.address.localisation,localisation';
-      const response = await getBusinesses(1, 20, {
-        service: serviceId,
-        cityId: cityId || undefined,
-        zoneId: zoneId || undefined
-      }, relations);
+      const serviceId = searchParams.get("service");
 
-      // 💡 هنا تكمن الخدعة: دالة infinityPagination تعيد كائن يحتوي على { data: [...] }
-      // نقوم بالتحقق من كافة مسارات البيانات المحتملة لمنع المصفوفة الفارغة
-      const extractedData = response?.data || response?.results || response || [];
-      
-      setBusinesses(Array.isArray(extractedData) ? extractedData : []);
-    } catch (error) {
-      console.error("❌ Fetch Businesses Error:", error);
-      setBusinesses([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-  
-  fetchBusinesses();
-}, [searchParams]);
+      const cityId = searchParams.get("cityId");
+
+      const zoneId = searchParams.get("zoneId");
+
+
+
+      if (!serviceId) {
+
+        setBusinesses([]);
+
+        setLoading(false);
+
+        return;
+
+      }
+
+
+
+      setLoading(true);
+
+      try {
+
+        const relations = 'service,flyer,contact.address.localisation,localisation';
+
+        const response = await getBusinesses(1, 20, {
+
+          service: serviceId,
+
+          cityId: cityId || undefined,
+
+          zoneId: zoneId || undefined
+
+        }, relations);
+
+
+
+        const extractedData = response?.data || response?.results || response || [];
+
+        setBusinesses(Array.isArray(extractedData) ? extractedData : []);
+
+      } catch (error) {
+
+        console.error("❌ Fetch Businesses Error:", error);
+
+        setBusinesses([]);
+
+      } finally {
+
+        setLoading(false);
+
+      }
+
+    };
+
+
+
+    fetchBusinesses();
+
+  }, [searchParams]);
+
+
 
   const filteredZones = useMemo(() => {
+
     if (!selectedCityId) return [];
+
     return allZones.filter(zone => String(zone.normalizedCityId) === String(selectedCityId));
+
   }, [selectedCityId, allZones]);
 
+
+
   const activeMapCenter = useMemo((): [number, number] | undefined => {
+
     if (selectedZoneId) {
+
       const zone = allZones.find(z => String(z.id) === String(selectedZoneId));
+
       if (zone?.lat && zone?.lng) return [parseFloat(zone.lat), parseFloat(zone.lng)];
+
     }
+
     if (selectedCityId) {
+
       const city = cities.find(c => String(c.id) === String(selectedCityId));
+
       if (city?.lat && city?.lng) return [parseFloat(city.lat), parseFloat(city.lng)];
+
     }
+
     return undefined;
+
   }, [selectedCityId, selectedZoneId, cities, allZones]);
+
+
 
   const activeMapLabel = useMemo(() => {
+
     if (selectedZoneId) {
+
       const zone = allZones.find(z => String(z.id) === String(selectedZoneId));
+
       return zone?.displayName || "Selected Area";
+
     }
+
     if (selectedCityId) {
+
       const city = cities.find(c => String(c.id) === String(selectedCityId));
+
       return city?.displayName || "Selected City";
+
     }
+
     return undefined;
+
   }, [selectedCityId, selectedZoneId, cities, allZones]);
 
-  // const handleSearchUpdate = () => {
-  //   if (!selectedServiceId) {
-  //     alert(t("search.please_select_service") || "Please select a service first");
-  //     return;
-  //   }
-  //   const params = new URLSearchParams();
-  //   if (selectedCityId) params.set("cityId", selectedCityId);
-  //   if (selectedServiceId) params.set("service", selectedServiceId);
-  //   if (selectedZoneId) params.set("zoneId", selectedZoneId);
-  //   router.push(`/search?${params.toString()}`, { scroll: false });
-  // };
 
-    const handleSearchUpdate = () => {
+
+  // FIX 1: Correct query parameters from 'city'/'zone' to 'cityId'/'zoneId'
+
+  const handleSearchUpdate = () => {
+
     setLoading(true);
+
     const params = new URLSearchParams();
-    if (selectedCityId) params.set("city", selectedCityId);
-    if (selectedZoneId) params.set("zone", selectedZoneId);
+
+    if (selectedCityId) params.set("cityId", selectedCityId);
+
+    if (selectedZoneId) params.set("zoneId", selectedZoneId);
+
     if (selectedServiceId) params.set("service", selectedServiceId);
 
+
+
     router.push(`/search?${params.toString()}`);
+
     setTimeout(() => setLoading(false), 800);
+
   };
 
+
+
+  // FIX 2: Helper to clean Windows backslashes and extract only the raw filename for image source
+
+  const resolveFlyerUrl = (flyerRaw?: string | null): string => {
+
+    const fallbackImage = "https://images.unsplash.com/photo-1560179707-f14e90ef3623?q=80&w=500";
+
+    if (!flyerRaw) return fallbackImage;
+
+    if (flyerRaw.startsWith("http://") || flyerRaw.startsWith("https://")) return flyerRaw;
+
+
+
+    // Clean backslashes & strip directories to keep only filename
+
+    const cleanFilename = flyerRaw.replace(/\\/g, "/").split("/").pop();
+
+    if (!cleanFilename) return fallbackImage;
+
+
+
+    const baseEndpoint = (process.env.NEXT_PUBLIC_API_ENDPOINT || "http://localhost:3000")
+
+      .replace(/\/$/, "")
+
+      .replace(/\/v1$/, "");
+
+
+
+    return `${baseEndpoint}/v1/files/${cleanFilename}`;
+
+  };
+
+
+
   const mapMarkers = useMemo(() => {
+
     const langSuffix = i18n.language.charAt(0).toUpperCase() + i18n.language.slice(1);
+
     if (!businesses || !Array.isArray(businesses)) return [];
 
+
+
     return businesses.map((biz: any) => {
+
       if (!biz) return null;
 
-      const rawLat = biz.localisation?.latitude || 
-                     biz.localisation?.lat || 
-                     biz.contact?.address?.localisation?.latitude || 
-                     biz.contact?.address?.localisation?.lat;
 
-      const rawLng = biz.localisation?.longitude || 
-                     biz.localisation?.lng || 
-                     biz.contact?.address?.localisation?.longitude || 
-                     biz.contact?.address?.localisation?.lng;
+
+      const rawLat = biz.localisation?.latitude ||
+
+        biz.localisation?.lat ||
+
+        biz.contact?.address?.localisation?.latitude ||
+
+        biz.contact?.address?.localisation?.lat;
+
+
+
+      const rawLng = biz.localisation?.longitude ||
+
+        biz.localisation?.lng ||
+
+        biz.contact?.address?.localisation?.longitude ||
+
+        biz.contact?.address?.localisation?.lng;
+
+
 
       const lat = parseFloat(String(rawLat));
+
       const lng = parseFloat(String(rawLng));
 
+
+
       if (!isNaN(lat) && !isNaN(lng) && lat !== 0 && lng !== 0) {
+
         return {
+
           id: biz.id,
+
           position: [lat, lng] as [number, number],
+
           label: biz[`name${langSuffix}`] || biz.nameFr || biz.nameEn || "Business",
+
           address: biz.contact?.address?.lineAddressFr || biz.contact?.lineAddressFr || "",
+
           active: hoveredBizId === biz.id
+
         };
+
       }
+
       return null;
+
     }).filter((m): m is NonNullable<typeof m> => m !== null);
+
   }, [businesses, i18n.language, hoveredBizId]);
 
+
+
   return (
+
     <div className="relative min-h-screen w-full bg-slate-50/50" dir={isRtl ? 'rtl' : 'ltr'}>
-      {/* --- SEARCH BAR BAR LAYOUT --- */}
+
+      {/* --- SEARCH BAR LAYOUT --- */}
+
       <div className="fixed top-15 left-0 right-0 z-100 px-2 py-6 md:px-6 bg-white/80 backdrop-blur-xl border-b border-slate-100">
+
         <div className="container mx-auto max-w-6xl">
+
           <div className="bg-white/95 backdrop-blur-md border border-slate-200 shadow-[0_20px_50px_rgba(0,0,0,0.1)] rounded-3xl md:rounded-full p-2 flex flex-col md:flex-row items-center gap-1 transition-all hover:border-indigo-200">
-            
+
+
+
             <CompactSelect
+
               label={t("search.city")}
+
               icon={<MapPin size={20} />}
+
               options={cities.map(c => ({ id: c.id, name: c.displayName }))}
+
               value={cities.find(c => String(c.id) === String(selectedCityId))?.displayName || ""}
+
               selectedValueId={selectedCityId}
+
               onChange={(id) => {
+
                 setSelectedCityId(id);
+
                 setSelectedZoneId("");
+
               }}
+
               placeholder={t("search.select_city")}
+
             />
 
+
+
             <div className="hidden md:block w-px h-10 bg-slate-100 shrink-0 mx-1" />
+
             <div className="block md:hidden w-full h-px bg-slate-100 my-1" />
+
+
 
             <CompactSelect
+
               label={t("search.zone")}
+
               icon={<LayoutGrid size={20} />}
+
               options={filteredZones.map(z => ({ id: z.id, name: z.displayName }))}
+
               value={filteredZones.find(z => String(z.id) === String(selectedZoneId))?.displayName || ""}
+
               selectedValueId={selectedZoneId}
+
               disabled={!selectedCityId}
+
               onChange={(id) => setSelectedZoneId(id)}
+
               placeholder={selectedCityId ? (filteredZones.length === 0 ? "No Areas" : t("search.select_zone")) : t("search.select_zone")}
+
             />
 
+
+
             <div className="hidden md:block w-px h-10 bg-slate-100 shrink-0 mx-1" />
+
             <div className="block md:hidden w-full h-px bg-slate-100 my-1" />
+
+
 
             <div className="flex-[1.4] flex flex-col md:flex-row items-center min-w-0 w-full gap-3 md:gap-0">
+
               <CompactSelect
+
                 label={t("search.service")}
+
                 icon={<HandPlatter size={20} />}
+
                 options={services.map(s => ({ id: s.id, name: s.displayName }))}
+
                 value={services.find(s => String(s.id) === String(selectedServiceId))?.displayName || ""}
+
                 selectedValueId={selectedServiceId}
+
                 onChange={(id) => setSelectedServiceId(id)}
+
                 placeholder={t("search.select_service")}
+
               />
 
+
+
               <button
+
                 onClick={handleSearchUpdate}
+
                 disabled={loading}
+
                 className="w-full md:w-auto bg-indigo-600 hover:bg-indigo-700 text-white p-4 md:px-10 rounded-2xl md:rounded-full active:scale-95 transition-all flex items-center justify-center gap-3 shadow-lg shadow-indigo-100 disabled:opacity-50 md:ml-2"
+
               >
+
                 {loading ? <Loader2 size={22} className="animate-spin" /> : <Search size={22} />}
+
                 <span className="font-black text-sm uppercase tracking-widest">
+
                   {t("search.button")}
+
                 </span>
+
               </button>
+
             </div>
+
           </div>
+
         </div>
+
       </div>
 
+
+
       {/* --- BUSINESS CARDS AND MAP VIEWPORTS --- */}
+
       <div className="flex flex-col lg:flex-row h-screen pt-36">
+
         <div className="w-full lg:w-1/2 overflow-y-auto px-4 md:px-8 pb-20 custom-scrollbar">
+
           {!loading && searchParams.get("service") && (
+
             <div className="max-w-2xl mb-8">
+
               <h2 className="text-3xl font-black text-slate-900 tracking-tight">
+
                 {`${businesses.length} ${t("search.results_found")}`}
+
               </h2>
             </div>
           )}
+
 
           {loading ? (
             <div className="flex justify-center py-20">
@@ -424,37 +635,23 @@ useEffect(() => {
                   const langSuffix = i18n.language.charAt(0).toUpperCase() + i18n.language.slice(1);
                   const title = biz[`name${langSuffix}`] || biz.nameFr || biz.nameEn || "Business";
                   const desc = biz[`descr${langSuffix}`] || biz.descrFr || biz.descrEn;
-                  
-                  const flyerUrl = biz.flyer?.url || biz.flyer?.path;
-                  let img = "https://images.unsplash.com/photo-1560179707-f14e90ef3623?q=80&w=500";
-
-                  if (flyerUrl) {
-                    if (flyerUrl.startsWith("http://") || flyerUrl.startsWith("https://")) {
-                      img = flyerUrl;
-                    } else {
-                      const cleanPath = flyerUrl.replace(/^\//, "");
-                      if (process.env.NODE_ENV === 'development') {
-                        img = `http://127.0.0.1:3000/api/v1/files/${cleanPath}`;
-                      } else {
-                        const baseEndpoint = process.env.NEXT_PUBLIC_API_ENDPOINT?.replace(/\/$/, "") || "";
-                        img = `${baseEndpoint}/api/v1/files/${cleanPath}`;
-                      }
-                    }
-                  }
+                  const flyerUrl = biz.flyer?.path || biz.flyer?.url;
+                  const img = resolveFlyerUrl(flyerUrl);
 
                   return (
                     <div
                       key={biz.id}
-                      onClick={() => router.push(`/businesses/${biz.id}`)}
+                      onClick={() => router.push(`/dashboard/business/${biz.id}`)}
                       onMouseEnter={() => setHoveredBizId(biz.id)}
                       onMouseLeave={() => setHoveredBizId(null)}
                       className="group flex flex-col bg-white rounded-4xl overflow-hidden transition-all duration-500 hover:shadow-2xl hover:shadow-slate-200 cursor-pointer border border-slate-100"
                     >
+
                       <div className="relative h-52 w-full overflow-hidden bg-slate-100">
-                        <img 
-                          src={img} 
-                          alt={title} 
-                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
+                        <img
+                          src={img}
+                          alt={title}
+                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                           onError={(e) => {
                             const target = e.target as HTMLImageElement;
                             if (target.src !== "https://images.unsplash.com/photo-1560179707-f14e90ef3623?q=80&w=500") {
@@ -462,17 +659,20 @@ useEffect(() => {
                             }
                           }}
                         />
+
                         <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-md px-3 py-1 rounded-full">
                           <span className="text-[10px] font-black text-indigo-600 uppercase">
                             {biz.service?.[`name${langSuffix}`] || biz.service?.[`nameServ${langSuffix}`] || biz.service?.nameFr || biz.service?.nameServFr}
                           </span>
                         </div>
                       </div>
+
                       <div className="p-6 flex flex-col grow">
                         <h3 className="text-xl font-bold text-slate-900 mb-2 group-hover:text-indigo-600 transition-colors line-clamp-1">{title}</h3>
                         <div className="flex items-center gap-1.5 text-slate-400 mb-3">
                           <MapPin size={14} />
                           <span className="text-xs font-bold truncate">{biz.contact?.address?.lineAddressFr || "Address not provided"}</span>
+
                         </div>
                         <p className="text-slate-500 text-sm leading-relaxed line-clamp-2 mb-4">{desc}</p>
                         <div className="mt-auto pt-4 border-t border-slate-50 flex items-center justify-between text-indigo-600 font-bold text-sm">
@@ -496,6 +696,7 @@ useEffect(() => {
         </div>
 
         {/* --- MAP PANELS GRAPHIC INTERFACE --- */}
+
         <div className="hidden lg:block lg:w-1/2 h-full p-4 relative">
           <div className="w-full h-full rounded-4xl overflow-hidden shadow-inner border-4 border-white relative">
             <MapComponent

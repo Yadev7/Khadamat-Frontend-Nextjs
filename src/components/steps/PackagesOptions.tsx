@@ -171,14 +171,14 @@ export function PackagesOptions() {
     () => [
       {
         key: 'bad',
-        src: '/item-photo-bad-example.png',
+        src: '/item-photo-bad-example.svg',
         label: t('expedier.departureStep.packages.modal.photos.guide.badLabel', 'Non conforme'),
         alt: t('expedier.departureStep.packages.modal.photos.guide.badAlt', 'Exemple de photo non conforme d un objet a transporter'),
         tone: 'neutral' as const,
       },
       {
         key: 'good',
-        src: '/item-photo-good-example.png',
+        src: '/item-photo-good-example.svg',
         label: t('expedier.departureStep.packages.modal.photos.guide.goodLabel', 'Ideale'),
         alt: t('expedier.departureStep.packages.modal.photos.guide.goodAlt', 'Exemple de photo ideale d un objet a transporter'),
         tone: 'success' as const,

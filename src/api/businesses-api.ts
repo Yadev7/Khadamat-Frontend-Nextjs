@@ -1,19 +1,5 @@
-import axios from 'axios';
-import Cookies from 'js-cookie';
-
-const API_URL = process.env.NEXT_PUBLIC_API_ENDPOINT;
-
-export const api = axios.create({
-  baseURL: API_URL,
-});
-
-api.interceptors.request.use((config) => {
-  const token = Cookies.get('auth_token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
+import api from './auth-api';
+export { api };
 
 
 export const getServicesList = async () => {
@@ -69,29 +55,85 @@ export const getContactsList = async () => {
 // };
 
 
+// export const getBusinessById = async (id: string, relations: string = 'service,flyer,contact.address.localisation,owner') => {
+//   const response = await api.get(`/v1/businesses/${id}`, {
+//     params: {
+//       relations,
+//     },
+//   });
+//   return response.data;
+// };
 
 
 
+// export const getBusinesses = async (
+//   page: number = 1,
+//   limit: number = 10,
+//   filters?: { cityId?: string; zoneId?: string; service?: string },
+//   relations?: string
+// ) => {
+//   // بناء الـ Query Parameters بشكل مسطح وصريح
+//   const params = new URLSearchParams();
+//   params.append("page", String(page));
+//   params.append("limit", String(limit));
+  
+//   if (relations) params.append("relations", relations);
+  
+//   // تفكيك الفلاتر وإضافتها مباشرة للرابط
+//   if (filters?.cityId) params.append("cityId", filters.cityId);
+//   if (filters?.zoneId) params.append("zoneId", filters.zoneId);
+//   if (filters?.service) params.append("service", filters.service);
+
+//   // استبدل '/businesses' بالمسار الصحيح الخاص بالـ API لديك
+//   const response = await api.get(`/v1/businesses?${params.toString()}`);
+//   return response.data;
+// };
+
+
+
+// @/api/businesses-api.ts
+// export const getBusinesses = async (
+//   page: number = 1,
+//   limit: number = 10,
+//   filters?: { id?: string; cityId?: string; zoneId?: string; service?: string },
+//   relations?: string
+// ) => {
+//   const params = new URLSearchParams();
+//   params.append("page", String(page));
+//   params.append("limit", String(limit));
+  
+//   if (relations) params.append("relations", relations);
+  
+//   if (filters?.id) params.append("id", filters.id); // Added id support for detail fetching
+//   if (filters?.cityId) params.append("cityId", filters.cityId);
+//   if (filters?.zoneId) params.append("zoneId", filters.zoneId);
+//   if (filters?.service) params.append("service", filters.service);
+
+//   const response = await api.get(`/v1/businesses?${params.toString()}`);
+//   return response.data;
+// };
+
+
+// 1. For fetching a list (with filters and pagination)
 export const getBusinesses = async (
   page: number = 1,
   limit: number = 10,
   filters?: { cityId?: string; zoneId?: string; service?: string },
   relations?: string
 ) => {
-  // بناء الـ Query Parameters بشكل مسطح وصريح
-  const params = new URLSearchParams();
-  params.append("page", String(page));
-  params.append("limit", String(limit));
-  
+  const params = new URLSearchParams({ page: String(page), limit: String(limit) });
   if (relations) params.append("relations", relations);
-  
-  // تفكيك الفلاتر وإضافتها مباشرة للرابط
   if (filters?.cityId) params.append("cityId", filters.cityId);
   if (filters?.zoneId) params.append("zoneId", filters.zoneId);
   if (filters?.service) params.append("service", filters.service);
 
-  // استبدل '/businesses' بالمسار الصحيح الخاص بالـ API لديك
   const response = await api.get(`/v1/businesses?${params.toString()}`);
+  return response.data;
+};
+
+// 2. For fetching a specific detail (Path Parameter)
+export const getBusinessById = async (id: string) => {
+  const response = await api.get(`/v1/businesses/${id}`);
   return response.data;
 };
 
