@@ -107,8 +107,6 @@ const CompactSelect = ({ label, icon, options, value, selectedValueId, onChange,
   );
 };
 
-
-
 export default function SearchResultsPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -533,80 +531,42 @@ export default function SearchResultsPage() {
 
             />
 
-
-
             <div className="hidden md:block w-px h-10 bg-slate-100 shrink-0 mx-1" />
-
             <div className="block md:hidden w-full h-px bg-slate-100 my-1" />
-
-
-
             <div className="flex-[1.4] flex flex-col md:flex-row items-center min-w-0 w-full gap-3 md:gap-0">
-
               <CompactSelect
-
                 label={t("search.service")}
-
                 icon={<HandPlatter size={20} />}
-
                 options={services.map(s => ({ id: s.id, name: s.displayName }))}
-
                 value={services.find(s => String(s.id) === String(selectedServiceId))?.displayName || ""}
-
                 selectedValueId={selectedServiceId}
-
                 onChange={(id) => setSelectedServiceId(id)}
-
                 placeholder={t("search.select_service")}
-
               />
 
-
-
               <button
-
                 onClick={handleSearchUpdate}
-
                 disabled={loading}
-
                 className="w-full md:w-auto bg-indigo-600 hover:bg-indigo-700 text-white p-4 md:px-10 rounded-2xl md:rounded-full active:scale-95 transition-all flex items-center justify-center gap-3 shadow-lg shadow-indigo-100 disabled:opacity-50 md:ml-2"
-
               >
 
                 {loading ? <Loader2 size={22} className="animate-spin" /> : <Search size={22} />}
-
                 <span className="font-black text-sm uppercase tracking-widest">
-
                   {t("search.button")}
-
                 </span>
-
               </button>
-
             </div>
-
           </div>
-
         </div>
-
       </div>
 
-
-
       {/* --- BUSINESS CARDS AND MAP VIEWPORTS --- */}
-
       <div className="flex flex-col lg:flex-row h-screen pt-36">
-
         <div className="w-full lg:w-1/2 overflow-y-auto px-4 md:px-8 pb-20 custom-scrollbar">
-
           {!loading && searchParams.get("service") && (
-
             <div className="max-w-2xl mb-8">
-
               <h2 className="text-3xl font-black text-slate-900 tracking-tight">
-
                 {`${businesses.length} ${t("search.results_found")}`}
-
               </h2>
             </div>
           )}
