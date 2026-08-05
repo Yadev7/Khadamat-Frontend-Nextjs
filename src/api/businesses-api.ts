@@ -131,7 +131,7 @@ export const getBusinesses = async (
   return response.data;
 };
 
-// 2. For fetching a specific detail (Path Parameter)
+// 2. For fetching a specific detail (Path Parametaer)
 export const getBusinessById = async (id: string) => {
   const response = await api.get(`/v1/businesses/${id}`);
   return response.data;
