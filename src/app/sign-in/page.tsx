@@ -6,7 +6,6 @@ import { useTranslation } from "react-i18next";
 import i18n from "@/i18n";
 import { useAuth } from "@/context/AuthContext";
 
-// (Icons EyeIcon & EyeOffIcon b9aw kima homa...)
 
 export default function SignInPage() {
   const [email, setEmail] = useState("");

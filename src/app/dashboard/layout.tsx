@@ -40,6 +40,27 @@
 // }
 
 
+// import { cookies, headers } from 'next/headers';
+// import { redirect } from 'next/navigation';
+// import DashboardClientLayout from './DashboardClientLayout';
+
+// export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
+//   const cookieStore = await cookies();
+//   const token = cookieStore.get('auth_token')?.value;
+
+//   const headersList = await headers();
+//   const currentPath = headersList.get('x-current-path') || '';
+
+//   const isPublicBusinessPage = currentPath.startsWith('/dashboard/business/');
+
+//   if (!token && !isPublicBusinessPage) {
+//     redirect('/sign-in');
+//   }
+
+//   return <DashboardClientLayout>{children}</DashboardClientLayout>;
+// }
+
+
 import { cookies, headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import DashboardClientLayout from './DashboardClientLayout';
@@ -49,9 +70,10 @@ export default async function DashboardLayout({ children }: { children: React.Re
   const token = cookieStore.get('auth_token')?.value;
 
   const headersList = await headers();
-  const currentPath = headersList.get('x-current-path') || '';
+  const currentPath = headersList.get('x-pathname') || headersList.get('referer') || '';
 
-  const isPublicBusinessPage = currentPath.startsWith('/dashboard/business/');
+  // التحقق من استهداف صفحة تفاصيل المحل
+  const isPublicBusinessPage = currentPath.includes('/dashboard/business/');
 
   if (!token && !isPublicBusinessPage) {
     redirect('/sign-in');

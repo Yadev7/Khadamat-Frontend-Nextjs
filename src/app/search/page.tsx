@@ -601,8 +601,8 @@ export default function SearchResultsPage() {
                   return (
                     <div
                       key={biz.id}
-                       onClick={() => router.push(`/dashboard/business/${biz.id}`)}
-                      //onClick={() => router.push(`/businesses/${biz.id}`)}
+                      //  onClick={() => router.push(`/dashboard/business/${biz.id}`)}
+                      onClick={() => router.push(`/businesses/${biz.id}`)}
                       onMouseEnter={() => setHoveredBizId(biz.id)}
                       onMouseLeave={() => setHoveredBizId(null)}
                       className="group flex flex-col bg-white rounded-4xl overflow-hidden transition-all duration-500 hover:shadow-2xl hover:shadow-slate-200 cursor-pointer border border-slate-100"
