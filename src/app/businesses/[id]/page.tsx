@@ -4,10 +4,11 @@ import { useParams, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import {
-  MapPin, Loader2, MessageSquare, Mic, Send, X, ArrowLeft
+  Loader2, MessageSquare, Mic, Send, X, ArrowLeft, Mail, Phone
 } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useTranslation } from "react-i18next";
+import Swal from "sweetalert2";
 
 const MapComponent = dynamic(() => import('@/components/MapComponent'), {
   ssr: false,
@@ -26,6 +27,9 @@ export default function PublicBusinessDetailsPage() {
   const [isMapModalOpen, setIsMapModalOpen] = useState(false);
   const [isWhatsAppModalOpen, setIsWhatsAppModalOpen] = useState(false);
   const [message, setMessage] = useState("");
+  const [senderEmail, setSenderEmail] = useState("");
+  const [senderPhone, setSenderPhone] = useState("");
+  const [sending, setSending] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -76,6 +80,51 @@ export default function PublicBusinessDetailsPage() {
       return `${baseEndpoint}/v1/files/${cleanPath}`;
     })()
     : null;
+
+  const handleSendMessage = async () => {
+    if (!message.trim()) {
+      Swal.fire(t("details_ads.empty_message") || "Please write a message first.", "", "warning");
+      return;
+    }
+
+    setSending(true);
+    try {
+      const payload: Record<string, any> = {
+        business: { id: business?.id },
+        emailContact: senderEmail.trim() || null,
+        phoneContact: senderPhone.trim() ? Number(senderPhone.replace(/\D/g, "")) : null,
+      };
+
+      const textField =
+        i18n.language === 'ar' ? 'textAr' :
+          i18n.language === 'fr' ? 'textFr' :
+            'textEn';
+      payload[textField] = message.trim();
+
+      await axios.post(`${baseEndpoint}/v1/messages`, payload);
+
+      Swal.fire({
+        icon: "success",
+        title: t("details_ads.message_sent") || "Message Sent!",
+        text: t("details_ads.message_sent_desc") || "Your message was delivered to the business.",
+        timer: 2000,
+        showConfirmButton: false,
+      });
+      setMessage("");
+      setSenderEmail("");
+      setSenderPhone("");
+      setIsModalOpen(false);
+    } catch (error: any) {
+      console.error("❌ Send Message Error:", error);
+      Swal.fire(
+        t("details_ads.message_error") || "Failed to send",
+        error?.response?.data?.message || error?.message || "Something went wrong.",
+        "error"
+      );
+    } finally {
+      setSending(false);
+    }
+  };
 
   if (loading) return <div className="h-screen w-full flex items-center justify-center"><Loader2 className="animate-spin text-indigo-600" size={40} /></div>;
 
@@ -151,14 +200,40 @@ export default function PublicBusinessDetailsPage() {
               <div className="flex items-center gap-3"><div className="p-2 bg-indigo-100 text-indigo-600 rounded-xl"><MessageSquare size={20} /></div><h3 className="font-bold text-lg">Inquire Profile</h3></div>
               <button onClick={() => setIsModalOpen(false)} className="p-2 hover:bg-white rounded-full"><X size={20} /></button>
             </div>
-            <div className="p-6 space-y-6">
+            <div className="p-6 space-y-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="flex items-center gap-2 bg-gray-50 rounded-2xl border-2 border-gray-100 px-4 focus-within:border-indigo-500 transition-colors">
+                  <Mail size={18} className="text-gray-400" />
+                  <input
+                    type="email"
+                    value={senderEmail}
+                    onChange={(e) => setSenderEmail(e.target.value)}
+                    placeholder={t("details_ads.your_email") || "Your email (optional)"}
+                    className="w-full py-3 bg-transparent outline-none text-sm"
+                  />
+                </div>
+                <div className="flex items-center gap-2 bg-gray-50 rounded-2xl border-2 border-gray-100 px-4 focus-within:border-indigo-500 transition-colors">
+                  <Phone size={18} className="text-gray-400" />
+                  <input
+                    type="tel"
+                    value={senderPhone}
+                    onChange={(e) => setSenderPhone(e.target.value)}
+                    placeholder={t("details_ads.your_phone") || "Your phone (optional)"}
+                    className="w-full py-3 bg-transparent outline-none text-sm"
+                  />
+                </div>
+              </div>
+
               <div className="text-center p-8 border-2 border-dashed border-gray-100 rounded-3xl bg-gray-50/30">
                 <button onClick={() => alert("Audio recording feature coming soon!")} className="mx-auto w-16 h-16 flex items-center justify-center bg-red-50 text-red-500 rounded-full hover:bg-red-100 mb-3"><Mic size={28} /></button>
                 <p className="text-sm font-semibold">Tap to record audio</p>
               </div>
+
               <div className="relative">
-                <textarea rows={3} value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Type your message..." className="w-full p-4 rounded-2xl border-2 border-gray-100 outline-none" />
-                <button onClick={() => alert("Sent!")} className="absolute bottom-3 right-3 p-2 bg-indigo-600 text-white rounded-xl"><Send size={18} /></button>
+                <textarea rows={3} value={message} onChange={(e) => setMessage(e.target.value)} placeholder={t("details_ads.message_placeholder") || "Type your message..."} className="w-full p-4 rounded-2xl border-2 border-gray-100 outline-none focus:border-indigo-500 transition-colors" />
+                <button onClick={handleSendMessage} disabled={sending} className="absolute bottom-3 right-3 p-2 bg-indigo-600 text-white rounded-xl disabled:opacity-60 disabled:cursor-not-allowed">
+                  {sending ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
+                </button>
               </div>
             </div>
           </div>

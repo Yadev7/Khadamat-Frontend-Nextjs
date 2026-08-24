@@ -103,7 +103,14 @@
     "back_to_search": "Back to Search",
     "rating": "Rating",
     "message": "Let a Message",
-    "whatsapp": "WhatsApp"
+    "whatsapp": "WhatsApp",
+    "your_email": "Your email (optional)",
+    "your_phone": "Your phone (optional)",
+    "message_placeholder": "Type your message...",
+    "empty_message": "Please write a message first.",
+    "message_sent": "Message Sent!",
+    "message_sent_desc": "Your message was delivered to the business.",
+    "message_error": "Failed to send"
   },
   "how_it_works": {
   "process": "The Process",
@@ -299,7 +306,15 @@
       "members": "Professionals",
       "settings": "Settings",
       "logout": "Logout",
-      "business": "Business"
+      "business": "Business",
+      "messages": "Messages"
+    },
+    "messages": {
+      "title": "Client Messages",
+      "subtitle": "Messages sent by clients from your business profiles",
+      "all_businesses": "All businesses",
+      "empty": "No messages yet",
+      "empty_desc": "Messages sent by clients will appear here."
     },
     "infos-general": {
       "title": "General Information",

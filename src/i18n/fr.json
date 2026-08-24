@@ -103,7 +103,14 @@
     "back_to_search": "Retour à la recherche",
     "rating": "Évaluation",
     "message": "Laisser un Message",
-    "whatsapp": "WhatsApp"
+    "whatsapp": "WhatsApp",
+    "your_email": "Votre e-mail (facultatif)",
+    "your_phone": "Votre téléphone (facultatif)",
+    "message_placeholder": "Écrivez votre message...",
+    "empty_message": "Veuillez d'abord écrire un message.",
+    "message_sent": "Message envoyé !",
+    "message_sent_desc": "Votre message a été livré à l'entreprise.",
+    "message_error": "Échec de l'envoi"
   },
   "how_it_works": {
   "process": "Le processus",
@@ -299,7 +306,15 @@
       "members": "Professionnels",
       "settings": "Paramètres",
       "logout": "Se déconnecter",
-      "business": "Affaires"
+      "business": "Affaires",
+      "messages": "Messages"
+    },
+    "messages": {
+      "title": "Messages des clients",
+      "subtitle": "Messages envoyés par les clients depuis vos profils d'entreprises",
+      "all_businesses": "Toutes les entreprises",
+      "empty": "Aucun message",
+      "empty_desc": "Les messages envoyés par les clients apparaîtront ici."
     },
     "infos-general": {
       "title": "Informations Générales",

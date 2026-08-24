@@ -104,7 +104,14 @@
     "back_to_search": "العودة إلى البحث",
     "rating": "التقييم",
     "message": "اترك رسالة",
-    "whatsapp": "واتساب"
+    "whatsapp": "واتساب",
+    "your_email": "بريدك الإلكتروني (اختياري)",
+    "your_phone": "هاتفك (اختياري)",
+    "message_placeholder": "اكتب رسالتك...",
+    "empty_message": "يرجى كتابة رسالة أولاً.",
+    "message_sent": "تم إرسال الرسالة!",
+    "message_sent_desc": "تم توصيل رسالتك إلى النشاط التجاري.",
+    "message_error": "فشل الإرسال"
   },
   "how_it_works": {
   "process": "خطوات العمل",
@@ -300,7 +307,15 @@
       "members": "المهنيين",
       "settings": "الإعدادات",
       "logout": "تسجيل الخروج",
-      "business": "الأعمال"
+      "business": "الأعمال",
+      "messages": "الرسائل"
+    },
+    "messages": {
+      "title": "رسائل العملاء",
+      "subtitle": "الرسائل المرسلة من العملاء عبر ملفات أنشطتك التجارية",
+      "all_businesses": "كل الأنشطة التجارية",
+      "empty": "لا توجد رسائل بعد",
+      "empty_desc": "الرسائل المرسلة من العملاء ستظهر هنا."
     },
     "infos-general": {
       "title": "معلومات عامة",
