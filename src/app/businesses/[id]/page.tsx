@@ -1,10 +1,11 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import {
-  Loader2, MessageSquare, Mic, Send, X, ArrowLeft, Mail, Phone
+  Loader2, MessageSquare, Mic, Send, X, ArrowLeft, Mail, Phone,
+  Square, Trash2, Play
 } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useTranslation } from "react-i18next";
@@ -30,6 +31,155 @@ export default function PublicBusinessDetailsPage() {
   const [senderEmail, setSenderEmail] = useState("");
   const [senderPhone, setSenderPhone] = useState("");
   const [sending, setSending] = useState(false);
+
+  // --- Audio recording states ---
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordingTime, setRecordingTime] = useState(0);
+  const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
+  const [audioPreviewUrl, setAudioPreviewUrl] = useState<string | null>(null);
+  const [audioFilePath, setAudioFilePath] = useState<string | null>(null);
+  const [isUploadingAudio, setIsUploadingAudio] = useState(false);
+
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const chunksRef = useRef<Blob[]>([]);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+  const formatTime = (s: number) => {
+    const m = Math.floor(s / 60).toString().padStart(2, '0');
+    const sec = (s % 60).toString().padStart(2, '0');
+    return `${m}:${sec}`;
+  };
+
+  const cleanupRecording = () => {
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(tr => tr.stop());
+      streamRef.current = null;
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      cleanupRecording();
+      if (audioPreviewUrl) URL.revokeObjectURL(audioPreviewUrl);
+    };
+  }, [audioPreviewUrl]);
+
+  const uploadAudioBlob = async (blob: Blob) => {
+    try {
+      setIsUploadingAudio(true);
+      const baseEndpoint = (process.env.NEXT_PUBLIC_API_ENDPOINT || "http://127.0.0.1:3001/api")
+        .replace(/\/$/, "")
+        .replace(/\/v1$/, "");
+      const formData = new FormData();
+      const ext = blob.type.includes('mp4') ? 'mp4' : blob.type.includes('ogg') ? 'ogg' : 'webm';
+      const file = new File([blob], `voice-${Date.now()}.${ext}`, { type: blob.type || 'audio/webm' });
+      formData.append('file', file);
+
+      // Try to attach auth token if exists (for logged-in users), but upload is now @Public so token optional
+      const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') || localStorage.getItem('token') : null;
+      const headers: Record<string, string> = {};
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+
+      const res = await axios.post(`${baseEndpoint}/v1/files/upload`, formData, {
+        headers,
+      });
+
+      // Response shape: { file: { id, path, ... } }  (FilesLocalService.create)
+      const fileObj = (res.data as any)?.file || (res.data as any)?.data?.file || res.data;
+      const path = fileObj?.path || fileObj?.file?.path || null;
+      // Keep the stored path as returned by backend (e.g. "/api/v1/files/xxx.webm")
+      // For messages table audio:string, we store this path string
+      if (path) {
+        setAudioFilePath(path);
+      } else if (fileObj?.id) {
+        // fallback: store id
+        setAudioFilePath(fileObj.id);
+      } else {
+        console.warn('Upload response without path:', res.data);
+        setAudioFilePath(null);
+      }
+    } catch (err: any) {
+      console.error('❌ Upload audio error:', err);
+      Swal.fire(t("details_ads.message_error") || "Upload failed", err?.response?.data?.message || err?.message, "error");
+      // keep preview but clear path so user can retry
+      setAudioFilePath(null);
+    } finally {
+      setIsUploadingAudio(false);
+    }
+  };
+
+  const startRecording = async () => {
+    try {
+      // clear previous
+      if (audioPreviewUrl) {
+        URL.revokeObjectURL(audioPreviewUrl);
+        setAudioPreviewUrl(null);
+      }
+      setAudioBlob(null);
+      setAudioFilePath(null);
+      setRecordingTime(0);
+
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      streamRef.current = stream;
+      chunksRef.current = [];
+
+      const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
+        ? 'audio/webm;codecs=opus'
+        : MediaRecorder.isTypeSupported('audio/webm')
+          ? 'audio/webm'
+          : 'audio/mp4';
+
+      const mr = new MediaRecorder(stream, { mimeType } as any);
+      mediaRecorderRef.current = mr;
+
+      mr.ondataavailable = (e) => {
+        if (e.data && e.data.size > 0) chunksRef.current.push(e.data);
+      };
+
+      mr.onstop = async () => {
+        cleanupRecording();
+        setIsRecording(false);
+        const blob = new Blob(chunksRef.current, { type: mr.mimeType || 'audio/webm' });
+        if (blob.size === 0) return;
+        setAudioBlob(blob);
+        const url = URL.createObjectURL(blob);
+        setAudioPreviewUrl(url);
+        // auto upload
+        await uploadAudioBlob(blob);
+      };
+
+      mr.start(100);
+      setIsRecording(true);
+      timerRef.current = setInterval(() => setRecordingTime(prev => prev + 1), 1000);
+    } catch (err: any) {
+      console.error('Mic permission error:', err);
+      Swal.fire("Microphone access denied", err?.message || "Please allow microphone permission and try again.", "error");
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorderRef.current && isRecording) {
+      mediaRecorderRef.current.stop();
+      // timer & stream will be cleaned in onstop
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+    }
+  };
+
+  const removeAudio = () => {
+    if (audioPreviewUrl) URL.revokeObjectURL(audioPreviewUrl);
+    setAudioPreviewUrl(null);
+    setAudioBlob(null);
+    setAudioFilePath(null);
+    setRecordingTime(0);
+  };
 
   useEffect(() => {
     if (!id) return;
@@ -82,8 +232,12 @@ export default function PublicBusinessDetailsPage() {
     : null;
 
   const handleSendMessage = async () => {
-    if (!message.trim()) {
-      Swal.fire(t("details_ads.empty_message") || "Please write a message first.", "", "warning");
+    if (!message.trim() && !audioFilePath) {
+      Swal.fire(t("details_ads.empty_message") || "Please write a message or record audio first.", "", "warning");
+      return;
+    }
+    if (isUploadingAudio) {
+      Swal.fire(t("details_ads.please_wait") || "Please wait", t("details_ads.uploading_audio") || "Audio is still uploading...", "info");
       return;
     }
 
@@ -93,13 +247,14 @@ export default function PublicBusinessDetailsPage() {
         business: { id: business?.id },
         emailContact: senderEmail.trim() || null,
         phoneContact: senderPhone.trim() ? Number(senderPhone.replace(/\D/g, "")) : null,
+        audio: audioFilePath || null,
       };
 
       const textField =
         i18n.language === 'ar' ? 'textAr' :
           i18n.language === 'fr' ? 'textFr' :
             'textEn';
-      payload[textField] = message.trim();
+      payload[textField] = message.trim() || null;
 
       await axios.post(`${baseEndpoint}/v1/messages`, payload);
 
@@ -113,6 +268,7 @@ export default function PublicBusinessDetailsPage() {
       setMessage("");
       setSenderEmail("");
       setSenderPhone("");
+      removeAudio();
       setIsModalOpen(false);
     } catch (error: any) {
       console.error("❌ Send Message Error:", error);
@@ -198,7 +354,7 @@ export default function PublicBusinessDetailsPage() {
           <div className="bg-white w-full max-w-lg rounded-[2.5rem] shadow-2xl overflow-hidden">
             <div className="p-6 border-b border-gray-50 flex justify-between items-center bg-gray-50/50">
               <div className="flex items-center gap-3"><div className="p-2 bg-indigo-100 text-indigo-600 rounded-xl"><MessageSquare size={20} /></div><h3 className="font-bold text-lg">Inquire Profile</h3></div>
-              <button onClick={() => setIsModalOpen(false)} className="p-2 hover:bg-white rounded-full"><X size={20} /></button>
+              <button onClick={() => { removeAudio(); setIsModalOpen(false); }} className="p-2 hover:bg-white rounded-full"><X size={20} /></button>
             </div>
             <div className="p-6 space-y-5">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -224,17 +380,61 @@ export default function PublicBusinessDetailsPage() {
                 </div>
               </div>
 
-              <div className="text-center p-8 border-2 border-dashed border-gray-100 rounded-3xl bg-gray-50/30">
-                <button onClick={() => alert("Audio recording feature coming soon!")} className="mx-auto w-16 h-16 flex items-center justify-center bg-red-50 text-red-500 rounded-full hover:bg-red-100 mb-3"><Mic size={28} /></button>
-                <p className="text-sm font-semibold">Tap to record audio</p>
+              {/* AUDIO RECORDER */}
+              <div className="text-center p-5 border-2 border-dashed border-gray-100 rounded-3xl bg-gray-50/30 space-y-3">
+                {!isRecording && !audioPreviewUrl && (
+                  <>
+                    <button onClick={startRecording} className="mx-auto w-16 h-16 flex items-center justify-center bg-red-50 text-red-500 rounded-full hover:bg-red-100 transition-colors">
+                      <Mic size={28} />
+                    </button>
+                    <p className="text-sm font-semibold">Tap to record audio</p>
+                    <p className="text-xs text-gray-400">Voice message will be sent with your inquiry</p>
+                  </>
+                )}
+
+                {isRecording && (
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-center gap-2 text-red-600 font-bold">
+                      <span className="w-3 h-3 bg-red-500 rounded-full animate-pulse" />
+                      Recording {formatTime(recordingTime)}
+                    </div>
+                    <div className="flex items-center justify-center gap-3">
+                      <button onClick={stopRecording} className="w-14 h-14 flex items-center justify-center bg-red-500 text-white rounded-full hover:bg-red-600 shadow-lg">
+                        <Square size={20} fill="white" />
+                      </button>
+                    </div>
+                    <p className="text-xs text-gray-500">Tap stop when finished</p>
+                  </div>
+                )}
+
+                {!isRecording && audioPreviewUrl && (
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-center gap-2 text-green-600 text-sm font-semibold">
+                      {isUploadingAudio ? <><Loader2 size={16} className="animate-spin" /> Uploading...</> : <><Play size={16} /> Ready to send • {formatTime(recordingTime)}</>}
+                    </div>
+                    <audio controls src={audioPreviewUrl} className="w-full h-10 accent-indigo-600" />
+                    <div className="flex gap-2 justify-center">
+                      <button onClick={removeAudio} className="flex items-center gap-1.5 px-4 py-2 bg-white border rounded-xl text-sm font-semibold hover:bg-gray-50">
+                        <Trash2 size={16} /> Remove
+                      </button>
+                      <button onClick={startRecording} className="flex items-center gap-1.5 px-4 py-2 bg-indigo-50 text-indigo-600 rounded-xl text-sm font-semibold hover:bg-indigo-100">
+                        <Mic size={16} /> Re-record
+                      </button>
+                    </div>
+                    {audioFilePath && !isUploadingAudio && (
+                      <p className="text-xs text-green-600">✓ Audio saved</p>
+                    )}
+                  </div>
+                )}
               </div>
 
               <div className="relative">
                 <textarea rows={3} value={message} onChange={(e) => setMessage(e.target.value)} placeholder={t("details_ads.message_placeholder") || "Type your message..."} className="w-full p-4 rounded-2xl border-2 border-gray-100 outline-none focus:border-indigo-500 transition-colors" />
-                <button onClick={handleSendMessage} disabled={sending} className="absolute bottom-3 right-3 p-2 bg-indigo-600 text-white rounded-xl disabled:opacity-60 disabled:cursor-not-allowed">
+                <button onClick={handleSendMessage} disabled={sending || isUploadingAudio} className="absolute bottom-3 right-3 p-2 bg-indigo-600 text-white rounded-xl disabled:opacity-60 disabled:cursor-not-allowed">
                   {sending ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
                 </button>
               </div>
+              <p className="text-xs text-gray-400 text-center">You can send text, voice, or both.</p>
             </div>
           </div>
         </div>
