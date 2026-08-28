@@ -244,18 +244,39 @@ export default function CityAreasPage() {
   // }, [formData.latitude, formData.longitude, formData.nameAr, formData.nameFr, editingArea, isAr]);
 
   // 💡 Update activePickerMarker to act as a stable controllable entity during picking
+  // const activePickerMarker = useMemo(() => {
+  //   if (formData.latitude && formData.longitude) {
+  //     return [{
+  //       id: editingArea?.id || "new-zone-picker",
+  //       position: [formData.latitude, formData.longitude] as [number, number],
+  //       label: (isAr ? formData.nameAr : formData.nameFr) || "Selected Target Position",
+  //       address: "Zone Coordinates Set",
+  //       active: true
+  //     }];
+  //   }
+  //   return [];
+  // }, [formData.latitude, formData.longitude, formData.nameAr, formData.nameFr, editingArea, isAr]);
+
   const activePickerMarker = useMemo(() => {
     if (formData.latitude && formData.longitude) {
+      const selectedCityObj = cities.find(c => c.id === formData.cityId);
+      const cityName = selectedCityObj ? (isAr ? selectedCityObj.nameAr : selectedCityObj.nameFr) : "";
+      const areaName = (isAr ? formData.nameAr : formData.nameFr);
+      
+      const labelText = areaName && cityName 
+        ? `${areaName}, ${cityName}` 
+        : cityName || areaName || "Selected Target Position";
+
       return [{
         id: editingArea?.id || "new-zone-picker",
         position: [formData.latitude, formData.longitude] as [number, number],
-        label: (isAr ? formData.nameAr : formData.nameFr) || "Selected Target Position",
+        label: labelText,
         address: "Zone Coordinates Set",
         active: true
       }];
     }
     return [];
-  }, [formData.latitude, formData.longitude, formData.nameAr, formData.nameFr, editingArea, isAr]);
+  }, [formData.latitude, formData.longitude, formData.nameAr, formData.nameFr, formData.cityId, cities, editingArea, isAr]);
 
   if (loading) return (
     <div className="flex flex-col items-center justify-center min-h-[50vh]">
@@ -360,12 +381,24 @@ export default function CityAreasPage() {
               </form>
 
               {/* Map Column */}
-              <div className="order-1 lg:order-2 lg:col-span-7 h-[350px] lg:h-[500px] w-full rounded-2rem overflow-hidden border-4 border-slate-50 shadow-inner relative z-0">
+              {/* <div className="order-1 lg:order-2 lg:col-span-7 h-[350px] lg:h-[500px] w-full rounded-2rem overflow-hidden border-4 border-slate-50 shadow-inner relative z-0">
                 <MapComponent
                   key={`${editingArea?.id || 'new'}-${formData.cityId}`}
                   center={[formData.latitude, formData.longitude]}
                   displayLabel={isAr ? formData.nameAr : formData.nameFr}
                   isPicker={true}
+                  onLocationSelect={handleLocationChange}
+                  markers={activePickerMarker}
+                />
+              </div> */}
+
+              {/* Map Column */}
+              <div className="order-1 lg:order-2 lg:col-span-7 h-[350px] lg:h-[500px] w-full rounded-2rem overflow-hidden border-4 border-slate-50 shadow-inner relative z-0">
+                <MapComponent
+                  key={`${editingArea?.id || 'new'}-${formData.cityId}-${formData.nameFr}`}
+                  center={[formData.latitude, formData.longitude]}
+                  displayLabel={isAr ? formData.nameAr : formData.nameFr}
+                  isPicker={false} // 🌟 Changed from true to false to disable random click repositioning
                   onLocationSelect={handleLocationChange}
                   markers={activePickerMarker}
                 />

@@ -471,13 +471,16 @@ export default function SearchResultsPage() {
 
       {/* --- SEARCH BAR LAYOUT --- */}
 
-      <div className="fixed top-15 left-0 right-0 z-100 px-2 py-6 md:px-6 bg-white/80 backdrop-blur-xl border-b border-slate-100">
+      {/* <div className="fixed top-15 left-0 right-0 z-100 px-2 py-6 md:px-6 bg-white/80 backdrop-blur-xl border-b border-slate-100">
 
         <div className="container mx-auto max-w-6xl">
 
+          <div className="bg-white/95 backdrop-blur-md border border-slate-200 shadow-[0_20px_50px_rgba(0,0,0,0.1)] rounded-3xl md:rounded-full p-2 flex flex-col md:flex-row items-center gap-1 transition-all hover:border-indigo-200"> */}
+
+{/* --- SEARCH BAR LAYOUT --- */}
+      <div className="fixed top-15 left-0 right-0 z-30 px-2 py-6 md:px-6 bg-white/80 backdrop-blur-xl border-b border-slate-100">
+        <div className="container mx-auto max-w-6xl">
           <div className="bg-white/95 backdrop-blur-md border border-slate-200 shadow-[0_20px_50px_rgba(0,0,0,0.1)] rounded-3xl md:rounded-full p-2 flex flex-col md:flex-row items-center gap-1 transition-all hover:border-indigo-200">
-
-
 
             <CompactSelect
 

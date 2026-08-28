@@ -281,7 +281,7 @@ export default function BusinessesPage() {
               : "Complete the 5 steps to add a new entry to the database"}
           </p>
         </div>
-        <button
+         <button
           onClick={() => setView(view === "list" ? "add" : "list")}
           className={`${view === "list" ? "bg-indigo-600 hover:bg-indigo-700 text-white" : "bg-slate-200 hover:bg-slate-300 text-slate-700"
             } px-6 py-3 rounded-2xl flex items-center gap-2 font-bold transition-all active:scale-95 shadow-sm`}
