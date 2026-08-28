@@ -6,7 +6,6 @@ import { useTranslation } from "react-i18next";
 import i18n from "@/i18n";
 import { useAuth } from "@/context/AuthContext";
 
-
 export default function SignInPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -32,20 +31,28 @@ export default function SignInPage() {
 
     try {
       await login(email, password);
-      // ✅ ما كانديروش Redirect هنا. الـ AuthGuard غايعيق بالـ user تبدل ويصيفطك للداشبورد.
+      // لا نقوم بـ Redirect هنا، الـ AuthGuard سيتكفل بالأمر فور تغير حالة user
       console.log("Login success, Guard will handle redirect...");
     } catch (err: any) {
       setLoading(false);
-      const serverMessage = err.message;
+      console.error("Login Error:", err);
+
+      // استخراج رسالة الخطأ بدقة سواء من Axios أو Fetch
+      const serverMessage = err?.response?.data?.message || err?.message;
+      const status = err?.response?.status;
+
       if (serverMessage === 'ACCOUNT_INACTIVE') {
         setError("عذراً، حسابك غير نشط حالياً. يرجى الاتصال بالدعم الفني.");
-      } else {
+      } else if (status === 401 || serverMessage === 'INVALID_CREDENTIALS' || serverMessage === 'Unauthorized') {
         setError("الإيميل أو كلمة المرور غير صحيحة.");
+      } else {
+        // عرض الخطأ الفعلي للتصحيح بدلاً من افتراض أنه خطأ كلمة مرور
+        setError(`خطأ في الاتصال أو الخادم: ${serverMessage || "يرجى المحاولة لاحقاً."}`);
       }
     }
   };
 
-  // إذا كان المستخدم داخل، الـ Guard ديجا خدام، هنا غير باش ما يبان والو ف اللحظة د التوجيه
+  // إذا كان المستخدم مسجلاً بالفعل، تجنب وميض الصفحة أثناء التوجيه
   if (user) return null;
 
   return (
@@ -56,7 +63,7 @@ export default function SignInPage() {
           <p className="text-gray-600 mb-8">{t('sign_in.description')}</p>
 
           {error && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-4">
+            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-4 text-sm">
               {error}
             </div>
           )}
@@ -78,11 +85,11 @@ export default function SignInPage() {
                 <input 
                   type={passwordVisible ? "text" : "password"} 
                   value={password} 
-                  onChange={(e) => setPassword(e.target.value)} 
+                  onChange={(e5) => setPassword(e5.target.value)} 
                   className="w-full border rounded-lg p-3 outline-none" 
                   required 
                 />
-                <button type="button" onClick={() => setPasswordVisible(!passwordVisible)} className="absolute right-3 top-3">
+                <button type="button" onClick={() => setPasswordVisible(!passwordVisible)} className="absolute right-3 top-3 text-sm text-gray-500">
                   {passwordVisible ? "Hide" : "Show"}
                 </button>
               </div>

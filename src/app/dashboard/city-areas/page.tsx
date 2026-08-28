@@ -25,6 +25,70 @@ interface CityArea {
   localisation?: { id: string; latitude: number; longitude: number };
 }
 
+// 💡 Comprehensive pre-defined map of areas per major Moroccan cities
+const CITY_AREAS_DICTIONARY: Record<string, { ar: string; fr: string; lat?: number; lng?: number }[]> = {
+  "fes": [
+    { ar: "المدينة القديمة", fr: "Ancienne Médina", lat: 34.0625, lng: -4.9829 },
+    { ar: "حطاطين", fr: "Hattatine", lat: 34.0331, lng: -5.0003 },
+    { ar: "بنسودة", fr: "Bensouda", lat: 34.0112, lng: -5.0321 },
+    { ar: "السايس", fr: "Saiss", lat: 33.9912, lng: -4.9822 },
+    { ar: "طريق صفرو", fr: "Route de Sefrou", lat: 34.0150, lng: -4.9850 },
+    { ar: "حي الازهر", fr: "Hay El Azhar", lat: 34.0520, lng: -5.0110 },
+    { ar: "النرجس", fr: "Narjiss", lat: 34.0080, lng: -4.9950 }
+  ],
+  "casablanca": [
+    { ar: "المعارف", fr: "Maarif", lat: 33.5883, lng: -7.6311 },
+    { ar: "أنفا", fr: "Anfa", lat: 33.5951, lng: -7.6522 },
+    { ar: "سيدي البرنوصي", fr: "Sidi Bernoussi", lat: 33.6011, lng: -7.5312 },
+    { ar: "عين الشق", fr: "Ain Chock", lat: 33.5431, lng: -7.6111 },
+    { ar: "سيدي مومن", fr: "Sidi Moumen", lat: 33.5821, lng: -7.5322 },
+    { ar: "المستفى", fr: "CIL", lat: 33.5781, lng: -7.6582 },
+    { ar: "المعاريف المركز", fr: "Maarif Extension", lat: 33.5812, lng: -7.6391 }
+  ],
+  "marrakech": [
+    { ar: "المدينة", fr: "Medina", lat: 31.6295, lng: -7.9811 },
+    { ar: "حي جليز", fr: "Gueliz", lat: 31.6342, lng: -8.0089 },
+    { ar: "حي المنارة", fr: "Menara", lat: 31.6116, lng: -8.0164 },
+    { ar: "الداوديات", fr: "Daoudiate", lat: 31.6512, lng: -8.0051 },
+    { ar: "المحاميد", fr: "Mhamid", lat: 31.5811, lng: -8.0521 },
+    { ar: "تاريخ", fr: "Targa", lat: 31.6391, lng: -8.0452 }
+  ],
+  "rabat": [
+    { ar: "المدينة القديمة", fr: "Old Medina", lat: 34.0209, lng: -6.8416 },
+    { ar: "حي السويسي", fr: "Souissi", lat: 34.0201, lng: -6.8283 },
+    { ar: "حي أكدال", fr: "Agdal", lat: 34.0215, lng: -6.8352 },
+    { ar: "يعقوب المنصور", fr: "Yacoub El Mansour", lat: 34.0251, lng: -6.8712 },
+    { ar: "حي الرياض", fr: "Hay Riad", lat: 33.9591, lng: -6.8521 }
+  ],
+  "tangier": [
+    { ar: "المدينة القديمة", fr: "Medina", lat: 35.7891, lng: -5.8131 },
+    { ar: "مرشان", fr: "Marshan", lat: 35.7862, lng: -5.8211 },
+    { ar: "اباضة", fr: "Boubana", lat: 35.7681, lng: -5.8112 },
+    { ar: "الاصفار", fr: "Malabata", lat: 35.7511, lng: -5.7812 }
+  ],
+  "agadir": [
+    { ar: "انزا", fr: "Anza", lat: 30.4512, lng: -9.6112 },
+    { ar: "حي السلام", fr: "Hay Salam", lat: 30.4121, lng: -9.5512 },
+    { ar: "الهدى", fr: "Al Houda", lat: 30.4012, lng: -9.5312 },
+    { ar: "فال فلوري", fr: "Val Flori", lat: 30.4181, lng: -9.5812 }
+  ],
+  "meknes": [
+    { ar: "المدينة القديمة", fr: "Ancienne Médina", lat: 33.8951, lng: -5.5541 },
+    { ar: "حمرية", fr: "Hamria", lat: 33.8821, lng: -5.5412 },
+    { ar: "سيدي بوجكا", fr: "Sidi Bouzekri", lat: 33.8612, lng: -5.5112 }
+  ],
+  "oujda": [
+    { ar: "المدينة", fr: "Medina", lat: 34.6812, lng: -1.9081 },
+    { ar: "القدس", fr: "El Qods", lat: 34.6612, lng: -1.9221 },
+    { ar: "سيدي إدريس", fr: "Sidi Driss", lat: 34.6912, lng: -1.8912 }
+  ],
+  "guercif": [
+    { ar: "المركز البلدي", fr: "Centre Ville", lat: 34.2291, lng: -3.3531 },
+    { ar: "حاسي مسعود", fr: "Hassi Messaoud", lat: 34.2151, lng: -3.3611 },
+    { ar: "النجاح", fr: "An Najah", lat: 34.2381, lng: -3.3421 }
+  ]
+};
+
 export default function CityAreasPage() {
   const [areas, setAreas] = useState<CityArea[]>([]);
   const [cities, setCities] = useState<any[]>([]);
@@ -55,6 +119,28 @@ export default function CityAreasPage() {
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
+  // Compute available preset areas based on the currently selected city with fallback matching
+  const availableSubAreas = useMemo(() => {
+    if (!formData.cityId) return [];
+    const selectedCity = cities.find(c => c.id === formData.cityId);
+    if (!selectedCity) return [];
+    
+    const lookupKeyFr = selectedCity.nameFr?.toLowerCase().trim() || '';
+    const lookupKeyAr = selectedCity.nameAr?.toLowerCase().trim() || '';
+
+    for (const key of Object.keys(CITY_AREAS_DICTIONARY)) {
+      if (lookupKeyFr.includes(key) || lookupKeyAr.includes(key) || key.includes(lookupKeyFr)) {
+        return CITY_AREAS_DICTIONARY[key];
+      }
+    }
+    
+    // Generic default fallback sectors if specific city dictionary mapping isn't found
+    return [
+      { ar: "المركز", fr: "Centre-Ville", lat: selectedCity.localisation?.latitude || 34.0331, lng: selectedCity.localisation?.longitude || -5.0003 },
+      { ar: "حي الإداري", fr: "Quartier Administratif", lat: selectedCity.localisation?.latitude || 34.0331, lng: selectedCity.localisation?.longitude || -5.0003 }
+    ];
+  }, [formData.cityId, cities]);
+
   const handleOpenModal = (area: CityArea | null = null) => {
     if (area) {
       setEditingArea(area);
@@ -84,11 +170,30 @@ export default function CityAreasPage() {
       setFormData(prev => ({
         ...prev,
         cityId: selectedCityId,
+        nameAr: '',
+        nameFr: '',
         latitude: Number(selectedCity.localisation.latitude || selectedCity.localisation.lat),
         longitude: Number(selectedCity.localisation.longitude || selectedCity.localisation.lng)
       }));
     } else {
-      setFormData(prev => ({ ...prev, cityId: selectedCityId }));
+      setFormData(prev => ({ ...prev, cityId: selectedCityId, nameAr: '', nameFr: '' }));
+    }
+  };
+
+  const handleSubAreaChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedFrName = e.target.value;
+    const matchedArea = availableSubAreas.find(a => a.fr === selectedFrName);
+
+    if (matchedArea) {
+      setFormData(prev => ({
+        ...prev,
+        nameAr: matchedArea.ar,
+        nameFr: matchedArea.fr,
+        latitude: matchedArea.lat ?? prev.latitude,
+        longitude: matchedArea.lng ?? prev.longitude
+      }));
+    } else {
+      setFormData(prev => ({ ...prev, nameAr: '', nameFr: '' }));
     }
   };
 
@@ -125,7 +230,20 @@ export default function CityAreasPage() {
     }
   };
 
-  // 💡 SCRIPT TRICK: Computes an active picker marker array on-the-fly to link directly with your Map Component layers
+  // const activePickerMarker = useMemo(() => {
+  //   if (formData.latitude && formData.longitude) {
+  //     return [{
+  //       id: editingArea?.id || "new-zone-picker",
+  //       position: [formData.latitude, formData.longitude] as [number, number],
+  //       label: (isAr ? formData.nameAr : formData.nameFr) || "Selected Target Position",
+  //       address: "Zone Coordinates Set",
+  //       active: true
+  //     }];
+  //   }
+  //   return [];
+  // }, [formData.latitude, formData.longitude, formData.nameAr, formData.nameFr, editingArea, isAr]);
+
+  // 💡 Update activePickerMarker to act as a stable controllable entity during picking
   const activePickerMarker = useMemo(() => {
     if (formData.latitude && formData.longitude) {
       return [{
@@ -209,9 +327,23 @@ export default function CityAreasPage() {
                   </select>
                 </div>
                 
-                <div className="space-y-4">
-                  <input placeholder="Name (Arabic)" type="text" required className="w-full bg-slate-50 border-none rounded-2xl p-4 text-slate-800 font-bold outline-none" value={formData.nameAr} onChange={(e) => setFormData({ ...formData, nameAr: e.target.value })} />
-                  <input placeholder="Name (French)" type="text" required className="w-full bg-slate-50 border-none rounded-2xl p-4 text-slate-800 font-bold outline-none" value={formData.nameFr} onChange={(e) => setFormData({ ...formData, nameFr: e.target.value })} />
+                {/* Dynamic Area Select Dropdown mapping Arabic and French pairs automatically */}
+                <div>
+                  <label className="block text-[10px] font-black uppercase text-slate-400 mb-2 px-1">City Area / Sector</label>
+                  <select 
+                    required 
+                    disabled={!formData.cityId}
+                    className="w-full bg-slate-50 border-none rounded-2xl p-4 text-slate-800 font-bold outline-none disabled:opacity-50" 
+                    value={formData.nameFr} 
+                    onChange={handleSubAreaChange}
+                  >
+                    <option value="">-- Select Area --</option>
+                    {availableSubAreas.map((sub, idx) => (
+                      <option key={idx} value={sub.fr}>
+                        {isAr ? `${sub.ar} (${sub.fr})` : `${sub.fr} - ${sub.ar}`}
+                      </option>
+                    ))}
+                  </select>
                 </div>
                 
                 <div className="p-4 bg-violet-50 rounded-2xl border border-violet-100">
@@ -227,7 +359,7 @@ export default function CityAreasPage() {
                 </button>
               </form>
 
-              {/* Map Column with dynamic Pin integration */}
+              {/* Map Column */}
               <div className="order-1 lg:order-2 lg:col-span-7 h-[350px] lg:h-[500px] w-full rounded-2rem overflow-hidden border-4 border-slate-50 shadow-inner relative z-0">
                 <MapComponent
                   key={`${editingArea?.id || 'new'}-${formData.cityId}`}
@@ -235,7 +367,7 @@ export default function CityAreasPage() {
                   displayLabel={isAr ? formData.nameAr : formData.nameFr}
                   isPicker={true}
                   onLocationSelect={handleLocationChange}
-                  markers={activePickerMarker} // 🌟 Passed the picker array to trigger pins instantly!
+                  markers={activePickerMarker}
                 />
               </div>
 

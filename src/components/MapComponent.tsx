@@ -1,3 +1,4 @@
+// src/components/MapComponent.tsx
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
@@ -18,44 +19,58 @@ const createLeafletIcon = (url: string) => {
   });
 };
 
-// function MapViewUpdater({ center, zoom, hasMarkers }: { center: [number, number]; zoom: number; hasMarkers: boolean }) {
-//   const map = useMap();
-//   useEffect(() => {
-//     if (!hasMarkers && center && !isNaN(center[0]) && !isNaN(center[1])) {
-//       map.flyTo(center, zoom, { duration: 1.2 });
-//     }
-//   }, [center, zoom, map, hasMarkers]);
-//   return null;
-// }
 
-
-
-// src/components/MapComponent.tsx
+// Inside MapComponent.tsx -> MapViewUpdater
 function MapViewUpdater({ center, zoom, hasMarkers }: { center: [number, number]; zoom: number; hasMarkers: boolean }) {
   const map = useMap();
+  const lastCenterRef = useRef<string>('');
   
   useEffect(() => {
-    // 🌟 ENHANCED CHECK: Deeply inspects that coordinates exist, are arrays, and contain real numbers
+    const centerKey = `${center[0]}-${center[1]}`;
     if (
-      !hasMarkers && 
       center && 
       Array.isArray(center) && 
       center.length === 2 &&
       !isNaN(center[0]) && 
       !isNaN(center[1]) &&
-      isFinite(center[0]) &&
-      isFinite(center[1])
+      centerKey !== lastCenterRef.current
     ) {
+      lastCenterRef.current = centerKey;
       try {
-        map.flyTo(center, zoom, { duration: 1.2 });
+        map.flyTo(center, zoom, { duration: 1.0 });
       } catch (error) {
         console.error("Leaflet flyTo animation error bypassed safely:", error);
       }
     }
-  }, [center, zoom, map, hasMarkers]);
+  }, [center, zoom, map]);
   
   return null;
 }
+
+// function MapViewUpdater({ center, zoom, hasMarkers }: { center: [number, number]; zoom: number; hasMarkers: boolean }) {
+//   const map = useMap();
+  
+//   useEffect(() => {
+//     if (
+//       !hasMarkers && 
+//       center && 
+//       Array.isArray(center) && 
+//       center.length === 2 &&
+//       !isNaN(center[0]) && 
+//       !isNaN(center[1]) &&
+//       isFinite(center[0]) &&
+//       isFinite(center[1])
+//     ) {
+//       try {
+//         map.flyTo(center, zoom, { duration: 1.2 });
+//       } catch (error) {
+//         console.error("Leaflet flyTo animation error bypassed safely:", error);
+//       }
+//     }
+//   }, [center, zoom, map, hasMarkers]);
+  
+//   return null;
+// }
 
 function FitBoundsOnMarkers({ markers }: { markers: any[] }) {
   const map = useMap();
@@ -69,7 +84,6 @@ function FitBoundsOnMarkers({ markers }: { markers: any[] }) {
       if (validPositions.length > 0) {
         const bounds = L.latLngBounds(validPositions);
         
-        // تأخير بسيط لضمان رندرة الـ DOM بالكامل وحساب مقاسات الحاوية بشكل صحيح
         const timer = setTimeout(() => {
           map.invalidateSize();
           if (validPositions.length === 1) {
@@ -213,6 +227,7 @@ export default function MapComponent({ center, displayLabel, isPicker, onLocatio
         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
         <MapInitializer />
 
+        {/* 🌟 FIXED: Only render the fallback red marker if NOT using external markers array (like activePickerMarker) */}
         {!hasMarkers && center && !isNaN(activePosition[0]) && !isNaN(activePosition[1]) && redIcon && (
           <Marker position={activePosition} icon={redIcon}>
             <Popup>
@@ -232,6 +247,7 @@ export default function MapComponent({ center, displayLabel, isPicker, onLocatio
           );
         })}
 
+        {/* 🌟 CONTROLLED: MapPicker only triggers click events when isPicker is true */}
         {isPicker && <MapPicker onLocationSelect={onLocationSelect} />}
         
         <MapViewUpdater center={activePosition} zoom={13} hasMarkers={hasMarkers} />

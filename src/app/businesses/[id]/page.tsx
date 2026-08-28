@@ -27,7 +27,12 @@ export default function PublicBusinessDetailsPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isMapModalOpen, setIsMapModalOpen] = useState(false);
   const [isWhatsAppModalOpen, setIsWhatsAppModalOpen] = useState(false);
-  const [message, setMessage] = useState("");
+  // --- Inquiry multilingual fields -> mapped directly to DB columns ---
+  const [titleAr, setTitleAr] = useState("");
+  const [titleFr, setTitleFr] = useState("");
+  const [textAr, setTextAr] = useState("");
+  const [textFr, setTextFr] = useState("");
+  const [textEn, setTextEn] = useState("");
   const [senderEmail, setSenderEmail] = useState("");
   const [senderPhone, setSenderPhone] = useState("");
   const [sending, setSending] = useState(false);
@@ -232,7 +237,8 @@ export default function PublicBusinessDetailsPage() {
     : null;
 
   const handleSendMessage = async () => {
-    if (!message.trim() && !audioFilePath) {
+    const hasText = titleAr.trim() || titleFr.trim() || textAr.trim() || textFr.trim() || textEn.trim();
+    if (!hasText && !audioFilePath) {
       Swal.fire(t("details_ads.empty_message") || "Please write a message or record audio first.", "", "warning");
       return;
     }
@@ -248,13 +254,13 @@ export default function PublicBusinessDetailsPage() {
         emailContact: senderEmail.trim() || null,
         phoneContact: senderPhone.trim() ? Number(senderPhone.replace(/\D/g, "")) : null,
         audio: audioFilePath || null,
+        // Explicit multilingual columns -> stored 1:1 in DB Message entity
+        titleAr: titleAr.trim() || null,
+        titleFr: titleFr.trim() || null,
+        textAr: textAr.trim() || null,
+        textFr: textFr.trim() || null,
+        textEn: textEn.trim() || null,
       };
-
-      const textField =
-        i18n.language === 'ar' ? 'textAr' :
-          i18n.language === 'fr' ? 'textFr' :
-            'textEn';
-      payload[textField] = message.trim() || null;
 
       await axios.post(`${baseEndpoint}/v1/messages`, payload);
 
@@ -265,7 +271,11 @@ export default function PublicBusinessDetailsPage() {
         timer: 2000,
         showConfirmButton: false,
       });
-      setMessage("");
+      setTitleAr("");
+      setTitleFr("");
+      setTextAr("");
+      setTextFr("");
+      setTextEn("");
       setSenderEmail("");
       setSenderPhone("");
       removeAudio();
@@ -350,13 +360,13 @@ export default function PublicBusinessDetailsPage() {
       )}
 
       {isModalOpen && (
-        <div className="fixed inset-0 z-150 flex items-end sm:items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-          <div className="bg-white w-full max-w-lg rounded-[2.5rem] shadow-2xl overflow-hidden">
-            <div className="p-6 border-b border-gray-50 flex justify-between items-center bg-gray-50/50">
+        <div className="fixed inset-0 z-150 flex items-end sm:items-center justify-center p-4 bg-black/40 backdrop-blur-sm overflow-y-auto">
+          <div className="bg-white w-full max-w-lg rounded-[2.5rem] shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
+            <div className="p-6 border-b border-gray-50 flex justify-between items-center bg-gray-50/50 shrink-0">
               <div className="flex items-center gap-3"><div className="p-2 bg-indigo-100 text-indigo-600 rounded-xl"><MessageSquare size={20} /></div><h3 className="font-bold text-lg">Inquire Profile</h3></div>
               <button onClick={() => { removeAudio(); setIsModalOpen(false); }} className="p-2 hover:bg-white rounded-full"><X size={20} /></button>
             </div>
-            <div className="p-6 space-y-5">
+            <div className="p-6 space-y-5 overflow-y-auto">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="flex items-center gap-2 bg-gray-50 rounded-2xl border-2 border-gray-100 px-4 focus-within:border-indigo-500 transition-colors">
                   <Mail size={18} className="text-gray-400" />
@@ -428,13 +438,78 @@ export default function PublicBusinessDetailsPage() {
                 )}
               </div>
 
-              <div className="relative">
-                <textarea rows={3} value={message} onChange={(e) => setMessage(e.target.value)} placeholder={t("details_ads.message_placeholder") || "Type your message..."} className="w-full p-4 rounded-2xl border-2 border-gray-100 outline-none focus:border-indigo-500 transition-colors" />
-                <button onClick={handleSendMessage} disabled={sending || isUploadingAudio} className="absolute bottom-3 right-3 p-2 bg-indigo-600 text-white rounded-xl disabled:opacity-60 disabled:cursor-not-allowed">
+              {/* === MULTILINGUAL FIELDS -> titleAr, titleFr, textAr, textFr, textEn === */}
+              <div className="space-y-4">
+                <p className="text-xs font-bold tracking-widest text-indigo-600 uppercase">Titles — titleAr / titleFr</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <label className="text-xs font-semibold text-gray-600">titleAr <span className="text-gray-400 font-normal">(العربية)</span></label>
+                    <input
+                      dir="rtl"
+                      value={titleAr}
+                      onChange={(e) => setTitleAr(e.target.value)}
+                      placeholder="العنوان بالعربية"
+                      className="w-full p-3.5 rounded-2xl border-2 border-gray-100 outline-none focus:border-indigo-500 transition-colors text-sm bg-gray-50 focus:bg-white"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-xs font-semibold text-gray-600">titleFr <span className="text-gray-400 font-normal">(Français)</span></label>
+                    <input
+                      value={titleFr}
+                      onChange={(e) => setTitleFr(e.target.value)}
+                      placeholder="Titre en français"
+                      className="w-full p-3.5 rounded-2xl border-2 border-gray-100 outline-none focus:border-indigo-500 transition-colors text-sm bg-gray-50 focus:bg-white"
+                    />
+                  </div>
+                </div>
+
+                <p className="text-xs font-bold tracking-widest text-indigo-600 uppercase pt-2">Messages — textAr / textFr / textEn</p>
+
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold text-gray-600">textAr <span className="text-gray-400 font-normal">(العربية)</span></label>
+                  <textarea
+                    dir="rtl"
+                    rows={3}
+                    value={textAr}
+                    onChange={(e) => setTextAr(e.target.value)}
+                    placeholder="اكتب رسالتك بالعربية..."
+                    className="w-full p-4 rounded-2xl border-2 border-gray-100 outline-none focus:border-indigo-500 transition-colors text-sm bg-gray-50 focus:bg-white resize-none"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold text-gray-600">textFr <span className="text-gray-400 font-normal">(Français)</span></label>
+                  <textarea
+                    rows={3}
+                    value={textFr}
+                    onChange={(e) => setTextFr(e.target.value)}
+                    placeholder="Votre message en français..."
+                    className="w-full p-4 rounded-2xl border-2 border-gray-100 outline-none focus:border-indigo-500 transition-colors text-sm bg-gray-50 focus:bg-white resize-none"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold text-gray-600">textEn <span className="text-gray-400 font-normal">(English)</span></label>
+                  <textarea
+                    rows={2}
+                    value={textEn}
+                    onChange={(e) => setTextEn(e.target.value)}
+                    placeholder="Your message in English..."
+                    className="w-full p-4 rounded-2xl border-2 border-gray-100 outline-none focus:border-indigo-500 transition-colors text-sm bg-gray-50 focus:bg-white resize-none"
+                  />
+                </div>
+
+                <button
+                  onClick={handleSendMessage}
+                  disabled={sending || isUploadingAudio}
+                  className="w-full flex items-center justify-center gap-2 bg-indigo-600 text-white py-4 rounded-2xl font-bold hover:bg-indigo-700 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+                >
                   {sending ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
+                  {sending ? (t("details_ads.sending") || "Sending...") : (t("details_ads.send_message") || "Send Inquiry")}
                 </button>
+
+                <p className="text-xs text-gray-400 text-center">Each field is stored 1:1 → <code>titleAr, titleFr, textAr, textFr, textEn</code> + <code>audio</code><br />You can fill any language or send voice only.</p>
               </div>
-              <p className="text-xs text-gray-400 text-center">You can send text, voice, or both.</p>
             </div>
           </div>
         </div>
