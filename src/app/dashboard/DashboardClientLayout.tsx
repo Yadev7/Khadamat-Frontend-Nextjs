@@ -274,7 +274,7 @@ export default function DashboardClientLayout({ children }: { children: ReactNod
     { name: t('dashboard.sidebar.infos-general'), icon: <LayoutDashboard size={20} />, href: '/dashboard/infos-general' },
     { name: t('dashboard.sidebar.members'), icon: <Users size={20} />, href: '/dashboard/members' },
     { name: t('dashboard.sidebar.business'), icon: <Briefcase size={20} />, href: '/dashboard/business' },
-    { name: t('dashboard.sidebar.settings'), icon: <Settings size={20} />, href: '/dashboard/settings' },
+    // { name: t('dashboard.sidebar.settings'), icon: <Settings size={20} />, href: '/dashboard/settings' },
   ];
 
   const layoutContent = (
