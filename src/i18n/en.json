@@ -32,6 +32,13 @@
     "sidebar_title": "Become a Tasker",
     "sidebar_description": "Join our community of taskers and grow your business.",
     "submit": "Sign Up as a Tasker",
+    "sending": "Sending...",
+    "alert": {
+      "success_title": "Application Sent!",
+      "success_message": "Your application has been saved and sent successfully. We will contact you soon.",
+      "error_title": "Submission Failed",
+      "error_message": "Failed to send your application. Please try again."
+    },
     "form": {
       "name": "Full Name",
       "name_placeholder": "Enter your full name",
@@ -40,7 +47,22 @@
       "phone": "Phone Number",
       "phone_placeholder": "Enter your phone number",
       "skills": "Skills and Services",
-      "skills_placeholder": "Describe your skills and the services you offer"
+      "skills_placeholder": "Describe your skills and the services you offer",
+      "audio": "Voice Introduction (optional)"
+    },
+    "audio": {
+      "record": "Record",
+      "upload": "Upload audio file",
+      "tap_to_record": "Tap to record or upload voice",
+      "hint": "Saved to message.audio column • mp3 / webm / ogg • max 100 MB",
+      "recording": "Recording",
+      "tap_stop": "Tap stop when finished",
+      "uploading": "Uploading...",
+      "ready": "Ready to send",
+      "remove": "Remove",
+      "rerecord": "Re-record",
+      "change_file": "Change file",
+      "saved": "Audio saved → will be stored in message.audio"
     }
   },
   "header": {

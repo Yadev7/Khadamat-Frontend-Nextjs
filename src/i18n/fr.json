@@ -32,6 +32,13 @@
     "sidebar_title": "Devenir prestataire",
     "sidebar_description": "Rejoignez notre communauté de prestataires et développez votre activité.",
     "submit": "S'inscrire en tant que prestataire",
+    "sending": "Envoi en cours...",
+    "alert": {
+      "success_title": "Candidature envoyée !",
+      "success_message": "Votre candidature a été enregistrée et envoyée avec succès. Nous vous contacterons bientôt.",
+      "error_title": "Échec de l'envoi",
+      "error_message": "Échec de l'envoi de votre candidature. Veuillez réessayer."
+    },
     "form": {
       "name": "Nom complet",
       "name_placeholder": "Entrez votre nom complet",
@@ -40,7 +47,22 @@
       "phone": "Numéro de téléphone",
       "phone_placeholder": "Entrez votre numéro de téléphone",
       "skills": "Compétences et services",
-      "skills_placeholder": "Décrivez vos compétences et les services que vous offrez"
+      "skills_placeholder": "Décrivez vos compétences et les services que vous offrez",
+      "audio": "Présentation vocale (optionnel)"
+    },
+    "audio": {
+      "record": "Enregistrer",
+      "upload": "Importer fichier audio",
+      "tap_to_record": "Appuyez pour enregistrer ou importer",
+      "hint": "Enregistré dans message.audio • mp3 / webm / ogg • max 100 Mo",
+      "recording": "Enregistrement",
+      "tap_stop": "Appuyez sur stop quand terminé",
+      "uploading": "Envoi en cours...",
+      "ready": "Prêt à envoyer",
+      "remove": "Supprimer",
+      "rerecord": "Réenregistrer",
+      "change_file": "Changer fichier",
+      "saved": "Audio enregistré → sera stocké dans message.audio"
     }
   },
   "header": {

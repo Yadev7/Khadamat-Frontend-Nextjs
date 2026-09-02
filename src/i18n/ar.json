@@ -33,6 +33,13 @@
     "sidebar_title": "كن عاملًا",
     "sidebar_description": "انضم إلى مجتمعنا من العمال وطور عملك.",
     "submit": "التسجيل كعامل",
+    "sending": "جاري الإرسال...",
+    "alert": {
+      "success_title": "تم إرسال الطلب!",
+      "success_message": "تم حفظ طلبك وإرساله بنجاح. سنتواصل معك قريبًا.",
+      "error_title": "فشل الإرسال",
+      "error_message": "فشل إرسال طلبك. يرجى المحاولة مرة أخرى."
+    },
     "form": {
       "name": "الاسم الكامل",
       "name_placeholder": "أدخل اسمك الكامل",
@@ -41,7 +48,22 @@
       "phone": "رقم الهاتف",
       "phone_placeholder": "أدخل رقم هاتفك",
       "skills": "مهاراتك وخدماتك",
-      "skills_placeholder": "صف مهاراتك والخدمات التي تقدمها"
+      "skills_placeholder": "صف مهاراتك والخدمات التي تقدمها",
+      "audio": "مقدمة صوتية (اختياري)"
+    },
+    "audio": {
+      "record": "تسجيل",
+      "upload": "رفع ملف صوتي",
+      "tap_to_record": "اضغط للتسجيل أو رفع صوت",
+      "hint": "يُحفظ في message.audio • mp3 / webm / ogg • حتى 100 ميجا",
+      "recording": "جاري التسجيل",
+      "tap_stop": "اضغط إيقاف عند الانتهاء",
+      "uploading": "جاري الرفع...",
+      "ready": "جاهز للإرسال",
+      "remove": "حذف",
+      "rerecord": "إعادة التسجيل",
+      "change_file": "تغيير الملف",
+      "saved": "تم حفظ الصوت → سيُخزن في message.audio"
     }
   },
   "header": {

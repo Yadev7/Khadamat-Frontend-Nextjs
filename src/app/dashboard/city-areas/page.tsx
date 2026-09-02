@@ -393,7 +393,7 @@ export default function CityAreasPage() {
               </div> */}
 
               {/* Map Column */}
-              <div className="order-1 lg:order-2 lg:col-span-7 h-[350px] lg:h-[500px] w-full rounded-2rem overflow-hidden border-4 border-slate-50 shadow-inner relative z-0">
+              <div className="order-1 lg:order-2 lg:col-span-7 h-350px lg:h-500px w-full rounded-2rem overflow-hidden border-4 border-slate-50 shadow-inner relative z-0">
                 <MapComponent
                   key={`${editingArea?.id || 'new'}-${formData.cityId}-${formData.nameFr}`}
                   center={[formData.latitude, formData.longitude]}

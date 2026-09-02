@@ -101,7 +101,7 @@ export default function HeroSection() {
   };
 
   return (
-    <div className="relative min-h-[90vh] w-full flex flex-col items-center justify-start overflow-hidden px-4 md:px-12 lg:px-20">
+    <div className="relative min-h-[90vh] w-full flex flex-col items-center justify-start overflow-visible px-4 md:px-12 lg:px-20">
       {/* Background Slideshow */}
       {slides.map((slide, index) => (
         <div
@@ -115,8 +115,8 @@ export default function HeroSection() {
           }}
         >
           <div className="absolute inset-0 bg-black/50" />
-          <div className="absolute inset-0 bg-gradient-to-t from-gray-950 via-transparent to-black/40" />
-          <div className="absolute inset-0 bg-gradient-to-r from-gray-950/80 via-transparent to-transparent" />
+          <div className="absolute inset-0 bg-linear-to-t from-gray-950 via-transparent to-black/40" />
+          <div className="absolute inset-0 bg-linear-to-r from-gray-950/80 via-transparent to-transparent" />
         </div>
       ))}
 
@@ -159,7 +159,7 @@ export default function HeroSection() {
 
         {/* Right Side: Floating UI Card */}
         <div className="hidden lg:flex justify-end pr-8">
-          <div className="relative group w-[400px] animate-float">
+          <div className="relative group w-400px animate-float">
             <div className="absolute -inset-4 bg-indigo-500 rounded-[3rem] blur-3xl opacity-20 group-hover:opacity-40 transition duration-1000"></div>
             <div className="relative bg-white/95 dark:bg-gray-900/95 backdrop-blur-md rounded-[2.5rem] overflow-hidden shadow-2xl border border-white/20">
               <div className="h-60 overflow-hidden">
@@ -184,8 +184,8 @@ export default function HeroSection() {
         </div>
       </div>
 
-      {/* Modern Compact Search Bar */}
-      <div className="relative z-30 w-full pb-24 animate-fade-in [animation-delay:400ms]">
+      {/* Modern Compact Search Bar with High Z-Index & Visible Overflow */}
+      <div className="relative z-50 w-full pb-24 animate-fade-in [animation-delay:400ms] overflow-visible">
         <div className="container mx-auto max-w-6xl">
           <div className="bg-white/95 backdrop-blur-xl border border-slate-200 shadow-[0_20px_50px_rgba(0,0,0,0.15)] rounded-3xl md:rounded-full p-2 flex flex-col md:flex-row items-center gap-1 transition-all hover:border-indigo-200">
 
@@ -227,7 +227,7 @@ export default function HeroSection() {
               <button
                 onClick={handleSearchUpdate}
                 disabled={loading}
-                className="w-full md:w-auto bg-indigo-600 hover:bg-indigo-700 text-white p-4 md:px-10 rounded-2xl md:rounded-full active:scale-95 transition-all flex items-center justify-center gap-3 shadow-lg shadow-indigo-100 disabled:opacity-50 md:ml-2"
+                className="w-full md:w-auto bg-indigo-600 hover:bg-indigo-700 text-white p-4 md:px-10 rounded-2xl md:rounded-full active:scale-95 transition-all flex items-center justify-center gap-3 shadow-lg shadow-indigo-100 disabled:opacity-50 md:ml-2 cursor-pointer"
               >
                 {loading ? <Loader2 size={22} className="animate-spin" /> : <Search size={22} />}
                 <span className="font-extrabold text-sm uppercase tracking-widest">
@@ -316,7 +316,7 @@ function CompactSelect({ label, icon, options, value, onChange, placeholder, dis
 
       {/* Dropdown Menu */}
       {isOpen && (
-        <div className="absolute top-[110%] left-0 right-0 md:min-w-[240px] bg-white border border-slate-100 shadow-[0_15px_40px_rgba(0,0,0,0.12)] rounded-3xl overflow-hidden z-[100] animate-in fade-in zoom-in-95 duration-200 origin-top">
+        <div className="absolute top-[110%] left-0 right-0 md:min-w-240px bg-white border border-slate-100 shadow-[0_15px_40px_rgba(0,0,0,0.12)] rounded-3xl overflow-hidden z-100 animate-in fade-in zoom-in-95 duration-200 origin-top">
           <div className="max-h-64 overflow-y-auto p-2 scrollbar-thin scrollbar-thumb-indigo-100">
             {options.length > 0 ? (
               options.map((opt) => (

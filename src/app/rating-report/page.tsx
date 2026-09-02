@@ -1,24 +1,102 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Star, AlertTriangle, Send } from 'lucide-react';
+import { Star, AlertTriangle, Send, Loader2 } from 'lucide-react';
+import { useSearchParams, useParams } from 'next/navigation';
+import Swal from 'sweetalert2';
+import { createEvaluation } from '@/api/evaluations-api';
 
 const WorkerReviewPage = () => {
+  const searchParams = useSearchParams();
+  const params = useParams();
+  
+  // Extract businessId from query parameters (?businessId=xxx) or route dynamic segments
+  const businessId = searchParams.get('businessId') || (params?.id as string) || "";
+
   const [rating, setRating] = useState(0);
   const [hover, setHover] = useState(0);
   const [comment, setComment] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isReporting, setIsReporting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log({ rating, comment });
-    alert("Review submitted successfully!");
+    if (rating === 0) return;
+
+    if (!businessId) {
+      Swal.fire('Error', 'Missing business reference for this evaluation.', 'error');
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      await createEvaluation({
+        stars: rating,
+        textFr: comment,
+        BusinessId: businessId,
+        isValid: true,
+      });
+
+      Swal.fire({
+        icon: 'success',
+        title: 'Success!',
+        text: 'Review submitted and stored successfully.',
+        timer: 2000,
+        showConfirmButton: false,
+      });
+
+      setRating(0);
+      setComment("");
+    } catch (err: any) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Submission Failed',
+        text: err?.response?.data?.message || 'Could not save your evaluation.',
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  const handleReport = () => {
-    const confirmReport = confirm("Are you sure you want to report this worker for a policy violation?");
-    if (confirmReport) {
-      console.log("Worker reported");
-      // Add your API logic here
+  const handleReport = async () => {
+    const { value: reason } = await Swal.fire({
+      title: 'Report Worker / Business',
+      input: 'textarea',
+      inputLabel: 'Reason for reporting',
+      inputPlaceholder: 'Type your reason here...',
+      inputAttributes: {
+        'aria-label': 'Type your reason here'
+      },
+      showCancelButton: true,
+      confirmButtonText: 'Submit Report',
+      confirmButtonColor: '#dc2626'
+    });
+
+    if (reason) {
+      if (!businessId) {
+        Swal.fire('Error', 'Missing business reference.', 'error');
+        return;
+      }
+
+      setIsReporting(true);
+      try {
+        // Uncomment once your backend /reports endpoint is ready
+        // await createReport({ reason, businessId });
+
+        Swal.fire({
+          icon: 'success',
+          title: 'Reported',
+          text: 'Your report has been submitted for review.',
+        });
+      } catch (err: any) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: err?.response?.data?.message || 'Failed to submit report.',
+        });
+      } finally {
+        setIsReporting(false);
+      }
     }
   };
 
@@ -29,7 +107,7 @@ const WorkerReviewPage = () => {
         {/* Header */}
         <div className="text-center mb-8">
           <h2 className="text-2xl font-bold text-gray-900">Rate Worker</h2>
-          <p className="text-gray-500 mt-2">How was your experience with John Doe?</p>
+          <p className="text-gray-500 mt-2">How was your experience?</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -69,7 +147,7 @@ const WorkerReviewPage = () => {
             </label>
             <textarea
               rows={4}
-              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all resize-none"
+              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all resize-none text-gray-800"
               placeholder="Tell us what went well or what could be improved..."
               value={comment}
               onChange={(e) => setComment(e.target.value)}
@@ -79,10 +157,10 @@ const WorkerReviewPage = () => {
           {/* Submit Button */}
           <button
             type="submit"
-            disabled={rating === 0}
+            disabled={rating === 0 || isSubmitting}
             className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 text-white font-bold py-3 px-6 rounded-xl transition-colors flex items-center justify-center gap-2"
           >
-            <Send size={18} />
+            {isSubmitting ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
             Submit Review
           </button>
         </form>
@@ -95,9 +173,10 @@ const WorkerReviewPage = () => {
         {/* Report Button */}
         <button
           onClick={handleReport}
-          className="w-full bg-white border-2 border-red-500 text-red-600 hover:bg-red-50 font-bold py-3 px-6 rounded-xl transition-all flex items-center justify-center gap-2 group"
+          disabled={isReporting}
+          className="w-full bg-white border-2 border-red-500 text-red-600 hover:bg-red-50 font-bold py-3 px-6 rounded-xl transition-all flex items-center justify-center gap-2 group disabled:opacity-50"
         >
-          <AlertTriangle size={18} className="group-hover:animate-pulse" />
+          {isReporting ? <Loader2 size={18} className="animate-spin" /> : <AlertTriangle size={18} className="group-hover:animate-pulse" />}
           Report Worker
         </button>
       </div>

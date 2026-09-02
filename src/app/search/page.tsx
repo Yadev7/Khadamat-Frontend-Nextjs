@@ -593,7 +593,7 @@ export default function SearchResultsPage() {
                 </div>
               )}
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {businesses.map((biz: any) => {
                   const langSuffix = i18n.language.charAt(0).toUpperCase() + i18n.language.slice(1);
                   const title = biz[`name${langSuffix}`] || biz.nameFr || biz.nameEn || "Business";
@@ -642,6 +642,90 @@ export default function SearchResultsPage() {
                         <div className="mt-auto pt-4 border-t border-slate-50 flex items-center justify-between text-indigo-600 font-bold text-sm">
                           <span>{t("search.view_details")}</span>
                           <ArrowRight size={16} className={isRtl ? "rotate-180" : ""} />
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div> */}
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {businesses.map((biz: any) => {
+                  const langSuffix = i18n.language.charAt(0).toUpperCase() + i18n.language.slice(1);
+                  const title = biz[`name${langSuffix}`] || biz.nameFr || biz.nameEn || "Business";
+                  const desc = biz[`descr${langSuffix}`] || biz.descrFr || biz.descrEn;
+                  const flyerUrl = biz.flyer?.path || biz.flyer?.url;
+                  const img = resolveFlyerUrl(flyerUrl);
+
+                  return (
+                    <div
+                      key={biz.id}
+                      onMouseEnter={() => setHoveredBizId(biz.id)}
+                      onMouseLeave={() => setHoveredBizId(null)}
+                      className="group flex flex-col bg-white rounded-4xl overflow-hidden transition-all duration-500 hover:shadow-2xl hover:shadow-slate-200 border border-slate-100"
+                    >
+                      {/* Card Image Header - Clickable to View Details */}
+                      <div 
+                        onClick={() => router.push(`/businesses/${biz.id}`)}
+                        className="relative h-52 w-full overflow-hidden bg-slate-100 cursor-pointer"
+                      >
+                        <img
+                          src={img}
+                          alt={title}
+                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            if (target.src !== "https://images.unsplash.com/photo-1560179707-f14e90ef3623?q=80&w=500") {
+                              target.src = "https://images.unsplash.com/photo-1560179707-f14e90ef3623?q=80&w=500";
+                            }
+                          }}
+                        />
+
+                        <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-md px-3 py-1 rounded-full">
+                          <span className="text-[10px] font-black text-indigo-600 uppercase">
+                            {biz.service?.[`name${langSuffix}`] || biz.service?.[`nameServ${langSuffix}`] || biz.service?.nameFr || biz.service?.nameServFr}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Card Body */}
+                      <div className="p-6 flex flex-col grow">
+                        <h3 
+                          onClick={() => router.push(`/businesses/${biz.id}`)}
+                          className="text-xl font-bold text-slate-900 mb-2 group-hover:text-indigo-600 transition-colors line-clamp-1 cursor-pointer"
+                        >
+                          {title}
+                        </h3>
+                        <div className="flex items-center gap-1.5 text-slate-400 mb-3">
+                          <MapPin size={14} />
+                          <span className="text-xs font-bold truncate">{biz.contact?.address?.lineAddressFr || "Address not provided"}</span>
+                        </div>
+                        <p className="text-slate-500 text-sm leading-relaxed line-clamp-2 mb-4">{desc}</p>
+                        
+                        {/* Actions Footer */}
+                        <div className="mt-auto pt-4 border-t border-slate-50 flex items-center justify-between gap-3">
+                          {/* Rate / Review Action Button */}
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              router.push(`/rating-report?businessId=${biz.id}`);
+                              // Alternatively if using a dynamic route like /businesses/[id]/review: 
+                              // router.push(`/businesses/${biz.id}/review`);
+                            }}
+                            className="flex-1 bg-amber-50 hover:bg-amber-100 text-amber-700 py-2.5 px-4 rounded-2xl font-bold text-xs transition-colors flex items-center justify-center gap-1.5"
+                          >
+                            <span>⭐ Rate & Review</span>
+                          </button>
+
+                          {/* View Details Link */}
+                          <div 
+                            onClick={() => router.push(`/businesses/${biz.id}`)}
+                            className="flex items-center gap-1 text-indigo-600 font-bold text-sm cursor-pointer hover:underline"
+                          >
+                            <span>{t("search.view_details")}</span>
+                            <ArrowRight size={16} className={isRtl ? "rotate-180" : ""} />
+                          </div>
                         </div>
                       </div>
                     </div>
