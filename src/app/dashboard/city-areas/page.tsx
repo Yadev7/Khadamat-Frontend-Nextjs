@@ -119,7 +119,6 @@ export default function CityAreasPage() {
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
-  // Compute available preset areas based on the currently selected city with fallback matching
   const availableSubAreas = useMemo(() => {
     if (!formData.cityId) return [];
     const selectedCity = cities.find(c => c.id === formData.cityId);
@@ -134,7 +133,6 @@ export default function CityAreasPage() {
       }
     }
     
-    // Generic default fallback sectors if specific city dictionary mapping isn't found
     return [
       { ar: "المركز", fr: "Centre-Ville", lat: selectedCity.localisation?.latitude || 34.0331, lng: selectedCity.localisation?.longitude || -5.0003 },
       { ar: "حي الإداري", fr: "Quartier Administratif", lat: selectedCity.localisation?.latitude || 34.0331, lng: selectedCity.localisation?.longitude || -5.0003 }
@@ -230,33 +228,6 @@ export default function CityAreasPage() {
     }
   };
 
-  // const activePickerMarker = useMemo(() => {
-  //   if (formData.latitude && formData.longitude) {
-  //     return [{
-  //       id: editingArea?.id || "new-zone-picker",
-  //       position: [formData.latitude, formData.longitude] as [number, number],
-  //       label: (isAr ? formData.nameAr : formData.nameFr) || "Selected Target Position",
-  //       address: "Zone Coordinates Set",
-  //       active: true
-  //     }];
-  //   }
-  //   return [];
-  // }, [formData.latitude, formData.longitude, formData.nameAr, formData.nameFr, editingArea, isAr]);
-
-  // 💡 Update activePickerMarker to act as a stable controllable entity during picking
-  // const activePickerMarker = useMemo(() => {
-  //   if (formData.latitude && formData.longitude) {
-  //     return [{
-  //       id: editingArea?.id || "new-zone-picker",
-  //       position: [formData.latitude, formData.longitude] as [number, number],
-  //       label: (isAr ? formData.nameAr : formData.nameFr) || "Selected Target Position",
-  //       address: "Zone Coordinates Set",
-  //       active: true
-  //     }];
-  //   }
-  //   return [];
-  // }, [formData.latitude, formData.longitude, formData.nameAr, formData.nameFr, editingArea, isAr]);
-
   const activePickerMarker = useMemo(() => {
     if (formData.latitude && formData.longitude) {
       const selectedCityObj = cities.find(c => c.id === formData.cityId);
@@ -302,7 +273,7 @@ export default function CityAreasPage() {
       {/* Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {areas.map((area) => (
-          <div key={area.id} className="bg-white rounded-2rem p-6 border border-slate-200 hover:shadow-xl transition-all group relative">
+          <div key={area.id} className="bg-white rounded-3xl p-6 border border-slate-200 hover:shadow-xl transition-all group relative">
             <div className="flex justify-between items-start mb-6">
               <div className="p-4 bg-violet-50 rounded-2xl text-violet-600 group-hover:bg-violet-600 group-hover:text-white transition-colors">
                 <MapPin className="w-6 h-6" />
@@ -329,7 +300,7 @@ export default function CityAreasPage() {
 
       {/* Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
           <div className="bg-white w-full max-w-5xl rounded-[2.5rem] p-6 md:p-10 shadow-2xl overflow-y-auto max-h-[95vh]">
             <div className="flex justify-between items-center mb-8">
               <h2 className="text-2xl font-black text-slate-800">{editingArea ? 'Edit Area' : 'New Area'}</h2>
@@ -348,7 +319,6 @@ export default function CityAreasPage() {
                   </select>
                 </div>
                 
-                {/* Dynamic Area Select Dropdown mapping Arabic and French pairs automatically */}
                 <div>
                   <label className="block text-[10px] font-black uppercase text-slate-400 mb-2 px-1">City Area / Sector</label>
                   <select 
@@ -381,24 +351,12 @@ export default function CityAreasPage() {
               </form>
 
               {/* Map Column */}
-              {/* <div className="order-1 lg:order-2 lg:col-span-7 h-[350px] lg:h-[500px] w-full rounded-2rem overflow-hidden border-4 border-slate-50 shadow-inner relative z-0">
-                <MapComponent
-                  key={`${editingArea?.id || 'new'}-${formData.cityId}`}
-                  center={[formData.latitude, formData.longitude]}
-                  displayLabel={isAr ? formData.nameAr : formData.nameFr}
-                  isPicker={true}
-                  onLocationSelect={handleLocationChange}
-                  markers={activePickerMarker}
-                />
-              </div> */}
-
-              {/* Map Column */}
-              <div className="order-1 lg:order-2 lg:col-span-7 h-350px lg:h-500px w-full rounded-2rem overflow-hidden border-4 border-slate-50 shadow-inner relative z-0">
+              <div className="order-1 lg:order-2 lg:col-span-7 h-[350px] lg:h-[500px] w-full rounded-3xl overflow-hidden border-4 border-slate-50 shadow-inner relative z-0">
                 <MapComponent
                   key={`${editingArea?.id || 'new'}-${formData.cityId}-${formData.nameFr}`}
                   center={[formData.latitude, formData.longitude]}
                   displayLabel={isAr ? formData.nameAr : formData.nameFr}
-                  isPicker={false} // 🌟 Changed from true to false to disable random click repositioning
+                  isPicker={false}
                   onLocationSelect={handleLocationChange}
                   markers={activePickerMarker}
                 />
