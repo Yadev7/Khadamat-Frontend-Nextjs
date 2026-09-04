@@ -10,12 +10,12 @@ const WorkerReviewPage = () => {
   const searchParams = useSearchParams();
   const params = useParams();
   
-  // Extract businessId from query parameters (?businessId=xxx) or route dynamic segments
   const businessId = searchParams.get('businessId') || (params?.id as string) || "";
 
   const [rating, setRating] = useState(0);
   const [hover, setHover] = useState(0);
-  const [comment, setComment] = useState("");
+  const [commentFr, setCommentFr] = useState("");
+  const [commentAr, setCommentAr] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isReporting, setIsReporting] = useState(false);
 
@@ -32,8 +32,9 @@ const WorkerReviewPage = () => {
     try {
       await createEvaluation({
         stars: rating,
-        textFr: comment,
-        BusinessId: businessId,
+        textFr: commentFr || "Bon service",
+        textAr: commentAr || "تقييم جيد",
+        businessId,
         isValid: true,
       });
 
@@ -46,7 +47,8 @@ const WorkerReviewPage = () => {
       });
 
       setRating(0);
-      setComment("");
+      setCommentFr("");
+      setCommentAr("");
     } catch (err: any) {
       Swal.fire({
         icon: 'error',
@@ -80,9 +82,6 @@ const WorkerReviewPage = () => {
 
       setIsReporting(true);
       try {
-        // Uncomment once your backend /reports endpoint is ready
-        // await createReport({ reason, businessId });
-
         Swal.fire({
           icon: 'success',
           title: 'Reported',
@@ -140,17 +139,32 @@ const WorkerReviewPage = () => {
             </span>
           </div>
 
-          {/* Comment Box */}
+          {/* Comment in French */}
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Your Feedback
+              Feedback (French)
             </label>
             <textarea
-              rows={4}
+              rows={3}
               className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all resize-none text-gray-800"
-              placeholder="Tell us what went well or what could be improved..."
-              value={comment}
-              onChange={(e) => setComment(e.target.value)}
+              placeholder="Votre avis en français..."
+              value={commentFr}
+              onChange={(e) => setCommentFr(e.target.value)}
+            />
+          </div>
+
+          {/* Comment in Arabic */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2 text-right">
+              التعليق (العربية)
+            </label>
+            <textarea
+              dir="rtl"
+              rows={3}
+              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all resize-none text-gray-800 text-right"
+              placeholder="أرأيك بالعربية..."
+              value={commentAr}
+              onChange={(e) => setCommentAr(e.target.value)}
             />
           </div>
 
