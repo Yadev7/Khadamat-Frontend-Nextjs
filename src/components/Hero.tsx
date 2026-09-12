@@ -260,9 +260,6 @@ export default function HeroSection() {
   );
 }
 
-/** 
- * Custom Elegant Dropdown Component
- */
 interface Option {
   id: string | number;
   name: string;
@@ -282,7 +279,6 @@ function CompactSelect({ label, icon, options, value, onChange, placeholder, dis
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Close when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
@@ -314,7 +310,6 @@ function CompactSelect({ label, icon, options, value, onChange, placeholder, dis
         </div>
       </div>
 
-      {/* Dropdown Menu */}
       {isOpen && (
         <div className="absolute top-[110%] left-0 right-0 md:min-w-240px bg-white border border-slate-100 shadow-[0_15px_40px_rgba(0,0,0,0.12)] rounded-3xl overflow-hidden z-100 animate-in fade-in zoom-in-95 duration-200 origin-top">
           <div className="max-h-64 overflow-y-auto p-2 scrollbar-thin scrollbar-thumb-indigo-100">
