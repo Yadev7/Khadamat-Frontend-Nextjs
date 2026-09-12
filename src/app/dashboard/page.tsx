@@ -23,8 +23,8 @@ export default function DashboardPage() {
   );
 
   return (
-    <div className="p-8">
-      <div className="max-w-4xl mx-auto bg-white dark:bg-gray-900 rounded-xl shadow-md overflow-hidden p-6">
+    <div className="p-4 sm:p-6 md:p-8">
+      <div className="max-w-4xl mx-auto bg-white dark:bg-gray-900 rounded-xl shadow-md overflow-hidden p-4 sm:p-6">
         <div className="flex justify-between items-center mb-8">
           <div>
             <h1 className="text-2xl font-bold text-gray-800 dark:text-white">
@@ -56,11 +56,11 @@ export default function DashboardPage() {
         {/* بلاصة فين غنزيدو الـ CRUD Services لاحقاً */}
         <div className="mt-12 border-t pt-8">
           <h2 className="text-xl font-bold mb-4">{t('dashboard.operations.title')} </h2>
-          <div className="flex gap-4">
-            <button className="bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700 transition shadow-lg shadow-blue-500/30">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+            <button className="bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700 transition shadow-lg shadow-blue-500/30 w-full sm:w-auto">
               {t('dashboard.operations.manage_services')}
             </button>
-            <button className="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 px-6 py-3 rounded-xl hover:bg-gray-200 transition">
+            <button className="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 px-6 py-3 rounded-xl hover:bg-gray-200 transition w-full sm:w-auto">
               {t('dashboard.operations.edit_profile')}
             </button>
           </div>

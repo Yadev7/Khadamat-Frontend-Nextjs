@@ -101,7 +101,7 @@ export default function MessagesInboxPage() {
   }
 
   return (
-    <div dir={isRtl ? 'rtl' : 'ltr'} className="p-8 bg-slate-50 min-h-screen">
+    <div dir={isRtl ? 'rtl' : 'ltr'} className="p-4 sm:p-6 md:p-8 bg-slate-50 min-h-screen">
       <div className="flex flex-wrap justify-between items-center gap-4 mb-8">
         <div>
           <h1 className="text-3xl font-bold text-slate-800">{t("dashboard.messages.title") || "Client Messages"}</h1>

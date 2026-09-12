@@ -269,13 +269,13 @@ export default function BusinessesPage() {
   );
 
   return (
-    <div className="p-8 bg-slate-50 min-h-screen">
-      <div className="flex justify-between items-center mb-8">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-800">
+    <div className="p-4 sm:p-6 md:p-8 bg-slate-50 min-h-screen">
+      <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4 mb-8">
+        <div className="min-w-0">
+          <h1 className="text-2xl sm:text-3xl font-bold text-slate-800">
             {view === "list" ? t('dashboard.business.business_directory') : t('dashboard.business.create_new_business')}
           </h1>
-          <p className="text-slate-500 text-sm">
+          <p className="text-slate-500 text-sm mt-1">
             {view === "list"
               ? `${t('dashboard.business.managing')} ${businesses.length} ${t('dashboard.business.records')}`
               : "Complete the 5 steps to add a new entry to the database"}
@@ -284,7 +284,7 @@ export default function BusinessesPage() {
          <button
           onClick={() => setView(view === "list" ? "add" : "list")}
           className={`${view === "list" ? "bg-indigo-600 hover:bg-indigo-700 text-white" : "bg-slate-200 hover:bg-slate-300 text-slate-700"
-            } px-6 py-3 rounded-2xl flex items-center gap-2 font-bold transition-all active:scale-95 shadow-sm`}
+            } px-6 py-3 rounded-2xl flex items-center justify-center gap-2 font-bold transition-all active:scale-95 shadow-sm`}
         >
           {view === "list" ? (
             <><Plus size={20} /> {t('dashboard.business.add_business')}  </>
@@ -431,7 +431,7 @@ export default function BusinessesPage() {
           )}
         </div>
       ) : (
-        <div className="max-w-4xl mx-auto bg-white rounded-[2.5rem] p-8 shadow-xl border border-slate-100 animate-in fade-in slide-in-from-bottom-4">
+        <div className="max-w-4xl mx-auto bg-white rounded-[2.5rem] p-4 sm:p-8 shadow-xl border border-slate-100 animate-in fade-in slide-in-from-bottom-4">
           <FormProvider {...methods}>
             <Stepper
               steps={steps}
