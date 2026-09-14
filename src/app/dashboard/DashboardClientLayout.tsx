@@ -303,10 +303,31 @@ export default function DashboardClientLayout({ children }: { children: ReactNod
       )}
 
       <div className="flex-1 flex flex-col overflow-hidden">
-        <main className={isPublicBusinessPage ? "p-0" : "p-8 overflow-y-auto flex-1"}>
+        <main className={isPublicBusinessPage ? "p-0 pb-20 md:pb-0" : "p-4 sm:p-6 md:p-8 pb-24 md:pb-8 overflow-y-auto flex-1"}>
           {children}
         </main>
       </div>
+
+      {/* Mobile Bottom Navigation */}
+      <nav className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 flex items-center justify-around shadow-[0_-4px_12px_rgba(0,0,0,0.05)]">
+        {menuItems.map((item) => {
+          const isActive = pathname === item.href || (item.href !== '/dashboard' && pathname?.startsWith(item.href + '/'));
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={`flex flex-col items-center gap-1 py-2.5 px-2 min-w-0 flex-1 text-[10px] font-bold transition-colors active:scale-95 ${
+                isActive
+                  ? "text-blue-600 dark:text-blue-400"
+                  : "text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300"
+              }`}
+            >
+              {item.icon}
+              <span className="truncate max-w-20 text-center leading-none">{item.name}</span>
+            </Link>
+          );
+        })}
+      </nav>
     </div>
   );
 

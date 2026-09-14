@@ -129,7 +129,7 @@ const handleNext = async () => {
   return (
     <div className="max-w-4xl mx-auto">
       {/* Indicators (Unchanged structure, added logic) */}
-      <div className="flex justify-between items-center mb-10">
+      <div className="flex justify-between items-center mb-6 sm:mb-10 overflow-x-auto">
         {steps.map((step, index) => {
           const isCompleted = activeStep > step.step;
           const isActive = activeStep === step.step;
@@ -138,7 +138,7 @@ const handleNext = async () => {
             <React.Fragment key={step.step}>
               <div className="flex flex-col items-center relative z-10">
                 <div
-                  className={`w-10 h-10 rounded-full flex items-center justify-center font-bold transition-all duration-300 ${
+                  className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-bold transition-all duration-300 ${
                     isCompleted ? "bg-emerald-500 text-white" : 
                     isActive ? "bg-indigo-600 text-white ring-4 ring-indigo-100" : 
                     "bg-slate-100 text-slate-400"
@@ -146,12 +146,12 @@ const handleNext = async () => {
                 >
                   {isCompleted ? <Check size={18} /> : step.step}
                 </div>
-                <span className={`text-xs mt-2 font-bold uppercase tracking-wider ${isActive ? "text-indigo-600" : "text-slate-400"}`}>
+                <span className={`text-[10px] sm:text-xs mt-2 font-bold uppercase tracking-wider ${isActive ? "text-indigo-600" : "text-slate-400"}`}>
                   {step.label}
                 </span>
               </div>
               {index < steps.length - 1 && (
-                <div className="flex-1 h-1 bg-slate-100 mx-4 -mt-6">
+                <div className="flex-1 h-1 bg-slate-100 mx-1 sm:mx-4 -mt-6 min-w-2">
                   <div className="h-full bg-emerald-500 transition-all duration-500" style={{ width: isCompleted ? "100%" : "0%" }} />
                 </div>
               )}
@@ -161,7 +161,7 @@ const handleNext = async () => {
       </div>
 
       {/* Step Content */}
-      <div className="bg-white p-8 rounded-[2.5rem] shadow-xl border border-slate-100 mb-6 min-h-[300px]">
+      <div className="bg-white p-4 sm:p-8 rounded-[2.5rem] shadow-xl border border-slate-100 mb-6 min-h-[300px]">
         {CurrentStepComponent && <CurrentStepComponent />}
         
         {/* Error Feedback */}
@@ -179,7 +179,7 @@ const handleNext = async () => {
           type="button"
           onClick={handleBack}
           disabled={activeStep === 1 || isSubmitting}
-          className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-bold transition-all ${
+          className={`flex items-center gap-2 px-4 sm:px-6 py-3 rounded-2xl font-bold transition-all ${
             activeStep === 1 ? "opacity-0 pointer-events-none" : "text-slate-600 hover:bg-slate-100 active:scale-95"
           }`}
         >
@@ -190,7 +190,7 @@ const handleNext = async () => {
           type="button"
           onClick={handleNext}
           disabled={isSubmitting}
-          className="bg-indigo-600 text-white px-8 py-3 rounded-2xl flex items-center gap-2 font-bold shadow-lg hover:bg-indigo-700 transition-all active:scale-95 disabled:opacity-50 disabled:bg-slate-300 disabled:shadow-none"
+          className="bg-indigo-600 text-white px-4 sm:px-8 py-3 rounded-2xl flex items-center gap-2 font-bold shadow-lg hover:bg-indigo-700 transition-all active:scale-95 disabled:opacity-50 disabled:bg-slate-300 disabled:shadow-none"
         >
           {isSubmitting ? (
             <Loader2 className="animate-spin" size={20} />

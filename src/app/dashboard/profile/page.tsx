@@ -59,8 +59,8 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      <div className="flex justify-between items-center mb-8">
+    <div className="max-w-4xl mx-auto p-4 sm:p-6">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-8">
         <h1 className="text-2xl font-bold text-gray-800 dark:text-white">الملف الشخصي</h1>
         {message && (
           <div className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm animate-in fade-in slide-in-from-top-1 ${
@@ -85,8 +85,8 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        <form onSubmit={handleSave} className="pt-16 pb-8 px-8">
-          <div className="flex justify-between items-start mb-10">
+        <form onSubmit={handleSave} className="pt-16 pb-8 px-4 sm:px-8">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 mb-10">
             <div>
               <h2 className="text-xl font-bold text-gray-900 dark:text-white">
                 {user?.firstName} {user?.lastName}
