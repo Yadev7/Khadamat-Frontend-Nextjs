@@ -262,20 +262,20 @@ export default function BusinessesPage() {
   };
 
   if (loading) return (
-    <div className="flex flex-col justify-center items-center h-screen gap-4">
+    <div className="flex flex-col justify-center items-center h-screen gap-4 dark:bg-gray-950">
       <Loader2 className="animate-spin text-indigo-600" size={40} />
-      <p className="text-slate-500 font-medium">Loading database...</p>
+      <p className="text-slate-500 font-medium dark:text-gray-400">Loading database...</p>
     </div>
   );
 
   return (
-    <div className="p-4 sm:p-6 md:p-8 bg-slate-50 min-h-screen">
+    <div className="p-4 sm:p-6 md:p-8 bg-slate-50 min-h-screen dark:bg-gray-950">
       <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4 mb-8">
         <div className="min-w-0">
-          <h1 className="text-2xl sm:text-3xl font-bold text-slate-800">
+          <h1 className="text-2xl sm:text-3xl font-bold text-slate-800 dark:text-gray-100">
             {view === "list" ? t('dashboard.business.business_directory') : t('dashboard.business.create_new_business')}
           </h1>
-          <p className="text-slate-500 text-sm mt-1">
+          <p className="text-slate-500 text-sm mt-1 dark:text-gray-400">
             {view === "list"
               ? `${t('dashboard.business.managing')} ${businesses.length} ${t('dashboard.business.records')}`
               : "Complete the 5 steps to add a new entry to the database"}
@@ -283,7 +283,7 @@ export default function BusinessesPage() {
         </div>
          <button
           onClick={() => setView(view === "list" ? "add" : "list")}
-          className={`${view === "list" ? "bg-indigo-600 hover:bg-indigo-700 text-white" : "bg-slate-200 hover:bg-slate-300 text-slate-700"
+          className={`${view === "list" ? "bg-indigo-600 hover:bg-indigo-700 text-white" : "bg-slate-200 hover:bg-slate-300 text-slate-700 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-gray-200"
             } px-6 py-3 rounded-2xl flex items-center justify-center gap-2 font-bold transition-all active:scale-95 shadow-sm`}
         >
           {view === "list" ? (
@@ -297,8 +297,8 @@ export default function BusinessesPage() {
       {view === "list" ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {businesses.length === 0 ? (
-            <div className="col-span-full flex flex-col items-center justify-center p-12 text-slate-500 bg-white rounded-3xl border border-slate-100 border-dashed">
-              <Building2 size={48} className="mb-4 text-slate-300" />
+            <div className="col-span-full flex flex-col items-center justify-center p-12 text-slate-500 bg-white rounded-3xl border border-slate-100 border-dashed dark:text-gray-400 dark:bg-gray-900 dark:border-gray-800">
+              <Building2 size={48} className="mb-4 text-slate-300 dark:text-gray-600" />
               <p className="text-lg font-medium">No businesses found</p>
               <p className="text-sm">Click "Add New Business" to get started.</p>
             </div>
@@ -317,7 +317,7 @@ export default function BusinessesPage() {
               const flyerUrl = resolveFlyerUrl(flyerRaw);
 
               return (
-                <div key={business.id} className="bg-white rounded-3xl shadow-sm hover:shadow-xl transition-all duration-300 border border-slate-100 flex flex-col overflow-hidden">
+                <div key={business.id} className="bg-white rounded-3xl shadow-sm hover:shadow-xl transition-all duration-300 border border-slate-100 flex flex-col overflow-hidden dark:bg-gray-900 dark:border-gray-800">
                   {/* Image Banner */}
                   <div className="relative h-40 bg-linear-to-br from-indigo-500 to-purple-600 flex items-center justify-center overflow-hidden">
                     {flyerUrl ? (
@@ -354,24 +354,24 @@ export default function BusinessesPage() {
 
                   {/* Card Body */}
                   <div className="p-5 flex flex-col grow">
-                    <h3 className="font-bold text-lg text-slate-800 line-clamp-1 mb-1" title={business.nameEn || business.nameFr || business.nameAr}>
+                    <h3 className="font-bold text-lg text-slate-800 line-clamp-1 mb-1 dark:text-gray-100" title={business.nameEn || business.nameFr || business.nameAr}>
                       {business.nameEn || business.nameFr || business.nameAr || "Unnamed Business"}
                     </h3>
 
-                    <p className="text-slate-500 text-sm line-clamp-2 mb-4">
+                    <p className="text-slate-500 text-sm line-clamp-2 mb-4 dark:text-gray-400">
                       {business.descrEn || business.descrFr || business.descrAr || "No description provided."}
                     </p>
 
                     {(phone || email) && (
                       <div className="space-y-1.5 mb-4">
                         {phone && (
-                          <div className="flex items-center gap-2 text-sm text-slate-600">
+                          <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-gray-300">
                             <Phone size={13} className="text-indigo-400 shrink-0" />
                             <span className="truncate">{phone}</span>
                           </div>
                         )}
                         {email && (
-                          <div className="flex items-center gap-2 text-sm text-slate-600">
+                          <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-gray-300">
                             <Mail size={13} className="text-indigo-400 shrink-0" />
                             <span className="truncate">{email}</span>
                           </div>
@@ -380,9 +380,9 @@ export default function BusinessesPage() {
                     )}
 
                     {(fullAddress || city || cityZone) && (
-                      <div className="border-t border-slate-50 pt-3 mt-auto space-y-1.5">
+                      <div className="border-t border-slate-50 pt-3 mt-auto space-y-1.5 dark:border-gray-800">
                         {fullAddress && (
-                          <div className="flex items-start gap-2 text-sm text-slate-600">
+                          <div className="flex items-start gap-2 text-sm text-slate-600 dark:text-gray-300">
                             <MapPin size={13} className="text-rose-400 shrink-0 mt-0.5" />
                             <span className="line-clamp-1">{fullAddress}</span>
                           </div>
@@ -391,12 +391,12 @@ export default function BusinessesPage() {
                           <div className="flex items-center gap-2 flex-wrap">
                             <Map size={13} className="text-rose-400 shrink-0" />
                             {city && (
-                              <span className="bg-rose-50 text-rose-600 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                              <span className="bg-rose-50 text-rose-600 text-xs font-medium px-2.5 py-0.5 rounded-full dark:bg-rose-950 dark:text-rose-400">
                                 {city}
                               </span>
                             )}
                             {cityZone && (
-                              <span className="bg-orange-50 text-orange-600 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                              <span className="bg-orange-50 text-orange-600 text-xs font-medium px-2.5 py-0.5 rounded-full dark:bg-orange-950 dark:text-orange-400">
                                 {cityZone}
                               </span>
                             )}
@@ -406,19 +406,19 @@ export default function BusinessesPage() {
                     )}
 
                     {(business.businessUrlSite || business.audioEn || business.audioFr || business.audioAr || business.videoEn || business.videoFr || business.videoAr) && (
-                      <div className="flex items-center gap-2 pt-3 mt-3 border-t border-slate-50">
+                      <div className="flex items-center gap-2 pt-3 mt-3 border-t border-slate-50 dark:border-gray-800">
                         {business.businessUrlSite && (
-                          <a href={business.businessUrlSite} target="_blank" rel="noreferrer" className="w-7 h-7 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 transition-colors" title="Website">
+                          <a href={business.businessUrlSite} target="_blank" rel="noreferrer" className="w-7 h-7 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 transition-colors dark:bg-gray-800 dark:hover:text-indigo-400 dark:hover:bg-indigo-950" title="Website">
                             <Globe size={14} />
                           </a>
                         )}
                         {(business.audioEn || business.audioFr || business.audioAr) && (
-                          <div className="w-7 h-7 rounded-full bg-slate-50 flex items-center justify-center text-slate-400" title="Has Audio">
+                          <div className="w-7 h-7 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 dark:bg-gray-800" title="Has Audio">
                             <Music size={14} />
                           </div>
                         )}
                         {(business.videoEn || business.videoFr || business.videoAr) && (
-                          <div className="w-7 h-7 rounded-full bg-slate-50 flex items-center justify-center text-slate-400" title="Has Video">
+                          <div className="w-7 h-7 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 dark:bg-gray-800" title="Has Video">
                             <Video size={14} />
                           </div>
                         )}
@@ -431,7 +431,7 @@ export default function BusinessesPage() {
           )}
         </div>
       ) : (
-        <div className="max-w-4xl mx-auto bg-white rounded-[2.5rem] p-4 sm:p-8 shadow-xl border border-slate-100 animate-in fade-in slide-in-from-bottom-4">
+        <div className="max-w-4xl mx-auto bg-white rounded-[2.5rem] p-4 sm:p-8 shadow-xl border border-slate-100 animate-in fade-in slide-in-from-bottom-4 dark:bg-gray-900 dark:border-gray-800">
           <FormProvider {...methods}>
             <Stepper
               steps={steps}

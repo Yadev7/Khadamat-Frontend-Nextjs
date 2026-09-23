@@ -11,7 +11,7 @@ import Swal from 'sweetalert2';
 
 const MapComponent = dynamic(() => import('@/components/MapComponent'), {
   ssr: false,
-  loading: () => <div className="h-full w-full bg-slate-100 animate-pulse flex items-center justify-center text-slate-400">Loading Map...</div>
+  loading: () => <div className="h-full w-full bg-slate-100 animate-pulse flex items-center justify-center text-slate-400 dark:bg-gray-800 dark:text-gray-500">Loading Map...</div>
 });
 
 import { getCityAreas, createCityArea, updateCityArea, deleteCityArea } from "@/api/city-areas-api";
@@ -257,12 +257,12 @@ export default function CityAreasPage() {
   );
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] pb-10 px-4 md:px-8" dir={isAr ? 'rtl' : 'ltr'}>
+    <div className="min-h-screen bg-[#F8FAFC] pb-10 px-4 md:px-8 dark:bg-gray-950" dir={isAr ? 'rtl' : 'ltr'}>
       {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 bg-white p-6 rounded-3xl shadow-sm border border-slate-100 gap-4 mt-6">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 bg-white p-6 rounded-3xl shadow-sm border border-slate-100 gap-4 mt-6 dark:bg-gray-900 dark:border-gray-800">
         <div>
-          <h1 className="text-2xl font-black text-slate-800">{t("dashboard.infos-general.tabs.city_area_tab") || "City Areas"}</h1>
-          <p className="text-slate-400 text-sm font-medium">Zone and sector management</p>
+          <h1 className="text-2xl font-black text-slate-800 dark:text-gray-100">{t("dashboard.infos-general.tabs.city_area_tab") || "City Areas"}</h1>
+          <p className="text-slate-400 text-sm font-medium dark:text-gray-500">Zone and sector management</p>
         </div>
         <button onClick={() => handleOpenModal()} className="flex items-center gap-2 bg-violet-600 text-white px-6 py-3 rounded-2xl font-bold shadow-lg w-full md:w-auto justify-center">
           <Plus className="w-5 h-5" />
@@ -273,22 +273,22 @@ export default function CityAreasPage() {
       {/* Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {areas.map((area) => (
-          <div key={area.id} className="bg-white rounded-3xl p-6 border border-slate-200 hover:shadow-xl transition-all group relative">
+          <div key={area.id} className="bg-white rounded-3xl p-6 border border-slate-200 hover:shadow-xl transition-all group relative dark:bg-gray-900 dark:border-gray-800">
             <div className="flex justify-between items-start mb-6">
-              <div className="p-4 bg-violet-50 rounded-2xl text-violet-600 group-hover:bg-violet-600 group-hover:text-white transition-colors">
+              <div className="p-4 bg-violet-50 rounded-2xl text-violet-600 group-hover:bg-violet-600 group-hover:text-white transition-colors dark:bg-violet-950 dark:text-violet-400">
                 <MapPin className="w-6 h-6" />
               </div>
               <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                <button onClick={() => handleOpenModal(area)} className="p-2 text-violet-600 hover:bg-violet-50 rounded-xl transition"><Pencil className="w-5 h-5" /></button>
-                <button onClick={() => handleDelete(area.id)} className="p-2 text-red-600 hover:bg-red-50 rounded-xl transition"><Trash2 className="w-5 h-5" /></button>
+                <button onClick={() => handleOpenModal(area)} className="p-2 text-violet-600 hover:bg-violet-50 rounded-xl transition dark:text-violet-400 dark:hover:bg-violet-950"><Pencil className="w-5 h-5" /></button>
+                <button onClick={() => handleDelete(area.id)} className="p-2 text-red-600 hover:bg-red-50 rounded-xl transition dark:text-red-400 dark:hover:bg-red-950"><Trash2 className="w-5 h-5" /></button>
               </div>
             </div>
-            <h3 className="text-xl font-black text-slate-800 mb-1">{isAr ? area.nameAr : area.nameFr}</h3>
-            <div className="flex items-center gap-2 text-slate-400">
+            <h3 className="text-xl font-black text-slate-800 mb-1 dark:text-gray-100">{isAr ? area.nameAr : area.nameFr}</h3>
+            <div className="flex items-center gap-2 text-slate-400 dark:text-gray-500">
               <Building2 className="w-4 h-4" />
               <span className="text-xs font-bold uppercase">{area.city ? (isAr ? area.city.nameAr : area.city.nameFr) : "---"}</span>
             </div>
-            <div className="flex items-center gap-2 text-slate-400 mt-2">
+            <div className="flex items-center gap-2 text-slate-400 mt-2 dark:text-gray-500">
               <Navigation className="w-3 h-3 text-violet-500" />
               <span className="text-xs font-mono">
                 {area.localisation ? `${area.localisation.latitude}, ${area.localisation.longitude}` : "No GPS data"}
@@ -301,10 +301,10 @@ export default function CityAreasPage() {
       {/* Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
-          <div className="bg-white w-full max-w-5xl rounded-[2.5rem] p-6 md:p-10 shadow-2xl overflow-y-auto max-h-[95vh]">
+          <div className="bg-white w-full max-w-5xl rounded-[2.5rem] p-6 md:p-10 shadow-2xl overflow-y-auto max-h-[95vh] dark:bg-gray-900">
             <div className="flex justify-between items-center mb-8">
-              <h2 className="text-2xl font-black text-slate-800">{editingArea ? 'Edit Area' : 'New Area'}</h2>
-              <button onClick={() => setIsModalOpen(false)} className="p-2 hover:bg-slate-100 rounded-full transition"><X className="w-6 h-6" /></button>
+              <h2 className="text-2xl font-black text-slate-800 dark:text-gray-100">{editingArea ? 'Edit Area' : 'New Area'}</h2>
+              <button onClick={() => setIsModalOpen(false)} className="p-2 hover:bg-slate-100 rounded-full transition dark:text-gray-400 dark:hover:bg-gray-800"><X className="w-6 h-6" /></button>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
@@ -312,19 +312,19 @@ export default function CityAreasPage() {
               {/* Form Fields Column */}
               <form onSubmit={handleSubmit} className="order-2 lg:order-1 lg:col-span-5 space-y-5 w-full">
                 <div>
-                  <label className="block text-[10px] font-black uppercase text-slate-400 mb-2 px-1">City</label>
-                  <select required className="w-full bg-slate-50 border-none rounded-2xl p-4 text-slate-800 font-bold outline-none ring-2 ring-transparent focus:ring-violet-500/20 transition-all" value={formData.cityId} onChange={handleCityChange}>
+                  <label className="block text-[10px] font-black uppercase text-slate-400 mb-2 px-1 dark:text-gray-500">City</label>
+                  <select required className="w-full bg-slate-50 border-none rounded-2xl p-4 text-slate-800 font-bold outline-none ring-2 ring-transparent focus:ring-violet-500/20 transition-all dark:bg-gray-800 dark:text-gray-100" value={formData.cityId} onChange={handleCityChange}>
                     <option value="">-- Select City --</option>
                     {cities.map(c => (<option key={c.id} value={c.id}>{isAr ? c.nameAr : c.nameFr}</option>))}
                   </select>
                 </div>
                 
                 <div>
-                  <label className="block text-[10px] font-black uppercase text-slate-400 mb-2 px-1">City Area / Sector</label>
+                  <label className="block text-[10px] font-black uppercase text-slate-400 mb-2 px-1 dark:text-gray-500">City Area / Sector</label>
                   <select 
                     required 
                     disabled={!formData.cityId}
-                    className="w-full bg-slate-50 border-none rounded-2xl p-4 text-slate-800 font-bold outline-none disabled:opacity-50" 
+                    className="w-full bg-slate-50 border-none rounded-2xl p-4 text-slate-800 font-bold outline-none disabled:opacity-50 dark:bg-gray-800 dark:text-gray-100" 
                     value={formData.nameFr} 
                     onChange={handleSubAreaChange}
                   >
@@ -337,9 +337,9 @@ export default function CityAreasPage() {
                   </select>
                 </div>
                 
-                <div className="p-4 bg-violet-50 rounded-2xl border border-violet-100">
-                  <h4 className="text-[10px] font-black text-violet-400 uppercase mb-2">Coordinates (GPS)</h4>
-                  <div className="flex justify-between font-mono text-xs font-bold text-violet-700">
+                <div className="p-4 bg-violet-50 rounded-2xl border border-violet-100 dark:bg-violet-950 dark:border-violet-900">
+                  <h4 className="text-[10px] font-black text-violet-400 uppercase mb-2 dark:text-violet-300">Coordinates (GPS)</h4>
+                  <div className="flex justify-between font-mono text-xs font-bold text-violet-700 dark:text-violet-300">
                     <span>LAT: {formData.latitude.toFixed(6)}</span>
                     <span>LNG: {formData.longitude.toFixed(6)}</span>
                   </div>
@@ -351,7 +351,7 @@ export default function CityAreasPage() {
               </form>
 
               {/* Map Column */}
-              <div className="order-1 lg:order-2 lg:col-span-7 h-[350px] lg:h-[500px] w-full rounded-3xl overflow-hidden border-4 border-slate-50 shadow-inner relative z-0">
+              <div className="order-1 lg:order-2 lg:col-span-7 h-[350px] lg:h-[500px] w-full rounded-3xl overflow-hidden border-4 border-slate-50 shadow-inner relative z-0 dark:border-gray-800">
                 <MapComponent
                   key={`${editingArea?.id || 'new'}-${formData.cityId}-${formData.nameFr}`}
                   center={[formData.latitude, formData.longitude]}

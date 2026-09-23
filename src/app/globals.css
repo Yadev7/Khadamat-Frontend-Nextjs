@@ -7,6 +7,8 @@
   font-family: "Cairo", sans-serif !important;
 }
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
   --background: #f9e7e4;
   --foreground: #171717;
@@ -19,11 +21,9 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #f9e7e4; /* Still using the same background in dark mode */
-    --foreground: #ededed;
-  }
+.dark {
+  --background: #111827;
+  --foreground: #ededed;
 }
 
 body {
@@ -117,3 +117,4 @@ body {
   -ms-overflow-style: none; /* IE and Edge */
   scrollbar-width: none; /* Firefox */
 }
+

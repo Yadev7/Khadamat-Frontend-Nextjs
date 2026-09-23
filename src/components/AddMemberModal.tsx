@@ -151,21 +151,21 @@ export default function AddMemberModal({ isOpen, onClose, onSuccess }: ModalProp
 
   return (
     <div className="fixed inset-0 z-110 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
-      <div className="bg-white w-full max-w-3xl rounded-2rem shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+      <div className="bg-white w-full max-w-3xl rounded-2rem shadow-2xl overflow-hidden flex flex-col max-h-[90vh] dark:bg-gray-900">
 
         {/* Header */}
-        <div className="px-8 py-6 border-b flex justify-between items-center bg-slate-50">
+        <div className="px-8 py-6 border-b flex justify-between items-center bg-slate-50 dark:bg-gray-800 dark:border-gray-700">
           <div>
-            <h2 className="text-xl font-black text-slate-900 uppercase">Register {memberType}</h2>
-            <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Global Member Directory</p>
+            <h2 className="text-xl font-black text-slate-900 uppercase dark:text-gray-100">Register {memberType}</h2>
+            <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest dark:text-gray-400">Global Member Directory</p>
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-white rounded-full transition text-slate-400 hover:text-red-500"><X size={20} /></button>
+          <button onClick={onClose} className="p-2 hover:bg-white rounded-full transition text-slate-400 hover:text-red-500 dark:hover:bg-gray-700"><X size={20} /></button>
         </div>
 
         {/* Member Type Toggle */}
-        <div className="flex p-1 bg-slate-100 mx-8 mt-6 rounded-2xl border border-slate-200">
-          <button type="button" onClick={() => setMemberType('INDIVIDUAL')} className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-xs transition-all ${memberType === 'INDIVIDUAL' ? 'bg-white shadow-sm text-indigo-600' : 'text-slate-500'}`}><User size={16} /> INDIVIDUAL</button>
-          <button type="button" onClick={() => setMemberType('ENTERPRISE')} className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-xs transition-all ${memberType === 'ENTERPRISE' ? 'bg-white shadow-sm text-indigo-600' : 'text-slate-500'}`}><Building2 size={16} /> ENTERPRISE</button>
+        <div className="flex p-1 bg-slate-100 mx-8 mt-6 rounded-2xl border border-slate-200 dark:bg-gray-800 dark:border-gray-700">
+          <button type="button" onClick={() => setMemberType('INDIVIDUAL')} className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-xs transition-all ${memberType === 'INDIVIDUAL' ? 'bg-white shadow-sm text-indigo-600 dark:bg-gray-700' : 'text-slate-500 dark:text-gray-400'}`}><User size={16} /> INDIVIDUAL</button>
+          <button type="button" onClick={() => setMemberType('ENTERPRISE')} className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-xs transition-all ${memberType === 'ENTERPRISE' ? 'bg-white shadow-sm text-indigo-600 dark:bg-gray-700' : 'text-slate-500 dark:text-gray-400'}`}><Building2 size={16} /> ENTERPRISE</button>
         </div>
 
         <form onSubmit={handleSubmit} className="p-8 space-y-8 overflow-y-auto custom-scrollbar">
@@ -178,11 +178,11 @@ export default function AddMemberModal({ isOpen, onClose, onSuccess }: ModalProp
           )}
 
           <div className="flex flex-col md:flex-row gap-6">
-            <div className="relative h-28 w-28 rounded-3xl border-2 border-dashed border-slate-200 bg-slate-50 shrink-0 overflow-hidden group">
+            <div className="relative h-28 w-28 rounded-3xl border-2 border-dashed border-slate-200 bg-slate-50 shrink-0 overflow-hidden group dark:border-gray-700 dark:bg-gray-800">
               {previews.picture ? (
                 <Image src={previews.picture} alt="Avatar" fill className="object-cover" unoptimized />
               ) : (
-                <div className="flex flex-col items-center justify-center h-full text-slate-300">
+                <div className="flex flex-col items-center justify-center h-full text-slate-300 dark:text-gray-500">
                   <Upload size={24} />
                   <span className="text-[8px] font-black mt-2 uppercase tracking-tighter">Avatar</span>
                 </div>
@@ -219,8 +219,8 @@ export default function AddMemberModal({ isOpen, onClose, onSuccess }: ModalProp
             </div>
           </div>
 
-          <div className="flex justify-end gap-3 pt-6 border-t border-slate-100">
-            <button type="button" onClick={onClose} className="px-8 py-3 rounded-2xl text-slate-400 font-bold text-xs uppercase hover:bg-slate-50 transition-all">Discard</button>
+          <div className="flex justify-end gap-3 pt-6 border-t border-slate-100 dark:border-gray-800">
+            <button type="button" onClick={onClose} className="px-8 py-3 rounded-2xl text-slate-400 font-bold text-xs uppercase hover:bg-slate-50 transition-all dark:hover:bg-gray-800">Discard</button>
             <button type="submit" disabled={loading} className="px-10 py-3 rounded-2xl bg-indigo-600 text-white font-black text-xs uppercase shadow-xl hover:bg-indigo-700 disabled:opacity-50 flex items-center gap-2 transition-all">
               {loading ? <Loader2 className="animate-spin" size={16} /> : <CheckCircle2 size={16} />}
               {loading ? "Saving..." : "Register Member"}
@@ -246,6 +246,16 @@ export default function AddMemberModal({ isOpen, onClose, onSuccess }: ModalProp
         }
         .custom-scrollbar::-webkit-scrollbar { width: 5px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+        :global(.dark) .input-style {
+          background: #1f2937;
+          border-color: #374151;
+          color: #f3f4f6;
+        }
+        :global(.dark) .input-style:focus {
+          background: #111827;
+          border-color: #6366f1;
+        }
+        :global(.dark) .input-style::placeholder { color: #6b7280; }
       `}</style>
     </div>
   );

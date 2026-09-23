@@ -145,7 +145,7 @@ export default function AddBusinessPage() {
     };
 
     return (
-        <div className="p-8">
+        <div className="p-8 dark:bg-gray-950 dark:min-h-screen">
             <FormProvider {...methods}>
                 <Stepper
                     steps={steps}

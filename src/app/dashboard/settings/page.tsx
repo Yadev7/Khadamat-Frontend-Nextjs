@@ -2,6 +2,7 @@
 
 import { useAuth } from "@/context/AuthContext";
 import { useState } from "react";
+import { useTheme } from "next-themes";
 import {
   User,
   Lock,
@@ -244,7 +245,7 @@ function SecuritySection() {
 }
 
 function AppearanceSection() {
-  const [theme, setTheme] = useState<"light" | "dark" | "system">("light");
+  const { theme, setTheme } = useTheme();
   const [accentColor, setAccentColor] = useState("indigo");
   const [compactMode, setCompactMode] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
@@ -278,8 +279,8 @@ function AppearanceSection() {
               onClick={() => setTheme(t.id)}
               className={`flex flex-col items-center gap-2 p-4 rounded-2xl border-2 transition-all font-bold text-sm ${
                 theme === t.id
-                  ? "border-indigo-500 bg-indigo-50 text-indigo-700"
-                  : "border-slate-100 bg-white text-slate-500 hover:border-slate-200"
+                  ? "border-indigo-500 bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300"
+                  : "border-slate-100 bg-white text-slate-500 hover:border-slate-200 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400 dark:hover:border-slate-700"
               }`}
             >
               {t.icon}
@@ -306,8 +307,8 @@ function AppearanceSection() {
       </div>
 
       {/* Display options */}
-      <div className="bg-white border border-slate-100 rounded-2xl p-5">
-        <h3 className="text-sm font-black text-slate-700 uppercase tracking-wide mb-2">Display Options</h3>
+      <div className="bg-white border border-slate-100 rounded-2xl p-5 dark:bg-slate-900 dark:border-slate-800">
+        <h3 className="text-sm font-black text-slate-700 uppercase tracking-wide mb-2 dark:text-slate-200">Display Options</h3>
         <SettingRow label="Compact Mode" description="Reduce spacing for a denser layout">
           <Toggle enabled={compactMode} onChange={setCompactMode} />
         </SettingRow>

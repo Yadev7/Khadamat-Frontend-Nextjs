@@ -7,6 +7,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from 'next/navigation';
+import ThemeToggle from './ThemeToggle';
 
 const Header = () => {
   const { t, i18n } = useTranslation();
@@ -104,6 +105,8 @@ const Header = () => {
           {/* Actions Section */}
           <div className="flex items-center gap-3 lg:gap-6">
 
+            <ThemeToggle />
+
             {/* Desktop Language Switcher */}
             <div className="relative group hidden md:flex items-center gap-2 text-gray-600 dark:text-gray-400">
               <Globe size={16} className="text-gray-500" />
@@ -125,7 +128,7 @@ const Header = () => {
                   onClick={() => setIsProfileOpen(!isProfileOpen)}
                   className="flex items-center gap-3 p-1.5 pe-3 rounded-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 hover:border-blue-300 dark:hover:border-blue-700 transition-all duration-200"
                 >
-                  <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-blue-500 to-indigo-600 p-0.5 shadow-md">
+                  <div className="w-9 h-9 rounded-full bg-linear-to-tr from-blue-500 to-indigo-600 p-0.5 shadow-md">
                     <div className="w-full h-full rounded-full bg-white dark:bg-gray-950 overflow-hidden flex items-center justify-center">
                       {(user.picture as string) || user.photo?.path ? (
                         <Image 
@@ -213,15 +216,18 @@ const Header = () => {
                 <Globe size={18} className="text-gray-500" />
                 <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Language</span>
               </div>
-              <select
-                value={activeLang}
-                onChange={(e) => handleLanguageChange(e.target.value)}
-                className="bg-transparent text-sm font-bold text-blue-600 dark:text-blue-400 focus:outline-none cursor-pointer"
-              >
-                <option value="en" className="dark:bg-gray-900 text-gray-900 dark:text-gray-100">English</option>
-                <option value="ar" className="dark:bg-gray-900 text-gray-900 dark:text-gray-100">العربية</option>
-                <option value="fr" className="dark:bg-gray-900 text-gray-900 dark:text-gray-100">Français</option>
-              </select>
+              <div className="flex items-center gap-3">
+                <ThemeToggle />
+                <select
+                  value={activeLang}
+                  onChange={(e) => handleLanguageChange(e.target.value)}
+                  className="bg-transparent text-sm font-bold text-blue-600 dark:text-blue-400 focus:outline-none cursor-pointer"
+                >
+                  <option value="en" className="dark:bg-gray-900 text-gray-900 dark:text-gray-100">English</option>
+                  <option value="ar" className="dark:bg-gray-900 text-gray-900 dark:text-gray-100">العربية</option>
+                  <option value="fr" className="dark:bg-gray-900 text-gray-900 dark:text-gray-100">Français</option>
+                </select>
+              </div>
             </div>
 
             <Link 

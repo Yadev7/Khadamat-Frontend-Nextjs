@@ -50,39 +50,39 @@ export function Step3Manager() {
 
     const inputClass = (fieldName: string, isReadOnly: boolean) => `
         w-full p-3 border rounded-xl outline-none transition-all text-sm
-        ${isReadOnly ? "bg-slate-50 border-slate-200 text-slate-500 font-semibold cursor-not-allowed" :
-            errors[fieldName] ? "border-red-500 bg-red-50" : "border-slate-200 focus:border-indigo-500"}
+        ${isReadOnly ? "bg-slate-50 border-slate-200 text-slate-500 font-semibold cursor-not-allowed dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400" :
+            errors[fieldName] ? "border-red-500 bg-red-50 dark:bg-red-950 dark:border-red-700" : "border-slate-200 focus:border-indigo-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-500"}
     `;
 
     return (
         <div className="space-y-6 animate-in fade-in duration-500">
             {/* Selection Grid */}
             <div className="grid grid-cols-2 gap-4">
-                <label className={`p-6 border-2 rounded-3xl cursor-pointer transition-all flex flex-col items-center gap-3 ${managementType === 'ownerId' ? 'border-indigo-600 bg-indigo-50 shadow-sm' : 'border-slate-100 opacity-60'}`}>
+                <label className={`p-6 border-2 rounded-3xl cursor-pointer transition-all flex flex-col items-center gap-3 ${managementType === 'ownerId' ? 'border-indigo-600 bg-indigo-50 shadow-sm dark:bg-indigo-950' : 'border-slate-100 opacity-60 dark:border-gray-800'}`}>
                     <input type="radio" value="ownerId" {...register("managementType")} className="hidden" />
-                    <UserCheck size={32} className={managementType === 'ownerId' ? 'text-indigo-600' : 'text-slate-400'} />
-                    <span className="font-bold text-slate-800 text-sm">Owner is Manager</span>
+                    <UserCheck size={32} className={managementType === 'ownerId' ? 'text-indigo-600' : 'text-slate-400 dark:text-gray-500'} />
+                    <span className="font-bold text-slate-800 text-sm dark:text-gray-100">Owner is Manager</span>
                 </label>
 
-                <label className={`p-6 border-2 rounded-3xl cursor-pointer transition-all flex flex-col items-center gap-3 ${managementType === 'newManagedId' ? 'border-indigo-600 bg-indigo-50 shadow-sm' : 'border-slate-100 opacity-60'}`}>
+                <label className={`p-6 border-2 rounded-3xl cursor-pointer transition-all flex flex-col items-center gap-3 ${managementType === 'newManagedId' ? 'border-indigo-600 bg-indigo-50 shadow-sm dark:bg-indigo-950' : 'border-slate-100 opacity-60 dark:border-gray-800'}`}>
                     <input type="radio" value="newManagedId" {...register("managementType")} className="hidden" />
-                    <UserPlus size={32} className={managementType === 'newManagedId' ? 'text-indigo-600' : 'text-slate-400'} />
-                    <span className="font-bold text-slate-800 text-sm">New Manager</span>
+                    <UserPlus size={32} className={managementType === 'newManagedId' ? 'text-indigo-600' : 'text-slate-400 dark:text-gray-500'} />
+                    <span className="font-bold text-slate-800 text-sm dark:text-gray-100">New Manager</span>
                 </label>
             </div>
 
             {managementType && (
-                <div className={`p-8 rounded-[2.5rem] border-2 transition-all duration-500 space-y-6 ${managementType === 'ownerId' ? 'bg-slate-50/50 border-dashed border-slate-200' : 'bg-white border-indigo-100 shadow-xl shadow-indigo-100/20'}`}>
-                    <div className="flex items-center gap-2 border-b pb-3 border-slate-100">
+                <div className={`p-8 rounded-[2.5rem] border-2 transition-all duration-500 space-y-6 ${managementType === 'ownerId' ? 'bg-slate-50/50 border-dashed border-slate-200 dark:bg-gray-900/50 dark:border-gray-700' : 'bg-white border-indigo-100 shadow-xl shadow-indigo-100/20 dark:bg-gray-900 dark:border-indigo-900'}`}>
+                    <div className="flex items-center gap-2 border-b pb-3 border-slate-100 dark:border-gray-800">
                         {managementType === 'ownerId' ? <ShieldCheck size={18} className="text-emerald-500" /> : <User size={18} className="text-indigo-500" />}
-                        <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                        <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-gray-500">
                             {managementType === 'ownerId' ? "Owner Profile (Read Only)" : "New Manager Details"}
                         </h4>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-1">
-                            <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">First Name (EN)</label>
+                            <label className="text-[10px] font-bold text-slate-400 uppercase ml-1 dark:text-gray-500">First Name (EN)</label>
                             <input
                                 {...register("newManagerFirstName")}
                                 readOnly={managementType === 'ownerId'}
@@ -92,7 +92,7 @@ export function Step3Manager() {
                         </div>
 
                         <div className="space-y-1 text-right" dir="rtl">
-                            <label className="text-[10px] font-bold text-slate-400 uppercase mr-1">الاسم الشخصي</label>
+                            <label className="text-[10px] font-bold text-slate-400 uppercase mr-1 dark:text-gray-500">الاسم الشخصي</label>
                             <input
                                 {...register("newManagerFirstNameAr")}
                                 readOnly={managementType === 'ownerId'}
@@ -102,7 +102,7 @@ export function Step3Manager() {
                         </div>
 
                         <div className="space-y-1">
-                            <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Last Name (EN)</label>
+                            <label className="text-[10px] font-bold text-slate-400 uppercase ml-1 dark:text-gray-500">Last Name (EN)</label>
                             <input
                                 {...register("newManagerLastName")}
                                 readOnly={managementType === 'ownerId'}
@@ -112,7 +112,7 @@ export function Step3Manager() {
                         </div>
 
                         <div className="space-y-1 text-right" dir="rtl">
-                            <label className="text-[10px] font-bold text-slate-400 uppercase mr-1">الاسم العائلي</label>
+                            <label className="text-[10px] font-bold text-slate-400 uppercase mr-1 dark:text-gray-500">الاسم العائلي</label>
                             <input
                                 {...register("newManagerLastNameAr")}
                                 readOnly={managementType === 'ownerId'}
@@ -122,7 +122,7 @@ export function Step3Manager() {
                         </div>
 
                         <div className="col-span-full space-y-1 pt-2">
-                            <label className="text-[10px] font-bold text-slate-400 uppercase ml-1 flex items-center gap-1">
+                            <label className="text-[10px] font-bold text-slate-400 uppercase ml-1 flex items-center gap-1 dark:text-gray-500">
                                 <Mail size={10} /> Contact Email
                             </label>
                             <input
@@ -135,7 +135,7 @@ export function Step3Manager() {
                         </div>
 
                         <div className="col-span-full space-y-1">
-                            <label className="text-[10px] font-bold text-slate-400 uppercase ml-1 flex items-center gap-1">
+                            <label className="text-[10px] font-bold text-slate-400 uppercase ml-1 flex items-center gap-1 dark:text-gray-500">
                                 <Phone size={10} /> Mobile Phone
                             </label>
                             <input

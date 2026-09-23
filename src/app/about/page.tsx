@@ -8,7 +8,7 @@ export default function AboutUs() {
      const { t } = useTranslation();
 
   return (
-    <div className="bg-white min-h-screen">
+    <div className="bg-white dark:bg-gray-950 min-h-screen">
       {/* Hero Section */}
       <section className="relative py-20 bg-blue-600 text-white">
         <div className="container mx-auto px-6 text-center">
@@ -25,35 +25,35 @@ export default function AboutUs() {
       <section className="py-16 container mx-auto px-6">
         <div className="flex flex-col md:flex-row items-center gap-12">
           <div className="md:w-1/2">
-            <h2 className="text-3xl font-bold text-gray-800 mb-6">
+            <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-6">
               {t('about.mission.title')}
             </h2>
-            <p className="text-gray-600 leading-relaxed mb-4">
+            <p className="text-gray-600 dark:text-gray-400 leading-relaxed mb-4">
               {t('about.mission.p1')}
             </p>
-            <p className="text-gray-600 leading-relaxed">
+            <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
               {t('about.mission.p2')}
             </p>
           </div>
           <div className="md:w-1/2 grid grid-cols-2 gap-4">
-            <div className="bg-blue-50 p-6 rounded-2xl text-center">
+            <div className="bg-blue-50 dark:bg-blue-950/50 p-6 rounded-2xl text-center">
               <span className="text-3xl font-bold text-blue-600">100+</span>
-              <p className="text-gray-700 text-sm">{t('about.mission.stats.services')}</p>
+              <p className="text-gray-700 dark:text-gray-200 text-sm">{t('about.mission.stats.services')}</p>
             </div>
-            <div className="bg-green-50 p-6 rounded-2xl text-center">
+            <div className="bg-green-50 dark:bg-green-950/50 p-6 rounded-2xl text-center">
               <span className="text-3xl font-bold text-green-600">
                 {t('about.mission.stats.originValue')}
               </span>
-              <p className="text-gray-700 text-sm">{t('about.mission.stats.origin')}</p>
+              <p className="text-gray-700 dark:text-gray-200 text-sm">{t('about.mission.stats.origin')}</p>
             </div>
           </div>
         </div>
       </section>
 
       {/* Why Choose Us - Features */}
-      <section className="py-16 bg-gray-50">
+      <section className="py-16 bg-gray-50 dark:bg-gray-900">
         <div className="container mx-auto px-6">
-          <h2 className="text-3xl font-bold text-center text-gray-800 mb-12">
+          <h2 className="text-3xl font-bold text-center text-gray-800 dark:text-gray-100 mb-12">
             {t('about.features.title')}
           </h2>
           <div className="grid md:grid-cols-3 gap-8">
@@ -86,7 +86,7 @@ export default function AboutUs() {
             <button className="bg-blue-600 text-white px-8 py-3 rounded-full font-semibold hover:bg-blue-700 transition">
               {t('about.cta.findBtn')}
             </button>
-            <button className="border-2 border-blue-600 text-blue-600 px-8 py-3 rounded-full font-semibold hover:bg-blue-50 transition">
+            <button className="border-2 border-blue-600 text-blue-600 px-8 py-3 rounded-full font-semibold hover:bg-blue-50 dark:hover:bg-blue-900/20 transition">
               {t('about.cta.becomeBtn')}
             </button>
           </div>
@@ -98,10 +98,10 @@ export default function AboutUs() {
 
 function FeatureCard({ icon, title, description }: { icon: React.ReactNode, title: string, description: string }) {
   return (
-    <div className="bg-white p-8 rounded-xl shadow-sm hover:shadow-md transition border border-gray-100">
+    <div className="bg-white dark:bg-gray-900 p-8 rounded-xl shadow-sm hover:shadow-md transition border border-gray-100 dark:border-gray-800">
       <div className="mb-4">{icon}</div>
-      <h3 className="text-xl font-bold mb-2 text-gray-800">{title}</h3>
-      <p className="text-gray-600">{description}</p>
+      <h3 className="text-xl font-bold mb-2 text-gray-800 dark:text-gray-100">{title}</h3>
+      <p className="text-gray-600 dark:text-gray-400">{description}</p>
     </div>
   );
 }

@@ -140,18 +140,18 @@ const handleNext = async () => {
                 <div
                   className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-bold transition-all duration-300 ${
                     isCompleted ? "bg-emerald-500 text-white" : 
-                    isActive ? "bg-indigo-600 text-white ring-4 ring-indigo-100" : 
-                    "bg-slate-100 text-slate-400"
+                    isActive ? "bg-indigo-600 text-white ring-4 ring-indigo-100 dark:ring-indigo-900" : 
+                    "bg-slate-100 text-slate-400 dark:bg-gray-800 dark:text-gray-500"
                   }`}
                 >
                   {isCompleted ? <Check size={18} /> : step.step}
                 </div>
-                <span className={`text-[10px] sm:text-xs mt-2 font-bold uppercase tracking-wider ${isActive ? "text-indigo-600" : "text-slate-400"}`}>
+                <span className={`text-[10px] sm:text-xs mt-2 font-bold uppercase tracking-wider ${isActive ? "text-indigo-600 dark:text-indigo-400" : "text-slate-400 dark:text-gray-500"}`}>
                   {step.label}
                 </span>
               </div>
               {index < steps.length - 1 && (
-                <div className="flex-1 h-1 bg-slate-100 mx-1 sm:mx-4 -mt-6 min-w-2">
+                <div className="flex-1 h-1 bg-slate-100 mx-1 sm:mx-4 -mt-6 min-w-2 dark:bg-gray-800">
                   <div className="h-full bg-emerald-500 transition-all duration-500" style={{ width: isCompleted ? "100%" : "0%" }} />
                 </div>
               )}
@@ -161,12 +161,12 @@ const handleNext = async () => {
       </div>
 
       {/* Step Content */}
-      <div className="bg-white p-4 sm:p-8 rounded-[2.5rem] shadow-xl border border-slate-100 mb-6 min-h-[300px]">
+      <div className="bg-white p-4 sm:p-8 rounded-[2.5rem] shadow-xl border border-slate-100 mb-6 min-h-[300px] dark:bg-gray-900 dark:border-gray-800">
         {CurrentStepComponent && <CurrentStepComponent />}
         
         {/* Error Feedback */}
         {Object.keys(errors).length > 0 && (
-          <div className="mt-4 p-3 bg-red-50 text-red-600 rounded-xl flex items-center gap-2 text-sm font-medium animate-in fade-in">
+          <div className="mt-4 p-3 bg-red-50 text-red-600 rounded-xl flex items-center gap-2 text-sm font-medium animate-in fade-in dark:bg-red-950 dark:text-red-400">
             <AlertCircle size={16} />
             Please fill in all required fields to continue.
           </div>
@@ -180,7 +180,7 @@ const handleNext = async () => {
           onClick={handleBack}
           disabled={activeStep === 1 || isSubmitting}
           className={`flex items-center gap-2 px-4 sm:px-6 py-3 rounded-2xl font-bold transition-all ${
-            activeStep === 1 ? "opacity-0 pointer-events-none" : "text-slate-600 hover:bg-slate-100 active:scale-95"
+            activeStep === 1 ? "opacity-0 pointer-events-none" : "text-slate-600 hover:bg-slate-100 active:scale-95 dark:text-gray-300 dark:hover:bg-gray-800"
           }`}
         >
           <ChevronLeft size={20} /> Back
@@ -190,7 +190,7 @@ const handleNext = async () => {
           type="button"
           onClick={handleNext}
           disabled={isSubmitting}
-          className="bg-indigo-600 text-white px-4 sm:px-8 py-3 rounded-2xl flex items-center gap-2 font-bold shadow-lg hover:bg-indigo-700 transition-all active:scale-95 disabled:opacity-50 disabled:bg-slate-300 disabled:shadow-none"
+          className="bg-indigo-600 text-white px-4 sm:px-8 py-3 rounded-2xl flex items-center gap-2 font-bold shadow-lg hover:bg-indigo-700 transition-all active:scale-95 disabled:opacity-50 disabled:bg-slate-300 disabled:shadow-none dark:disabled:bg-slate-700"
         >
           {isSubmitting ? (
             <Loader2 className="animate-spin" size={20} />

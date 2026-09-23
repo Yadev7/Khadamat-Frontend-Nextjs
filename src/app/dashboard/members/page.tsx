@@ -105,19 +105,19 @@ export default function MembersPage() {
   };
 
   if (loading) return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-slate-50">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-slate-50 dark:bg-gray-950">
       <Loader2 className="w-12 h-12 animate-spin text-indigo-600 mb-4" />
       <p className="font-bold text-indigo-600 text-lg uppercase tracking-widest">Loading Professionals...</p>
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] pb-20">
+    <div className="min-h-screen bg-[#F8FAFC] pb-20 dark:bg-gray-950">
       <div className="absolute top-0 left-0 w-full h-64 bg-linear-to-br from-indigo-600 to-violet-700 -z-10 clip-path-slant" />
 
       <div className="max-w-7xl mx-auto px-6 pt-12">
         <div className="flex justify-between items-end mb-12">
-          <div className="text-black">
+          <div className="text-black dark:text-gray-100">
             <h1 className="text-4xl font-black drop-shadow-md">{t("members.pros")}</h1>
             <p className="text-grey-100 mt-2 font-medium">{t("members.short_description")}</p>
           </div>
@@ -154,7 +154,7 @@ export default function MembersPage() {
             const profilePic = member.user?.photo?.path ? `${API_URL}${member.user.photo.path}` : null;
 
             return (
-              <div key={member.id} className={`bg-white rounded-[2.5rem] p-2 shadow-sm border border-slate-200/60 group transition-all duration-500 hover:shadow-2xl ${member.status === 'BLOCKED' ? 'grayscale opacity-75' : ''}`}>
+              <div key={member.id} className={`bg-white rounded-[2.5rem] p-2 shadow-sm border border-slate-200/60 group transition-all duration-500 hover:shadow-2xl dark:bg-gray-900 dark:border-gray-800 ${member.status === 'BLOCKED' ? 'grayscale opacity-75' : ''}`}>
                 <div className="relative h-36 w-full rounded-2rem bg-linear-to-br from-indigo-600 to-violet-700 mb-12 p-6">
                   <div className="flex justify-between items-center h-full">
                     <div className="relative">
@@ -191,22 +191,22 @@ export default function MembersPage() {
 
                 <div className="px-6 pb-6">
                   <div className="grid gap-3 mb-6">
-                    <div className="flex items-center gap-3 text-slate-500">
+                    <div className="flex items-center gap-3 text-slate-500 dark:text-gray-400">
                       <Mail size={16} className="shrink-0 text-indigo-400" />
                       <span className="text-sm truncate font-medium">{displayEmail}</span>
                     </div>
-                    <div className="flex items-center gap-3 text-slate-500">
+                    <div className="flex items-center gap-3 text-slate-500 dark:text-gray-400">
                       <Phone size={16} className="shrink-0 text-indigo-400" />
                       <span className="text-sm font-medium">{member.contact?.phoneCell || "---"}</span>
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl group-hover:bg-indigo-50 transition-colors">
+                  <div className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl group-hover:bg-indigo-50 transition-colors dark:bg-gray-800 dark:group-hover:bg-indigo-950">
                     <div className="flex items-center gap-3">
                       <MapPin size={18} className="text-indigo-500 shrink-0" />
                       <div>
-                        <p className="text-[10px] font-black text-slate-400 uppercase">{isAr ? 'المدينة' : 'City'}</p>
-                        <p className="text-sm font-bold text-slate-700">{cityName}</p>
+                        <p className="text-[10px] font-black text-slate-400 uppercase dark:text-gray-500">{isAr ? 'المدينة' : 'City'}</p>
+                        <p className="text-sm font-bold text-slate-700 dark:text-gray-200">{cityName}</p>
                       </div>
                     </div>
                     <div className={`text-[10px] font-bold px-2 py-1 rounded-lg shadow-sm ${(member.status || 'ACTIVE') === 'ACTIVE' ? 'bg-white text-indigo-600' : 'bg-red-600 text-white'}`}>

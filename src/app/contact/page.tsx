@@ -6,56 +6,56 @@ import { useTranslation } from 'react-i18next';
 export default function ContactPage() {
      const { t } = useTranslation();
     return (
-        <main className="min-h-screen bg-gray-50 py-6 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-6xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
+        <main className="min-h-screen bg-gray-50 dark:bg-gray-950 py-6 px-4 sm:px-6 lg:px-8">
+            <div className="max-w-6xl mx-auto bg-white dark:bg-gray-900 rounded-2xl shadow-xl overflow-hidden">
 
                 <div className="flex flex-col md:flex-row">
 
                     {/* PARTIE 1 : FORMULAIRE */}
                     <div className="w-full md:w-3/5 p-8 lg:p-12">
-                        <h2 className="text-3xl font-bold text-gray-800 mb-2 font-sans">{t("contact.write_us")}</h2>
-                        <p className="text-sm text-gray-600 mb-8">
+                        <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-2 font-sans">{t("contact.write_us")}</h2>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-8">
                             {t("contact.instruction")} <span className="text-red-500 font-bold">*</span>
                         </p>
 
                         <form className="space-y-6">
                             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                                 <div className="group">
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">{t("contact.name")}</label>
+                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t("contact.name")}</label>
                                     <input
                                         type="text"
                                         required
-                                        className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                                        className="w-full border border-gray-300 dark:border-gray-700 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all bg-white dark:bg-gray-800 text-gray-900 dark:text-white dark:placeholder-gray-500"
                                         placeholder={t('contact.placeholder.name')}
                                     />
                                 </div>
                                 <div className="group">
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">{t("contact.email")}</label>
+                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t("contact.email")}</label>
                                     <input
                                         type="email"
                                         required
-                                        className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                                        className="w-full border border-gray-300 dark:border-gray-700 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all bg-white dark:bg-gray-800 text-gray-900 dark:text-white dark:placeholder-gray-500"
                                         placeholder={t('contact.placeholder.email')}
                                     />
                                 </div>
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">{t("contact.object")}</label>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t("contact.object")}</label>
                                 <input
                                     type="text"
                                     required
-                                    className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                                    className="w-full border border-gray-300 dark:border-gray-700 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all bg-white dark:bg-gray-800 text-gray-900 dark:text-white dark:placeholder-gray-500"
                                     placeholder={t('contact.placeholder.subject')}
                                 />
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">{t("contact.message")} </label>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t("contact.message")} </label>
                                 <textarea
                                     rows={5}
                                     required
-                                    className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all resize-none"
+                                    className="w-full border border-gray-300 dark:border-gray-700 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all resize-none bg-white dark:bg-gray-800 text-gray-900 dark:text-white dark:placeholder-gray-500"
                                     placeholder={t('contact.placeholder.message')}
                                 ></textarea>
                             </div>
