@@ -27,6 +27,7 @@ export default function PublicBusinessDetailsPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isMapModalOpen, setIsMapModalOpen] = useState(false);
   const [isWhatsAppModalOpen, setIsWhatsAppModalOpen] = useState(false);
+  const [isRecordModalOpen, setIsRecordModalOpen] = useState(false);
   // --- Inquiry multilingual fields -> mapped directly to DB columns ---
   const [titleAr, setTitleAr] = useState("");
   const [titleFr, setTitleFr] = useState("");
@@ -280,6 +281,7 @@ export default function PublicBusinessDetailsPage() {
       setSenderPhone("");
       removeAudio();
       setIsModalOpen(false);
+      setIsRecordModalOpen(false);
     } catch (error: any) {
       console.error("❌ Send Message Error:", error);
       Swal.fire(
@@ -339,10 +341,13 @@ export default function PublicBusinessDetailsPage() {
                 </audio>
               )}
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-4">
                 <button onClick={() => window.location.href = `tel:${phoneNumber}`} className="bg-gray-900 text-white py-4 rounded-3xl font-bold">Call</button>
+                <button onClick={() => setIsWhatsAppModalOpen(true)} className="bg-[#25D366] text-white py-4 rounded-3xl font-bold">WhatsApp</button>
                 <button onClick={() => setIsModalOpen(true)} className="bg-white border-2 py-4 rounded-3xl font-bold">Message</button>
-                <button onClick={() => setIsWhatsAppModalOpen(true)} className="sm:col-span-2 bg-[#25D366] text-white py-4 rounded-3xl font-bold">WhatsApp</button>
+                <button onClick={() => setIsRecordModalOpen(true)} className="flex items-center justify-center gap-2 bg-white border-2 py-4 rounded-3xl font-bold">
+                  <Mic size={18} /> Record
+                </button>
               </div>
             </div>
           </div>
@@ -510,6 +515,74 @@ export default function PublicBusinessDetailsPage() {
 
                 <p className="text-xs text-gray-400 text-center">Each field is stored 1:1 → <code>titleAr, titleFr, textAr, textFr, textEn</code> + <code>audio</code><br />You can fill any language or send voice only.</p>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isRecordModalOpen && (
+        <div className="fixed inset-0 z-150 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+          <div className="bg-white w-full max-w-sm rounded-[2.5rem] shadow-2xl overflow-hidden">
+            <div className="p-6 border-b border-gray-50 flex justify-between items-center bg-gray-50/50">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-indigo-100 text-indigo-600 rounded-xl"><Mic size={20} /></div>
+                <h3 className="font-bold text-lg">Record Audio</h3>
+              </div>
+              <button
+                onClick={() => { if (!isRecording) removeAudio(); setIsRecordModalOpen(false); }}
+                className="p-2 hover:bg-white rounded-full"
+              ><X size={20} /></button>
+            </div>
+
+            <div className="p-6 space-y-5 text-center">
+              {isRecording && (
+                <div className="flex items-center justify-center gap-2 text-red-600 font-bold">
+                  <span className="w-3 h-3 bg-red-500 rounded-full animate-pulse" />
+                  {formatTime(recordingTime)}
+                </div>
+              )}
+
+              {audioPreviewUrl ? (
+                <>
+                  <audio controls src={audioPreviewUrl} className="w-full h-10 accent-indigo-600" />
+                  {isUploadingAudio ? (
+                    <p className="text-xs text-gray-400 flex items-center justify-center gap-2">
+                      <Loader2 size={14} className="animate-spin" /> Uploading...
+                    </p>
+                  ) : audioFilePath ? (
+                    <p className="text-xs text-green-600">✓ Audio saved</p>
+                  ) : null}
+                </>
+              ) : (
+                <p className="text-sm text-gray-500">Record a voice message and send it to this business.</p>
+              )}
+
+              <div className="flex gap-3">
+                <button
+                  onClick={isRecording ? stopRecording : startRecording}
+                  className={`flex-1 flex items-center justify-center gap-2 py-4 rounded-2xl font-bold text-white ${
+                    isRecording ? "bg-red-500 hover:bg-red-600" : "bg-indigo-600 hover:bg-indigo-700"
+                  }`}
+                >
+                  {isRecording ? <><Square size={18} fill="white" /> Stop</> : <><Mic size={18} /> Record</>}
+                </button>
+                <button
+                  onClick={handleSendMessage}
+                  disabled={!audioFilePath || sending || isUploadingAudio}
+                  className="flex-1 flex items-center justify-center gap-2 bg-gray-900 text-white py-4 rounded-2xl font-bold hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  {sending ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />} Send
+                </button>
+              </div>
+
+              {audioPreviewUrl && (
+                <button
+                  onClick={removeAudio}
+                  className="w-full flex items-center justify-center gap-1.5 py-3 bg-white border rounded-2xl text-sm font-semibold hover:bg-gray-50"
+                >
+                  <Trash2 size={16} /> Remove
+                </button>
+              )}
             </div>
           </div>
         </div>
