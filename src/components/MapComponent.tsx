@@ -1,6 +1,4 @@
-// src/components/MapComponent.tsx
 'use client';
-
 import { useEffect, useState, useRef } from 'react';
 import { MapContainer, TileLayer, Marker, useMap, useMapEvents, Popup } from 'react-leaflet';
 import L from 'leaflet';
@@ -19,13 +17,11 @@ const createLeafletIcon = (url: string) => {
   });
 };
 
-
 // Inside MapComponent.tsx -> MapViewUpdater
 function MapViewUpdater({ center, zoom, hasMarkers }: { center: [number, number]; zoom: number; hasMarkers: boolean }) {
   const map = useMap();
   const lastCenterRef = useRef<string>('');
-  
-  useEffect(() => {
+    useEffect(() => {
     const centerKey = `${center[0]}-${center[1]}`;
     if (
       center && 
@@ -47,35 +43,9 @@ function MapViewUpdater({ center, zoom, hasMarkers }: { center: [number, number]
   return null;
 }
 
-// function MapViewUpdater({ center, zoom, hasMarkers }: { center: [number, number]; zoom: number; hasMarkers: boolean }) {
-//   const map = useMap();
-  
-//   useEffect(() => {
-//     if (
-//       !hasMarkers && 
-//       center && 
-//       Array.isArray(center) && 
-//       center.length === 2 &&
-//       !isNaN(center[0]) && 
-//       !isNaN(center[1]) &&
-//       isFinite(center[0]) &&
-//       isFinite(center[1])
-//     ) {
-//       try {
-//         map.flyTo(center, zoom, { duration: 1.2 });
-//       } catch (error) {
-//         console.error("Leaflet flyTo animation error bypassed safely:", error);
-//       }
-//     }
-//   }, [center, zoom, map, hasMarkers]);
-  
-//   return null;
-// }
-
 function FitBoundsOnMarkers({ markers }: { markers: any[] }) {
   const map = useMap();
-  
-  useEffect(() => {
+    useEffect(() => {
     if (markers && markers.length > 0) {
       const validPositions = markers
         .filter((m: any) => m && m.position && !isNaN(m.position[0]) && !isNaN(m.position[1]))
