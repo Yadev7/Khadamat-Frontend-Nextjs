@@ -24,6 +24,34 @@ interface Option {
   name: string;
 }
 
+// Latitude/longitude reach the client either as a decimal string (Postgres
+// numeric columns) or as a number, and 0 is a legal coordinate, so every read
+// goes through this instead of a truthiness check.
+const toCoordinate = (value: unknown): number | null => {
+  const parsed = typeof value === 'number' ? value : parseFloat(String(value));
+  return Number.isFinite(parsed) ? parsed : null;
+};
+
+const readLocalisation = (source: any): [number, number] | null => {
+  const lat = toCoordinate(source?.latitude ?? source?.lat);
+  const lng = toCoordinate(source?.longitude ?? source?.lng);
+  return lat === null || lng === null ? null : [lat, lng];
+};
+
+const businessPosition = (biz: any): [number, number] | null =>
+  readLocalisation(biz?.localisation) ??
+  readLocalisation(biz?.Address?.localisation) ??
+  readLocalisation(biz?.contact?.address?.localisation);
+
+const businessAddress = (biz: any, langSuffix: string): string =>
+  biz?.contact?.address?.[`lineAddress${langSuffix}`] ||
+  biz?.contact?.address?.lineAddressFr ||
+  biz?.contact?.address?.lineAddressAr ||
+  biz?.Address?.[`lineAddress${langSuffix}`] ||
+  biz?.Address?.lineAddressFr ||
+  biz?.Address?.lineAddressAr ||
+  "";
+
 
 interface CompactSelectProps {
   label: string;
@@ -107,7 +135,7 @@ const CompactSelect = ({ label, icon, options, value, selectedValueId, onChange,
   );
 };
 
-export default function SearchResultsPage() {
+export default function SearchPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const { t, i18n } = useTranslation();
@@ -117,10 +145,13 @@ export default function SearchResultsPage() {
   const [allZones, setAllZones] = useState<any[]>([]);
   const [services, setServices] = useState<any[]>([]);
   const [businesses, setBusinesses] = useState<any[]>([]);
+  const [totalResults, setTotalResults] = useState(0);
   const [selectedCityId, setSelectedCityId] = useState<string>("");
   const [selectedZoneId, setSelectedZoneId] = useState<string>("");
   const [selectedServiceId, setSelectedServiceId] = useState<string>("");
   const [hoveredBizId, setHoveredBizId] = useState<string | null>(null);
+
+  const langSuffix = i18n.language.charAt(0).toUpperCase() + i18n.language.slice(1);
 
   // Sync component states when URL parameters change
   useEffect(() => {
@@ -151,8 +182,6 @@ export default function SearchResultsPage() {
 
 
 
-        const langSuffix = i18n.language.charAt(0).toUpperCase() + i18n.language.slice(1);
-
         const getData = (res: any) => (Array.isArray(res) ? res : res?.data || []);
 
 
@@ -161,11 +190,11 @@ export default function SearchResultsPage() {
 
           id: c.id,
 
-          displayName: c[`name${langSuffix}`] || c.nameFr || "City",
+          displayName: c[`name${langSuffix}`] || c.nameFr || c.nameEn || "City",
 
-          lat: c.localisation?.latitude || c.localisation?.lat,
+          lat: toCoordinate(c.localisation?.latitude ?? c.localisation?.lat),
 
-          lng: c.localisation?.longitude || c.localisation?.lng
+          lng: toCoordinate(c.localisation?.longitude ?? c.localisation?.lng)
 
         })));
 
@@ -179,11 +208,11 @@ export default function SearchResultsPage() {
 
           displayName: z[`name${langSuffix}`] || z.nameFr || "Area",
 
-          normalizedCityId: z.city?.id || z.cityId,
+          normalizedCityId: z.cityId || z.city?.id,
 
-          lat: z.localisation?.latitude || z.localisation?.lat,
+          lat: toCoordinate(z.localisation?.latitude ?? z.localisation?.lat),
 
-          lng: z.localisation?.longitude || z.localisation?.lng
+          lng: toCoordinate(z.localisation?.longitude ?? z.localisation?.lng)
 
         })));
 
@@ -209,7 +238,17 @@ export default function SearchResultsPage() {
 
     loadFilters();
 
-  }, [i18n.language]);
+  }, [langSuffix]);
+
+
+
+  const activeFilters = useMemo(() => ({
+    cityId: searchParams.get("cityId") || "",
+    zoneId: searchParams.get("zoneId") || "",
+    serviceId: searchParams.get("service") || "",
+  }), [searchParams]);
+
+  const hasActiveFilter = Boolean(activeFilters.cityId || activeFilters.zoneId || activeFilters.serviceId);
 
 
 
@@ -217,37 +256,32 @@ export default function SearchResultsPage() {
 
   useEffect(() => {
 
+    let cancelled = false;
+
     const fetchBusinesses = async () => {
 
-      const serviceId = searchParams.get("service");
+      const { cityId, zoneId, serviceId } = activeFilters;
 
-      const cityId = searchParams.get("cityId");
-
-      const zoneId = searchParams.get("zoneId");
-
-
-
-      if (!serviceId) {
+      // Any single filter is enough to search: a city or a zone alone lists the
+      // businesses located there, and adding a service narrows them further.
+      if (!cityId && !zoneId && !serviceId) {
 
         setBusinesses([]);
-
+        setTotalResults(0);
         setLoading(false);
 
         return;
-
       }
-
-
 
       setLoading(true);
 
       try {
 
-        const relations = 'service,flyer,contact.address.localisation,localisation';
+        const relations = 'service,flyer,contact.address.localisation,localisation,Address,Address.localisation';
 
         const response = await getBusinesses(1, 20, {
 
-          service: serviceId,
+          service: serviceId || undefined,
 
           cityId: cityId || undefined,
 
@@ -255,31 +289,37 @@ export default function SearchResultsPage() {
 
         }, relations);
 
+        if (cancelled) return;
 
-
-        const extractedData = response?.data || response?.results || response || [];
+        const extractedData = response?.data || response?.results || [];
 
         setBusinesses(Array.isArray(extractedData) ? extractedData : []);
+        setTotalResults(typeof response?.meta?.total === 'number' ? response.meta.total : (Array.isArray(extractedData) ? extractedData.length : 0));
 
       } catch (error) {
 
         console.error("❌ Fetch Businesses Error:", error);
 
+        if (cancelled) return;
+
         setBusinesses([]);
+        setTotalResults(0);
 
       } finally {
 
-        setLoading(false);
+        if (!cancelled) setLoading(false);
 
       }
 
     };
 
-
-
     fetchBusinesses();
 
-  }, [searchParams]);
+    return () => {
+      cancelled = true;
+    };
+
+  }, [activeFilters]);
 
 
 
@@ -299,7 +339,11 @@ export default function SearchResultsPage() {
 
       const zone = allZones.find(z => String(z.id) === String(selectedZoneId));
 
-      if (zone?.lat && zone?.lng) return [parseFloat(zone.lat), parseFloat(zone.lng)];
+      if (zone?.lat !== null && zone?.lat !== undefined && zone?.lng !== null && zone?.lng !== undefined) {
+
+        return [zone.lat, zone.lng];
+
+      }
 
     }
 
@@ -307,13 +351,27 @@ export default function SearchResultsPage() {
 
       const city = cities.find(c => String(c.id) === String(selectedCityId));
 
-      if (city?.lat && city?.lng) return [parseFloat(city.lat), parseFloat(city.lng)];
+      if (city?.lat !== null && city?.lat !== undefined && city?.lng !== null && city?.lng !== undefined) {
+
+        return [city.lat, city.lng];
+
+      }
 
     }
 
-    return undefined;
+    const located = (Array.isArray(businesses) ? businesses : [])
+      .map((biz: any) => businessPosition(biz))
+      .filter((position): position is [number, number] => position !== null);
 
-  }, [selectedCityId, selectedZoneId, cities, allZones]);
+    if (located.length === 0) return undefined;
+
+    const totalLat = located.reduce((sum, position) => sum + position[0], 0);
+
+    const totalLng = located.reduce((sum, position) => sum + position[1], 0);
+
+    return [totalLat / located.length, totalLng / located.length];
+
+  }, [selectedCityId, selectedZoneId, cities, allZones, businesses]);
 
 
 
@@ -357,9 +415,15 @@ export default function SearchResultsPage() {
 
 
 
-    router.push(`/search?${params.toString()}`);
+    const nextUrl = `/search?${params.toString()}`;
 
-    setTimeout(() => setLoading(false), 800);
+    // Pushing the URL the page already sits on is a no-op in Next, which would
+    // leave the button spinning forever. The fetch effect owns `loading` now.
+    if (nextUrl !== `${window.location.pathname}?${window.location.search}`) {
+
+      router.push(nextUrl);
+
+    }
 
   };
 
@@ -401,9 +465,7 @@ export default function SearchResultsPage() {
 
   const mapMarkers = useMemo(() => {
 
-    const langSuffix = i18n.language.charAt(0).toUpperCase() + i18n.language.slice(1);
-
-    if (!businesses || !Array.isArray(businesses)) return [];
+    if (!Array.isArray(businesses)) return [];
 
 
 
@@ -411,57 +473,27 @@ export default function SearchResultsPage() {
 
       if (!biz) return null;
 
+      const position = businessPosition(biz);
 
+      if (!position) return null;
 
-      const rawLat = biz.localisation?.latitude ||
+      return {
 
-        biz.localisation?.lat ||
+        id: biz.id,
 
-        biz.contact?.address?.localisation?.latitude ||
+        position,
 
-        biz.contact?.address?.localisation?.lat;
+        label: biz[`name${langSuffix}`] || biz.nameFr || biz.nameEn || "Business",
 
+        address: businessAddress(biz, langSuffix),
 
+        active: hoveredBizId === biz.id
 
-      const rawLng = biz.localisation?.longitude ||
-
-        biz.localisation?.lng ||
-
-        biz.contact?.address?.localisation?.longitude ||
-
-        biz.contact?.address?.localisation?.lng;
-
-
-
-      const lat = parseFloat(String(rawLat));
-
-      const lng = parseFloat(String(rawLng));
-
-
-
-      if (!isNaN(lat) && !isNaN(lng) && lat !== 0 && lng !== 0) {
-
-        return {
-
-          id: biz.id,
-
-          position: [lat, lng] as [number, number],
-
-          label: biz[`name${langSuffix}`] || biz.nameFr || biz.nameEn || "Business",
-
-          address: biz.contact?.address?.lineAddressFr || biz.contact?.lineAddressFr || "",
-
-          active: hoveredBizId === biz.id
-
-        };
-
-      }
-
-      return null;
+      };
 
     }).filter((m): m is NonNullable<typeof m> => m !== null);
 
-  }, [businesses, i18n.language, hoveredBizId]);
+  }, [businesses, langSuffix, hoveredBizId]);
 
 
 
@@ -566,10 +598,10 @@ export default function SearchResultsPage() {
       {/* --- BUSINESS CARDS AND MAP VIEWPORTS --- */}
       <div className="flex flex-col lg:flex-row h-screen pt-36">
         <div className="w-full lg:w-1/2 overflow-y-auto px-4 md:px-8 pb-20 custom-scrollbar">
-          {!loading && searchParams.get("service") && (
+          {!loading && hasActiveFilter && (
             <div className="max-w-2xl mb-8">
               <h2 className="text-3xl font-black text-slate-900 tracking-tight">
-                {`${businesses.length} ${t("search.results_found")}`}
+                {`${totalResults} ${t("search.results_found")}`}
               </h2>
             </div>
           )}
@@ -581,7 +613,7 @@ export default function SearchResultsPage() {
             </div>
           ) : (
             <>
-              {!searchParams.get("service") && (
+              {!hasActiveFilter && (
                 <div className="flex flex-col items-center justify-center py-32 bg-white rounded-[3rem] border-2 border-dashed border-slate-100 text-center px-6">
                   <div className="p-6 bg-indigo-50 rounded-full mb-6">
                     <HandPlatter size={48} className="text-indigo-500" />
@@ -626,7 +658,7 @@ export default function SearchResultsPage() {
 
                         <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-md px-3 py-1 rounded-full">
                           <span className="text-[10px] font-black text-indigo-600 uppercase">
-                            {biz.service?.[`name${langSuffix}`] || biz.service?.[`nameServ${langSuffix}`] || biz.service?.nameFr || biz.service?.nameServFr}
+                            {biz.service?.[`nameServ${langSuffix}`] || biz.service?.[`name${langSuffix}`] || biz.service?.nameServFr || biz.service?.nameFr}
                           </span>
                         </div>
                       </div>
@@ -635,7 +667,7 @@ export default function SearchResultsPage() {
                         <h3 className="text-xl font-bold text-slate-900 mb-2 group-hover:text-indigo-600 transition-colors line-clamp-1">{title}</h3>
                         <div className="flex items-center gap-1.5 text-slate-400 mb-3">
                           <MapPin size={14} />
-                          <span className="text-xs font-bold truncate">{biz.contact?.address?.lineAddressFr || "Address not provided"}</span>
+                          <span className="text-xs font-bold truncate">{businessAddress(biz, langSuffix) || "Address not provided"}</span>
 
                         </div>
                         <p className="text-slate-500 text-sm leading-relaxed line-clamp-2 mb-4">{desc}</p>
@@ -683,7 +715,7 @@ export default function SearchResultsPage() {
 
                         <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-md px-3 py-1 rounded-full">
                           <span className="text-[10px] font-black text-indigo-600 uppercase">
-                            {biz.service?.[`name${langSuffix}`] || biz.service?.[`nameServ${langSuffix}`] || biz.service?.nameFr || biz.service?.nameServFr}
+                            {biz.service?.[`nameServ${langSuffix}`] || biz.service?.[`name${langSuffix}`] || biz.service?.nameServFr || biz.service?.nameFr}
                           </span>
                         </div>
                       </div>
@@ -698,7 +730,7 @@ export default function SearchResultsPage() {
                         </h3>
                         <div className="flex items-center gap-1.5 text-slate-400 mb-3">
                           <MapPin size={14} />
-                          <span className="text-xs font-bold truncate">{biz.contact?.address?.lineAddressFr || "Address not provided"}</span>
+                          <span className="text-xs font-bold truncate">{businessAddress(biz, langSuffix) || "Address not provided"}</span>
                         </div>
                         <p className="text-slate-500 text-sm leading-relaxed line-clamp-2 mb-4">{desc}</p>
                         
@@ -733,7 +765,7 @@ export default function SearchResultsPage() {
                 })}
               </div>
 
-              {searchParams.get("service") && businesses.length === 0 && (
+              {hasActiveFilter && businesses.length === 0 && (
                 <div className="text-center py-20 bg-white rounded-2rem border border-dashed border-slate-200">
                   <Search size={40} className="mx-auto text-slate-200 mb-4" />
                   <p className="text-slate-500 font-bold">{t("search.no_results")}</p>
@@ -748,7 +780,7 @@ export default function SearchResultsPage() {
         <div className="hidden lg:block lg:w-1/2 h-full p-4 relative">
           <div className="w-full h-full rounded-4xl overflow-hidden shadow-inner border-4 border-white relative">
             <MapComponent
-              key={`map-layer-trigger-${mapMarkers.length}-${selectedCityId}-${selectedZoneId}`}
+              key={`map-layer-trigger-${selectedCityId}-${selectedZoneId}`}
               center={activeMapCenter}
               displayLabel={activeMapLabel}
               markers={mapMarkers}

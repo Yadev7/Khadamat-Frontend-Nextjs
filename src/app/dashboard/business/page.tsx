@@ -330,10 +330,16 @@ export default function BusinessesPage() {
                     ) : (
                       <Building2 size={48} className="text-white/60" />
                     )}
-                    {(business.service?.nameEn || business.service?.nameFr) && (
+                    {(business.service?.nameServEn ||
+                      business.service?.nameServFr ||
+                      business.service?.nameEn ||
+                      business.service?.nameFr) && (
                       <span className="absolute top-3 left-3 bg-white/20 backdrop-blur-sm text-white text-xs font-semibold px-3 py-1 rounded-full flex items-center gap-1">
                         <Tag size={11} />
-                        {business.service?.nameEn || business.service?.nameFr}
+                        {business.service?.nameServEn ||
+                          business.service?.nameServFr ||
+                          business.service?.nameEn ||
+                          business.service?.nameFr}
                       </span>
                     )}
                     <button

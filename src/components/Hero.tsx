@@ -31,8 +31,8 @@ export default function HeroSection() {
   const searchParams = useSearchParams();
 
   // States لادارة البحث
-  const [selectedCityId, setSelectedCityId] = useState(searchParams.get("city") || "");
-  const [selectedZoneId, setSelectedZoneId] = useState(searchParams.get("zone") || "");
+  const [selectedCityId, setSelectedCityId] = useState(searchParams.get("cityId") || "");
+  const [selectedZoneId, setSelectedZoneId] = useState(searchParams.get("zoneId") || "");
   const [selectedServiceId, setSelectedServiceId] = useState(searchParams.get("service") || "");
   const [loading, setLoading] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -92,12 +92,15 @@ export default function HeroSection() {
   const handleSearchUpdate = () => {
     setLoading(true);
     const params = new URLSearchParams();
-    if (selectedCityId) params.set("city", selectedCityId);
-    if (selectedZoneId) params.set("zone", selectedZoneId);
+    // The /search page reads cityId / zoneId / service - keep the names identical.
+    if (selectedCityId) params.set("cityId", selectedCityId);
+    if (selectedZoneId) params.set("zoneId", selectedZoneId);
     if (selectedServiceId) params.set("service", selectedServiceId);
 
     router.push(`/search?${params.toString()}`);
-    setTimeout(() => setLoading(false), 800);
+    // Safety net: the page normally unmounts on navigation, but never leave the
+    // button stuck in a disabled spinner if the route does not change.
+    setTimeout(() => setLoading(false), 1500);
   };
 
   return (

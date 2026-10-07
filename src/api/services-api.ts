@@ -1,4 +1,5 @@
-import api from './auth-api'; 
+import api from './auth-api';
+import { LOOKUP_LIMIT } from './cities-api'; 
 
 export interface ServiceData {
   nameServAr: string;
@@ -11,8 +12,12 @@ export interface ServiceData {
 }
 
 export const getServices = async () => {
-  const response = await api.get('/v1/services');
-  return response.data?.data || response.data || [];
+  const response = await api.get('/v1/services', {
+    params: { limit: LOOKUP_LIMIT },
+  });
+  return Array.isArray(response.data)
+    ? response.data
+    : response.data?.data || response.data || [];
 };
 
 export const uploadFile = async (file: File) => {

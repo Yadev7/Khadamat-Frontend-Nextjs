@@ -1,86 +1,141 @@
 'use client';
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useMemo, useState, useRef } from 'react';
 import { MapContainer, TileLayer, Marker, useMap, useMapEvents, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import { Search, Navigation2 } from 'lucide-react';
 import 'leaflet/dist/leaflet.css';
 
-const createLeafletIcon = (url: string) => {
-  if (typeof window === 'undefined') return null;
-  return new L.Icon({
-    iconUrl: url,
-    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
-    iconSize: [25, 41],
-    iconAnchor: [12, 41],
-    popupAnchor: [1, -34],
-    shadowSize: [41, 41],
-  });
+export type MapMarker = {
+  id: string;
+  position: [number, number];
+  label?: string;
+  address?: string;
+  active?: boolean;
 };
 
+type MapComponentProps = {
+  center?: [number, number] | null;
+  displayLabel?: string;
+  isPicker?: boolean;
+  onLocationSelect?: (lat: number, lng: number) => void;
+  markers?: MapMarker[];
+};
+
+const FALLBACK_CENTER: [number, number] = [34.0331, -5.0003];
+
+const MARKER_ICONS = {
+  red: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+  blue: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
+  violet: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-violet.png',
+};
+
+const isValidPosition = (value: unknown): value is [number, number] =>
+  Array.isArray(value) &&
+  value.length === 2 &&
+  Number.isFinite(value[0]) &&
+  Number.isFinite(value[1]);
+
+// Leaflet resolves default marker assets relative to its own CSS. Custom icons
+// provide absolute URLs, so the lookup must happen once at module scope.
+if (typeof window !== 'undefined') {
+  delete (L.Icon.Default.prototype as unknown as Record<string, unknown>)._getIconUrl;
+}
+
+function useMarkerIcons() {
+  return useMemo(() => {
+    if (typeof window === 'undefined') return null;
+
+    const create = (url: string) =>
+      new L.Icon({
+        iconUrl: url,
+        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowSize: [41, 41],
+      });
+
+    return {
+      red: create(MARKER_ICONS.red),
+      blue: create(MARKER_ICONS.blue),
+      violet: create(MARKER_ICONS.violet),
+    };
+  }, []);
+}
+
 // Inside MapComponent.tsx -> MapViewUpdater
-function MapViewUpdater({ center, zoom, hasMarkers }: { center: [number, number]; zoom: number; hasMarkers: boolean }) {
+function MapViewUpdater({ center, zoom }: { center: [number, number]; zoom: number }) {
   const map = useMap();
   const lastCenterRef = useRef<string>('');
-    useEffect(() => {
+
+  useEffect(() => {
+    if (!isValidPosition(center)) return;
+
     const centerKey = `${center[0]}-${center[1]}`;
-    if (
-      center && 
-      Array.isArray(center) && 
-      center.length === 2 &&
-      !isNaN(center[0]) && 
-      !isNaN(center[1]) &&
-      centerKey !== lastCenterRef.current
-    ) {
-      lastCenterRef.current = centerKey;
-      try {
-        map.flyTo(center, zoom, { duration: 1.0 });
-      } catch (error) {
-        console.error("Leaflet flyTo animation error bypassed safely:", error);
-      }
+    if (centerKey === lastCenterRef.current) return;
+
+    lastCenterRef.current = centerKey;
+    try {
+      map.flyTo(center, zoom, { duration: 1.0 });
+    } catch (error) {
+      console.error("Leaflet flyTo animation error bypassed safely:", error);
     }
   }, [center, zoom, map]);
-  
+
   return null;
 }
 
-function FitBoundsOnMarkers({ markers }: { markers: any[] }) {
+function FitBoundsOnMarkers({ markers }: { markers: MapMarker[] }) {
   const map = useMap();
-    useEffect(() => {
-    if (markers && markers.length > 0) {
-      const validPositions = markers
-        .filter((m: any) => m && m.position && !isNaN(m.position[0]) && !isNaN(m.position[1]))
-        .map((m: any) => m.position);
 
-      if (validPositions.length > 0) {
-        const bounds = L.latLngBounds(validPositions);
-        
-        const timer = setTimeout(() => {
-          map.invalidateSize();
-          if (validPositions.length === 1) {
-            map.flyTo(validPositions[0], 14, { duration: 1 });
-          } else {
-            map.fitBounds(bounds, { padding: [50, 50], duration: 1 });
-          }
-        }, 300);
+  // Hovering a card flips `active` and rebuilds the marker array. Keying the
+  // effect on the set of positions (not the array identity) keeps the viewport
+  // still while the user moves the pointer over the result list.
+  const signature = useMemo(
+    () =>
+      markers
+        .filter((marker) => marker && isValidPosition(marker.position))
+        .map((marker) => `${marker.id}:${marker.position[0]},${marker.position[1]}`)
+        .sort()
+        .join('|'),
+    [markers],
+  );
 
-        return () => clearTimeout(timer);
+  useEffect(() => {
+    if (!signature) return;
+
+    const positions = signature
+      .split('|')
+      .map((entry) => entry.split(':')[1])
+      .map((pair) => pair.split(',').map(Number) as [number, number]);
+
+    if (positions.length === 0) return;
+
+    const timer = setTimeout(() => {
+      map.invalidateSize();
+      if (positions.length === 1) {
+        map.flyTo(positions[0], 14, { duration: 1 });
+      } else {
+        map.fitBounds(L.latLngBounds(positions), { padding: [50, 50], duration: 1 });
       }
-    }
-  }, [markers, map]);
-  
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [signature, map]);
+
   return null;
 }
 
-function InteractiveMarker({ marker, icon }: { marker: any; icon: L.Icon }) {
+function InteractiveMarker({ marker, icon }: { marker: MapMarker; icon: L.Icon }) {
   const markerRef = useRef<L.Marker>(null);
 
   useEffect(() => {
-    if (markerRef.current) {
-      if (marker.active) {
-        markerRef.current.openPopup();
-      } else {
-        markerRef.current.closePopup();
-      }
+    if (!markerRef.current) return;
+
+    if (marker.active) {
+      markerRef.current.openPopup();
+    } else {
+      markerRef.current.closePopup();
     }
   }, [marker.active]);
 
@@ -116,7 +171,13 @@ function MapPicker({ onLocationSelect }: { onLocationSelect: (lat: number, lng: 
   return null;
 }
 
-export default function MapComponent({ center, displayLabel, isPicker, onLocationSelect, markers }: any) {
+export default function MapComponent({
+  center,
+  displayLabel,
+  isPicker = false,
+  onLocationSelect,
+  markers = [],
+}: MapComponentProps) {
   const [isMounted, setIsMounted] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearching, setIsSearching] = useState(false);
@@ -125,19 +186,14 @@ export default function MapComponent({ center, displayLabel, isPicker, onLocatio
     setIsMounted(true);
   }, []);
 
-  if (!isMounted) {
-    return <div className="w-full h-full bg-gray-100 animate-pulse rounded-4xl" />;
-  }
+  const icons = useMarkerIcons();
 
-  delete (L.Icon.Default.prototype as any)._getIconUrl;
-
-  const redIcon = createLeafletIcon('https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png');
-  const blueIcon = createLeafletIcon('https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png');
-  const violetIcon = createLeafletIcon('https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-violet.png');
-
-  const activePosition: [number, number] = center && !isNaN(center[0]) && !isNaN(center[1]) 
-    ? center 
-    : [34.0331, -5.0003];
+  const hasCenter = isValidPosition(center);
+  const activePosition: [number, number] = hasCenter ? center : FALLBACK_CENTER;
+  const safeMarkers = useMemo(
+    () => (Array.isArray(markers) ? markers.filter((m) => m && isValidPosition(m.position)) : []),
+    [markers],
+  );
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -146,14 +202,12 @@ export default function MapComponent({ center, displayLabel, isPicker, onLocatio
     setIsSearching(true);
     try {
       const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchQuery)}`
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchQuery)}`,
       );
       const data = await response.json();
       if (data && data.length > 0) {
         const { lat, lon } = data[0];
-        if (onLocationSelect) {
-          onLocationSelect(parseFloat(lat), parseFloat(lon));
-        }
+        onLocationSelect?.(parseFloat(lat), parseFloat(lon));
       }
     } catch (error) {
       console.error("Search error:", error);
@@ -162,7 +216,9 @@ export default function MapComponent({ center, displayLabel, isPicker, onLocatio
     }
   };
 
-  const hasMarkers = markers && markers.length > 0;
+  if (!isMounted) {
+    return <div className="w-full h-full bg-gray-100 animate-pulse rounded-4xl" />;
+  }
 
   return (
     <div className="w-full h-full relative group">
@@ -197,46 +253,44 @@ export default function MapComponent({ center, displayLabel, isPicker, onLocatio
         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
         <MapInitializer />
 
-        {/* 🌟 FIXED: Only render the fallback red marker if NOT using external markers array (like activePickerMarker) */}
-        {!hasMarkers && center && !isNaN(activePosition[0]) && !isNaN(activePosition[1]) && redIcon && (
-          <Marker position={activePosition} icon={redIcon}>
+        {/* The selected city / zone stays pinned at its centre even when result
+            markers are on screen, so the current filter is always visible. */}
+        {hasCenter && icons?.red && (
+          <Marker position={activePosition} icon={icons.red} zIndexOffset={1000}>
             <Popup>
               <span className="font-bold text-indigo-600">{displayLabel || "Selected Center"}</span>
             </Popup>
           </Marker>
         )}
 
-        {hasMarkers && blueIcon && violetIcon && markers.map((m: any) => {
-          if (!m || !m.position || isNaN(m.position[0]) || isNaN(m.position[1])) return null;
-          return (
-            <InteractiveMarker 
-              key={`pin-biz-${m.id}`} 
-              marker={m} 
-              icon={m.active ? violetIcon : blueIcon} 
-            />
-          );
-        })}
+        {icons && safeMarkers.map((marker) => (
+          <InteractiveMarker
+            key={`pin-biz-${marker.id}`}
+            marker={marker}
+            icon={marker.active ? icons.violet : icons.blue}
+          />
+        ))}
 
         {/* 🌟 CONTROLLED: MapPicker only triggers click events when isPicker is true */}
-        {isPicker && <MapPicker onLocationSelect={onLocationSelect} />}
-        
-        <MapViewUpdater center={activePosition} zoom={13} hasMarkers={hasMarkers} />
-        <FitBoundsOnMarkers markers={markers} />
+        {isPicker && onLocationSelect && <MapPicker onLocationSelect={onLocationSelect} />}
+
+        <MapViewUpdater center={activePosition} zoom={13} />
+        <FitBoundsOnMarkers markers={safeMarkers} />
       </MapContainer>
 
-      <button
-        onClick={() => {
-          navigator.geolocation.getCurrentPosition((pos) => {
-            if (onLocationSelect) {
+      {onLocationSelect && (
+        <button
+          onClick={() => {
+            navigator.geolocation.getCurrentPosition((pos) => {
               onLocationSelect(pos.coords.latitude, pos.coords.longitude);
-            }
-          });
-        }}
-        className="absolute bottom-6 right-6 z-[500] bg-white p-3 rounded-2xl shadow-xl border border-slate-100 hover:bg-slate-50 text-indigo-600 transition-all"
-        title="My Location"
-      >
-        <Navigation2 className="w-5 h-5 fill-current" />
-      </button>
+            });
+          }}
+          className="absolute bottom-6 right-6 z-[500] bg-white p-3 rounded-2xl shadow-xl border border-slate-100 hover:bg-slate-50 text-indigo-600 transition-all"
+          title="My Location"
+        >
+          <Navigation2 className="w-5 h-5 fill-current" />
+        </button>
+      )}
     </div>
   );
 }

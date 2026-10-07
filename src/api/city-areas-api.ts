@@ -1,4 +1,5 @@
-import api from './auth-api'; // استيراد النسخة المركزية
+import api from './auth-api';
+import { LOOKUP_LIMIT } from './cities-api';
 
 export interface CityAreaData {
   nameAr?: string;
@@ -12,11 +13,22 @@ export interface CityAreaData {
   };
 }
 
-export const getCityAreas = async () => {
+const unwrap = (payload: any): any[] =>
+  Array.isArray(payload) ? payload : payload?.data || [];
+
+/**
+ * @param cityId when provided, only the areas belonging to that city are returned.
+ */
+export const getCityAreas = async (cityId?: string) => {
   const response = await api.get('/v1/city-areas', {
-    params: { relations: 'localisation' }
+    params: {
+      relations: 'localisation',
+      limit: LOOKUP_LIMIT,
+      cityId: cityId || undefined,
+    },
   });
-  return response.data?.data || [];
+
+  return unwrap(response.data);
 };
 
 export const getCityAreaById = async (id: string) => {
@@ -40,6 +52,6 @@ export const deleteCityArea = async (id: string) => {
 };
 
 export const getCityAreasByCityId = async (cityId: string) => {
-  const response = await api.get(`/v1/city-areas?cityId=${cityId}`);
-  return response.data?.data || [];
-}
+  if (!cityId) return [];
+  return getCityAreas(cityId);
+};

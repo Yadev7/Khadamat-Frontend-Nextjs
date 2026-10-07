@@ -1,9 +1,16 @@
 import { useFormContext } from "react-hook-form";
 
-export function Step4Upload() {
+interface FileInputProps {
+    label: string;
+    name: string;
+    accept?: string;
+    multiple?: boolean;
+}
+
+function FileInput({ label, name, accept, multiple }: FileInputProps) {
     const { register } = useFormContext();
 
-    const FileInput = ({ label, name, accept, multiple }: any) => (
+    return (
         <div className="flex flex-col gap-1 border p-3 rounded-xl bg-white shadow-sm dark:bg-gray-800 dark:border-gray-700">
             <span className="text-xs font-bold text-slate-500 uppercase dark:text-gray-400">{label}</span>
             <input 
@@ -15,7 +22,9 @@ export function Step4Upload() {
             />
         </div>
     );
+}
 
+export function Step4Upload() {
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="col-span-full font-bold border-b pb-2 dark:text-gray-100 dark:border-gray-800">Images & Flyers</div>

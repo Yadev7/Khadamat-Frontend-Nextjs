@@ -1,34 +1,61 @@
 "use client"
 import React, { useState, useMemo, useEffect } from 'react';
 import { ChevronDown, ChevronUp, MoreVertical, Search, User, Users, X } from 'lucide-react';
-import { useAuth } from '@/context/AuthContext';
+import Cookies from 'js-cookie';
 
 const API_BASE_URL = 'http://127.0.0.1:3001/api/v1';
 
+interface AdminUser {
+  id: string;
+  userType?: string | null;
+  firstName?: string | null;
+  lastName?: string | null;
+  email?: string | null;
+  createdAt?: string | null;
+  statusId?: number | null;
+  status?: { name?: string | null } | null;
+}
+
+type SortKey = 'firstName' | 'lastName' | 'email' | 'createdAt';
+type SortDirection = 'ascending' | 'descending';
+
+interface SortConfig {
+  key: SortKey | 'status';
+  direction: SortDirection;
+}
+
+interface UsersPageResponse {
+  data?: AdminUser[];
+  hasNextPage?: boolean;
+}
+
+const getErrorMessage = (err: unknown) =>
+  err instanceof Error ? err.message : 'Something went wrong.';
+
 // This map is now only used to find an ID when updating a status.
-const statusMap = {
+const statusMap: Record<number, string> = {
   1: 'active',
   2: 'inactive',
 };
 
 // Helper to find the ID of a status by its name.
-const getStatusIdByName = (name) => {
+const getStatusIdByName = (name: string): number | null => {
     for (const id in statusMap) {
-        if (statusMap[id] === name) {
-            return parseInt(id, 10);
+        if (statusMap[Number(id)] === name) {
+            return Number(id);
         }
     }
     return null;
 };
 
 // Safely gets the status name directly from the user's status object.
-const getStatusName = (user) => {
+const getStatusName = (user: AdminUser): string => {
     // Check for a nested status object first, e.g., user.status.name
-    if (user && user.status && typeof user.status === 'object' && user.status.name) {
+    if (user?.status && typeof user.status === 'object' && user.status.name) {
         return user.status.name;
     }
     // Fallback for older data structures if needed
-    if (user && user.statusId) {
+    if (user?.statusId) {
         return statusMap[user.statusId] || 'N/A';
     }
     return 'N/A';
@@ -36,15 +63,15 @@ const getStatusName = (user) => {
 
 
 export default function AdminDashboard() {
-  const { token } = useAuth(); 
-  const [userType, setUserType] = useState('CLIENT'); 
-  const [allUsers, setAllUsers] = useState([]);
+  const [token, setToken] = useState<string | undefined>(undefined);
+  const [userType, setUserType] = useState<string>('CLIENT');
+  const [allUsers, setAllUsers] = useState<AdminUser[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [sortConfig, setSortConfig] = useState({ key: 'firstName', direction: 'ascending' });
-  const [openDropdown, setOpenDropdown] = useState(null);
-  const [showDeleteModal, setShowDeleteModal] = useState(null);
+  const [sortConfig, setSortConfig] = useState<SortConfig>({ key: 'firstName', direction: 'ascending' });
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+  const [showDeleteModal, setShowDeleteModal] = useState<string | null>(null);
   const [isClient, setIsClient] = useState(false);
 
   // Pagination State
@@ -52,8 +79,9 @@ export default function AdminDashboard() {
   const [hasNextPage, setHasNextPage] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
 
-  useEffect(() => {
+useEffect(() => {
     setIsClient(true);
+    setToken(Cookies.get('auth_token'));
   }, []);
 
   // Effect to fetch the first page of users
@@ -74,11 +102,11 @@ export default function AdminDashboard() {
 
         if (!response.ok) throw new Error(`Failed to fetch users: ${response.statusText}`);
 
-        const responseData = await response.json();
-        setAllUsers(responseData.data || []); 
-        setHasNextPage(responseData.hasNextPage);
+        const responseData: UsersPageResponse = await response.json();
+        setAllUsers(responseData.data ?? []); 
+        setHasNextPage(Boolean(responseData.hasNextPage));
       } catch (err) {
-        setError(err.message);
+        setError(getErrorMessage(err));
         setAllUsers([]);
       } finally {
         setIsLoading(false);
@@ -100,24 +128,24 @@ export default function AdminDashboard() {
         });
         if (!response.ok) throw new Error('Failed to load more users.');
 
-        const responseData = await response.json();
-        setAllUsers(prevUsers => [...prevUsers, ...(responseData.data || [])]);
+        const responseData: UsersPageResponse = await response.json();
+        setAllUsers(prevUsers => [...prevUsers, ...(responseData.data ?? [])]);
         setPage(nextPage);
-        setHasNextPage(responseData.hasNextPage);
+        setHasNextPage(Boolean(responseData.hasNextPage));
     } catch (err) {
-        setError(err.message);
+      setError(getErrorMessage(err));
     } finally {
-        setIsLoadingMore(false);
+      setIsLoadingMore(false);
     }
   };
 
-  const handleUserTypeChange = (type) => {
+  const handleUserTypeChange = (type: string) => {
     setUserType(type);
     setSearchTerm('');
     setSortConfig({ key: 'firstName', direction: 'ascending' });
   };
 
-  const handleBlockUser = async (userId) => {
+  const handleBlockUser = async (userId: string) => {
     const user = allUsers.find(u => u.id === userId);
     if (!user || !token) return;
 
@@ -141,17 +169,17 @@ export default function AdminDashboard() {
         // Optimistically update the user's status in the local state
         setAllUsers(allUsers.map(u => 
             u.id === userId 
-            ? { ...u, status: { ...u.status, name: newStatusName }, statusId: newStatusId } 
+            ? { ...u, status: { ...(u.status ?? {}), name: newStatusName }, statusId: newStatusId } 
             : u
         ));
     } catch (err) {
-        setError(err.message);
+      setError(getErrorMessage(err));
     } finally {
-        setOpenDropdown(null);
+      setOpenDropdown(null);
     }
   };
 
-  const handleDeleteUser = async (userId) => {
+  const handleDeleteUser = async (userId: string) => {
     if (!token) return;
     try {
         const response = await fetch(`${API_BASE_URL}/users/${userId}`, {
@@ -161,10 +189,10 @@ export default function AdminDashboard() {
         if (!response.ok) throw new Error('Failed to delete user.');
         setAllUsers(allUsers.filter(user => user.id !== userId));
     } catch (err) {
-        setError(err.message);
+      setError(getErrorMessage(err));
     } finally {
-        setShowDeleteModal(null);
-        setOpenDropdown(null);
+      setShowDeleteModal(null);
+      setOpenDropdown(null);
     }
   };
 
@@ -183,17 +211,17 @@ export default function AdminDashboard() {
 
     if (sortConfig !== null) {
       filteredUsers = [...filteredUsers].sort((a, b) => {
-        let valA, valB;
+        let valA: string, valB: string;
         
         if (sortConfig.key === 'status') { // Sort by 'status' key
             valA = getStatusName(a);
             valB = getStatusName(b);
         } else {
-            valA = a[sortConfig.key];
-            valB = b[sortConfig.key];
+            valA = a[sortConfig.key] ?? '';
+            valB = b[sortConfig.key] ?? '';
         }
-        const safeValA = valA || '';
-        const safeValB = valB || '';
+        const safeValA = String(valA || '');
+        const safeValB = String(valB || '');
         if (safeValA < safeValB) return sortConfig.direction === 'ascending' ? -1 : 1;
         if (safeValA > safeValB) return sortConfig.direction === 'ascending' ? 1 : -1;
         return 0;
@@ -202,22 +230,22 @@ export default function AdminDashboard() {
     return filteredUsers;
   }, [allUsers, userType, searchTerm, sortConfig]);
 
-  const requestSort = (key) => {
-    let direction = 'ascending';
+  const requestSort = (key: SortConfig['key']) => {
+    let direction: SortDirection = 'ascending';
     if (sortConfig.key === key && sortConfig.direction === 'ascending') {
       direction = 'descending';
     }
     setSortConfig({ key, direction });
   };
 
-  const getSortIcon = (key) => {
+  const getSortIcon = (key: SortConfig['key']) => {
     if (sortConfig.key !== key) {
       return <ChevronDown className="h-4 w-4 inline text-gray-400" />;
     }
     return sortConfig.direction === 'ascending' ? <ChevronUp className="h-4 w-4 inline" /> : <ChevronDown className="h-4 w-4 inline" />;
   };
 
-  const statusColor = (user) => {
+  const statusColor = (user: AdminUser) => {
     const statusName = getStatusName(user);
     return statusName === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
   };
@@ -261,9 +289,9 @@ export default function AdminDashboard() {
                 {isClient && (
                   <>
                     {isLoading ? (
-                      <tr><td colSpan="5" className="text-center py-10 text-gray-500">Loading users...</td></tr>
+                      <tr><td colSpan={5} className="text-center py-10 text-gray-500">Loading users...</td></tr>
                     ) : error ? (
-                      <tr><td colSpan="5" className="text-center py-10 text-red-600">{error}</td></tr>
+                      <tr><td colSpan={5} className="text-center py-10 text-red-600">{error}</td></tr>
                     ) : displayedUsers.length > 0 ? (
                       displayedUsers.map(user => (
                         <tr key={user.id} className="border-b border-gray-200 hover:bg-gray-50">

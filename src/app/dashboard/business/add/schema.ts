@@ -26,7 +26,8 @@ export const BusinessSchema = z.object({
     manualLongitude: z.string().optional(),
 });
 
-export type BusinessFormValues = z.infer<typeof BusinessSchema>;
+export type BusinessFormValues = z.input<typeof BusinessSchema>;
+export type BusinessFormOutput = z.output<typeof BusinessSchema>;
 
 export const STEP_FIELDS = {
     0: ["nameEn", "nameFr", "nameAr", "descrEn", "descrFr", "descrAr", "serviceId", "ownerId", "siteUrl", "socialMedia"],

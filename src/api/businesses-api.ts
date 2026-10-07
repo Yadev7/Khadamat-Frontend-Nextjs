@@ -115,6 +115,8 @@ export const getContactsList = async () => {
 
 
 // 1. For fetching a list (with filters and pagination)
+// Returns the NestJS envelope: { data: Business[], total: number, hasNextPage: boolean }.
+// `data` stays the first key so existing `response.data` callers keep working.
 export const getBusinesses = async (
   page: number = 1,
   limit: number = 10,

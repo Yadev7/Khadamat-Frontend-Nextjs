@@ -5,6 +5,7 @@ import { X, Upload, CheckCircle2, User, Building2, Loader2 } from "lucide-react"
 import Image from "next/image";
 import Swal from 'sweetalert2';
 import { uploadFile, createMember, api } from "@/api/members-api";
+import { getCityAreas } from "@/api/city-areas-api";
 
 interface ModalProps {
   isOpen: boolean;
@@ -18,13 +19,14 @@ export default function AddMemberModal({ isOpen, onClose, onSuccess }: ModalProp
   const [memberType, setMemberType] = useState<'INDIVIDUAL' | 'ENTERPRISE'>('INDIVIDUAL');
   const [cities, setCities] = useState<any[]>([]);
   const [countries, setCountries] = useState<any[]>([]);
+  const [zones, setZones] = useState<any[]>([]);
 
   const [formData, setFormData] = useState({
     firstName: "", lastName: "", firstNameAr: "", lastNameAr: "",
     email: "", phoneCell: "", phoneGround: "",
     lineAddressFr: "", lineAddressAr: "",
     entrepriseNameAr: "", entrepriseNameFr: "", entrepriseNameEn: "",
-    cityId: "", countryId: "",
+    cityId: "", countryId: "", zoneId: "",
   });
 
   const [files, setFiles] = useState<{ [key: string]: File | null }>({ picture: null });
@@ -32,12 +34,14 @@ export default function AddMemberModal({ isOpen, onClose, onSuccess }: ModalProp
   useEffect(() => {
     const fetchGeoData = async () => {
       try {
-        const [citiesRes, countriesRes] = await Promise.all([
+        const [citiesRes, countriesRes, zonesRes] = await Promise.all([
           api.get('/v1/cities'),
-          api.get('/v1/countries')
+          api.get('/v1/countries'),
+          getCityAreas(),
         ]);
         setCities(citiesRes.data?.data || citiesRes.data || []);
         setCountries(countriesRes.data?.data || countriesRes.data || []);
+        setZones(Array.isArray(zonesRes) ? zonesRes : []);
       } catch (err) {
         console.error("Error loading geography data:", err);
       }
@@ -47,8 +51,18 @@ export default function AddMemberModal({ isOpen, onClose, onSuccess }: ModalProp
   }, [isOpen]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value,
+      // Zones belong to a city, so a new city invalidates the picked zone.
+      ...(name === 'cityId' ? { zoneId: "" } : {}),
+    }));
   };
+
+  const availableZones = zones.filter(
+    (zone) => String(zone.cityId || zone.city?.id) === String(formData.cityId)
+  );
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files?.[0]) {
@@ -89,6 +103,7 @@ export default function AddMemberModal({ isOpen, onClose, onSuccess }: ModalProp
             lineAddressFr: formData.lineAddressFr,
             lineAddressAr: formData.lineAddressAr,
             city: { id: formData.cityId },
+            zone: formData.zoneId ? { id: formData.zoneId } : undefined,
             country: { id: formData.countryId },
           }
         },
@@ -211,6 +226,11 @@ export default function AddMemberModal({ isOpen, onClose, onSuccess }: ModalProp
             <select name="cityId" value={formData.cityId} onChange={handleInputChange} required className="input-style">
               <option value="">Select City</option>
               {cities.map(c => <option key={c.id} value={c.id}>{c.nameFr} ({c.nameAr})</option>)}
+            </select>
+
+            <select name="zoneId" value={formData.zoneId} onChange={handleInputChange} disabled={!formData.cityId} className="input-style">
+              <option value="">{formData.cityId ? "Select Zone (optional)" : "Select City first"}</option>
+              {availableZones.map(z => <option key={z.id} value={z.id}>{z.nameFr || z.nameAr}</option>)}
             </select>
 
             <div className="col-span-full space-y-3">

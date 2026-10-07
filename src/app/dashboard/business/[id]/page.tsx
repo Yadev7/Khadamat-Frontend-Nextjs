@@ -73,7 +73,12 @@ export default function BusinessDetailsPage() {
   const langSuffix = i18n.language.charAt(0).toUpperCase() + i18n.language.slice(1);
   const title = business?.[`name${langSuffix}`] || business?.nameFr || "Business";
   const desc = business?.[`descr${langSuffix}`] || business?.descrFr || "No description";
-  const serviceName = business?.service?.[`name${langSuffix}`] || business?.service?.nameFr || "Service";
+  const serviceName =
+    business?.service?.[`nameServ${langSuffix}`] ||
+    business?.service?.nameServFr ||
+    business?.service?.[`name${langSuffix}`] ||
+    business?.service?.nameFr ||
+    "Service";
   const addressLine = business?.contact?.address?.lineAddressFr || "Address not provided";
   const phoneNumber = business?.contact?.tel || business?.tel || "";
 

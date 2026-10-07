@@ -36,9 +36,9 @@ export default function GeneraleInfos() {
   const [formData, setFormData] = useState({ nameAr: '', nameFr: '', nameEn: '' });
 
   // --- Data States ---
-  const [countries, setCountries] = useState([]);
-  const [cities, setCities] = useState([]);
-  const [areas, setAreas] = useState([]);
+  const [countries, setCountries] = useState<any[]>([]);
+  const [cities, setCities] = useState<any[]>([]);
+  const [areas, setAreas] = useState<any[]>([]);
 
   // Central error handler for 401s
   const handleApiError = useCallback((error: any) => {
