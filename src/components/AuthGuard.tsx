@@ -279,7 +279,7 @@ export default function AuthGuard({ children }: { children: ReactNode }) {
     return <>{children}</>;
   }
 
-  if (!isMounted || isLoading) {
+  if (!isMounted || (isLoading && !user)) {
     return (
       <div className="fixed inset-0 z-9999 flex items-center justify-center bg-white dark:bg-black text-blue-600">
         <div className="flex flex-col items-center gap-2">

@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useState, useEffect, ReactNode, useContext, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { loginUser } from '@/api/auth-api';
 import Cookies from 'js-cookie';
 
@@ -29,6 +30,7 @@ const API_BASE_URL = (process.env.NEXT_PUBLIC_API_ENDPOINT || "http://127.0.0.1:
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
 
   // دالة جلب بيانات المستخدم (استخدمت useCallback لمنع الـ Re-renders اللانهائية)
   const checkAuth = useCallback(async () => {
@@ -40,10 +42,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       return;
     }
 
+    // Never let a hanging request leave the app stuck on the loading screen.
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 15000);
+
     try {
-      const res = await fetch(`${API_BASE_URL}/v1/auth/me`, { 
+      const res = await fetch(`${API_BASE_URL}/v1/auth/me`, {
         method: "GET",
         credentials: "include",
+        signal: controller.signal,
         headers: {
           "Accept": "application/json",
           "Authorization": `Bearer ${token}`
@@ -54,15 +61,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         const userData = await res.json();
         setUser(userData);
       } else {
-        if (res.status === 401) {
+        // The server rejected the token (expired/invalid): clear it so the
+        // middleware and the client agree that the user is logged out.
+        if (res.status === 401 || res.status === 403) {
           Cookies.remove('auth_token');
-          setUser(null);
         }
+        setUser(null);
       }
     } catch (err) {
-      console.error("🌐 Server is unreachable. Check if NestJS is running.");
+      console.error("🌐 Server is unreachable. Check if NestJS is running.", err);
       setUser(null);
     } finally {
+      clearTimeout(timeoutId);
       setIsLoading(false);
     }
   }, []);
@@ -72,26 +82,86 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     checkAuth();
   }, [checkAuth]);
 
-  // دالة تسجيل الدخول
+
+
+  // دالة تسجيل الدخول المحدثة
   const login = async (email: string, password: string) => {
     try {
       const response = await loginUser(email, password);
-      
-      if (response?.token) {
-        // ✅ تحديد 7 أيام يحل مشكلة الـ 15 دقيقة في المتصفح
-        Cookies.set('auth_token', response.token, { 
-          expires: 7, 
+      // استخراج التوكنات وتخزينها بأمان
+      const token = response?.token || response?.accessToken;
+      const refreshToken = response?.refreshToken;
+
+      if (token) {
+        Cookies.set('auth_token', token, {
+          expires: 7,
           secure: process.env.NODE_ENV === 'production',
-          sameSite: 'strict' 
+          sameSite: 'lax',
+          path: '/',
         });
       }
 
-      // بعد وضع الكوكي، نجلب بيانات المستخدم كاملة
+      if (refreshToken) {
+        Cookies.set('auth_refresh_token', refreshToken, {
+          expires: 30,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'lax',
+          path: '/',
+        });
+      }
+
+      // إذا كان السيرفر يعيد بيانات المستخدم مباشرة
+      if (response?.user) {
+        setUser(response.user);
+        setIsLoading(false);
+        router.push('/'); // أو لوحة التحكم الخاصة بك
+        return;
+      }
+
+      // وإلا قم بجلب بيانات المستخدم من /me
       await checkAuth();
+      router.push('/');
     } catch (error) {
-      throw error;
+      throw error; // إعادة رمي الخطأ ليتم التقاطه في صفحة تسجيل الدخول
     }
   };
+
+  // // دالة تسجيل الدخول
+  // const login = async (email: string, password: string) => {
+  //   const response = await loginUser(email, password);
+
+  //   if (response?.token) {
+  //     // ✅ تحديد 7 أيام يحل مشكلة الـ 15 دقيقة في المتصفح
+  //     Cookies.set('auth_token', response.token, {
+  //       expires: 7,
+  //       secure: process.env.NODE_ENV === 'production',
+  //       sameSite: 'strict',
+  //     });
+  //   }
+
+  //   // Keep the refresh token so auth-api can silently renew an expired
+  //   // access token (backend expects it as a Bearer token on /auth/refresh).
+  //   if (response?.refreshToken) {
+  //     Cookies.set('auth_refresh_token', response.refreshToken, {
+  //       expires: 30,
+  //       secure: process.env.NODE_ENV === 'production',
+  //       sameSite: 'strict',
+  //     });
+  //   }
+
+  //   if (response?.user) {
+  //     // Use the user returned by the login response so the UI can redirect
+  //     // immediately instead of waiting on a second /me round-trip.
+  //     setUser(response.user);
+  //     setIsLoading(false);
+  //     // Refresh the full profile in the background.
+  //     void checkAuth();
+  //     return;
+  //   }
+
+  //   // Fallback: some providers may not return the user in the login payload.
+  //   await checkAuth();
+  // };
 
   // دالة تسجيل الخروج
   const logout = async () => {
@@ -106,8 +176,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       });
     } finally {
       Cookies.remove('auth_token');
+      Cookies.remove('auth_refresh_token');
       setUser(null);
-      window.location.href = "/sign-in";
+      router.push("/sign-in");
     }
   };
 

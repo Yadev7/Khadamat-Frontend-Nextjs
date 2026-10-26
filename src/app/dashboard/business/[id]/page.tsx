@@ -142,7 +142,7 @@ export default function BusinessDetailsPage() {
       <main className="max-w-7xl mx-auto px-4 pt-28 space-y-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           <div className="lg:col-span-5 space-y-6">
-            <div className="h-100 w-full rounded-[2.5rem] overflow-hidden shadow-lg"><img src={img} className="w-full h-full object-cover" /></div>
+            <div className="h-100 w-full rounded-[2.5rem] overflow-hidden shadow-lg"><img src={img} alt={business.nameEn || "Business"} className="w-full h-full object-cover" /></div>
             <div onClick={() => setIsMapModalOpen(true)} className="cursor-pointer bg-white p-3 rounded-[2.5rem] h-60 border overflow-hidden">
               <MapComponent center={[business.localisation?.latitude || 33.57, business.localisation?.longitude || -7.58]} />
             </div>

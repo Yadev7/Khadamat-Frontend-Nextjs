@@ -40,41 +40,32 @@ export default function GeneraleInfos() {
   const [cities, setCities] = useState<any[]>([]);
   const [areas, setAreas] = useState<any[]>([]);
 
-  // Central error handler for 401s
-  const handleApiError = useCallback((error: any) => {
-    console.error("API Error:", error);
-    if (error.response?.status === 401) {
-      console.warn("Session expired or token missing. Redirecting to login...");
-      router.push('/sign-in');
-    }
-  }, [router]);
-
   const fetchCountriesData = useCallback(async () => {
     try {
       const data = await getCountries();
       setCountries(data);
     } catch (error) {
-      handleApiError(error);
+      console.error("Error fetching countries:", error);
     }
-  }, [handleApiError]);
+  }, []);
 
   const fetchCitiesData = useCallback(async () => {
     try {
       const data = await getCities();
       setCities(data);
     } catch (error) {
-      handleApiError(error);
+      console.error("Error fetching cities:", error);
     }
-  }, [handleApiError]);
+  }, []);
 
   const fetchAreasData = useCallback(async () => {
     try {
       const data = await getCityAreas();
       setAreas(data);
     } catch (error) {
-      handleApiError(error);
+      console.error("Error fetching city areas:", error);
     }
-  }, [handleApiError]);
+  }, []);
 
   // Load data dynamically when tab changes
   useEffect(() => {

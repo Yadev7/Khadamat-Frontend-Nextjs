@@ -1,6 +1,7 @@
 import React from 'react';
 import { Search, MapPin, ChevronDown, Star, Wrench, MessageCircle } from 'lucide-react';
 import Image from 'next/image';
+import Link from 'next/link';
 const ServiceCard = ({ image, title, skills, price, isPro = false }) => {
   return (
     <div className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden group">
@@ -94,7 +95,7 @@ const Services = () => {
           <h1 className="text-4xl lg:text-5xl font-bold mb-4">All Services</h1>
           <p className="text-lg mb-8">Find the perfect service for your needs.</p>
           <div className="flex justify-center items-center space-x-4">
-            <a href="/" className="text-blue-200 hover:text-white transition-colors">Home</a>
+            <Link href="/" className="text-blue-200 hover:text-white transition-colors">Home</Link>
             <span className="text-blue-200">/</span>
             <span>All Services</span>
           </div>

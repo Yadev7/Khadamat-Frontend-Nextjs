@@ -25,7 +25,8 @@ const ForgotPasswordPage: FC = () => {
     }
 
     try {
-      const response = await fetch('http://127.0.0.1:3001/api/v1/auth/forgot/password', {
+      const apiBase = (process.env.NEXT_PUBLIC_API_ENDPOINT || 'http://127.0.0.1:3001/api').replace(/\/$/, '');
+      const response = await fetch(`${apiBase}/v1/auth/forgot/password`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -54,7 +55,6 @@ const ForgotPasswordPage: FC = () => {
       setSuccessMessage('If an account with that email exists, a password reset link has been sent.');
       setEmail(''); // Clear the input field
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       console.error('Forgot password request failed:', err);
       setError(err.message);

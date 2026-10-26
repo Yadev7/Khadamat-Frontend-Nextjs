@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useTranslation } from "react-i18next";
 import i18n from "@/i18n";
 import { useAuth } from "@/context/AuthContext";
+import { Eye, EyeOff } from "lucide-react"; 
 
 export default function SignInPage() {
   const [email, setEmail] = useState("");
@@ -34,7 +35,6 @@ export default function SignInPage() {
       // لا نقوم بـ Redirect هنا، الـ AuthGuard سيتكفل بالأمر فور تغير حالة user
       console.log("Login success, Guard will handle redirect...");
     } catch (err: any) {
-      setLoading(false);
       console.error("Login Error:", err);
 
       // استخراج رسالة الخطأ بدقة سواء من Axios أو Fetch
@@ -49,6 +49,8 @@ export default function SignInPage() {
         // عرض الخطأ الفعلي للتصحيح بدلاً من افتراض أنه خطأ كلمة مرور
         setError(`خطأ في الاتصال أو الخادم: ${serverMessage || "يرجى المحاولة لاحقاً."}`);
       }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -90,7 +92,7 @@ export default function SignInPage() {
                   required 
                 />
                 <button type="button" onClick={() => setPasswordVisible(!passwordVisible)} className="absolute right-3 top-3 text-sm text-gray-500">
-                  {passwordVisible ? "Hide" : "Show"}
+                  {passwordVisible ? <EyeOff /> : <Eye />}
                 </button>
               </div>
             </div>

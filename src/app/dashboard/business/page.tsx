@@ -300,7 +300,7 @@ export default function BusinessesPage() {
             <div className="col-span-full flex flex-col items-center justify-center p-12 text-slate-500 bg-white rounded-3xl border border-slate-100 border-dashed dark:text-gray-400 dark:bg-gray-900 dark:border-gray-800">
               <Building2 size={48} className="mb-4 text-slate-300 dark:text-gray-600" />
               <p className="text-lg font-medium">No businesses found</p>
-              <p className="text-sm">Click "Add New Business" to get started.</p>
+              <p className="text-sm">Click &quot;Add New Business&quot; to get started.</p>
             </div>
           ) : (
             businesses.map((business) => {
