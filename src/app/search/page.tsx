@@ -34,8 +34,6 @@ const readLocalisation = (source: any): [number, number] | null => {
 };
 
 const businessPosition = (biz: any): [number, number] | null =>
-  readLocalisation(biz?.localisation) ??
-  readLocalisation(biz?.Address?.localisation) ??
   readLocalisation(biz?.contact?.address?.localisation);
 
 const businessAddress = (biz: any, langSuffix: string): string =>
