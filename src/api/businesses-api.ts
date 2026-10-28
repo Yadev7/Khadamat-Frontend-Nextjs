@@ -117,17 +117,39 @@ export const getContactsList = async () => {
 // 1. For fetching a list (with filters and pagination)
 // Returns the NestJS envelope: { data: Business[], total: number, hasNextPage: boolean }.
 // `data` stays the first key so existing `response.data` callers keep working.
+// export const getBusinesses = async (
+//   page: number = 1,
+//   limit: number = 10,
+//   filters?: { cityId?: string; zoneId?: string; service?: string },
+//   relations?: string
+// ) => {
+//   const params = new URLSearchParams({ page: String(page), limit: String(limit) });
+//   if (relations) params.append("relations", relations);
+//   if (filters?.cityId) params.append("cityId", filters.cityId);
+//   if (filters?.zoneId) params.append("zoneId", filters.zoneId);
+//   if (filters?.service) params.append("service", filters.service);
+
+//   const response = await api.get(`/v1/businesses?${params.toString()}`);
+//   return response.data;
+// };
+
 export const getBusinesses = async (
   page: number = 1,
   limit: number = 10,
-  filters?: { cityId?: string; zoneId?: string; service?: string },
+  filters?: { cityId?: string; zoneId?: string; service?: string; serviceId?: string },
   relations?: string
 ) => {
   const params = new URLSearchParams({ page: String(page), limit: String(limit) });
   if (relations) params.append("relations", relations);
   if (filters?.cityId) params.append("cityId", filters.cityId);
   if (filters?.zoneId) params.append("zoneId", filters.zoneId);
-  if (filters?.service) params.append("service", filters.service);
+
+  // دعم كلا المفتاحين (service أو serviceId) لضمان عدم ضياع الفلتر أبداً
+  const serviceValue = filters?.service || filters?.serviceId;
+  if (serviceValue) {
+    params.append("service", serviceValue);
+    params.append("serviceId", serviceValue);
+  }
 
   const response = await api.get(`/v1/businesses?${params.toString()}`);
   return response.data;

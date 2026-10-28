@@ -1,8 +1,8 @@
 'use client';
 import { useEffect, useMemo, useState, useRef } from 'react';
-import { MapContainer, TileLayer, Marker, useMap, useMapEvents, Popup } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Circle, useMap, useMapEvents, Popup } from 'react-leaflet';
 import L from 'leaflet';
-import { Search, Navigation2 } from 'lucide-react';
+import { Search, Navigation2, Loader2 } from 'lucide-react';
 import 'leaflet/dist/leaflet.css';
 
 export type MapMarker = {
@@ -13,12 +13,19 @@ export type MapMarker = {
   active?: boolean;
 };
 
+export type MapCircleBoundary = {
+  center: [number, number];
+  radius: number;
+  color?: string;
+};
+
 type MapComponentProps = {
   center?: [number, number] | null;
   displayLabel?: string;
   isPicker?: boolean;
-  onLocationSelect?: (lat: number, lng: number) => void;
+  onLocationSelect?: (lat: number, lng: number, address?: string) => void;
   markers?: MapMarker[];
+  circleBoundary?: MapCircleBoundary | null;
 };
 
 const FALLBACK_CENTER: [number, number] = [34.0331, -5.0003];
@@ -35,8 +42,6 @@ const isValidPosition = (value: unknown): value is [number, number] =>
   Number.isFinite(value[0]) &&
   Number.isFinite(value[1]);
 
-// Leaflet resolves default marker assets relative to its own CSS. Custom icons
-// provide absolute URLs, so the lookup must happen once at module scope.
 if (typeof window !== 'undefined') {
   delete (L.Icon.Default.prototype as unknown as Record<string, unknown>)._getIconUrl;
 }
@@ -63,111 +68,54 @@ function useMarkerIcons() {
   }, []);
 }
 
-// Inside MapComponent.tsx -> MapViewUpdater
 function MapViewUpdater({ center, zoom }: { center: [number, number]; zoom: number }) {
   const map = useMap();
   const lastCenterRef = useRef<string>('');
 
   useEffect(() => {
     if (!isValidPosition(center)) return;
-
     const centerKey = `${center[0]}-${center[1]}`;
     if (centerKey === lastCenterRef.current) return;
-
     lastCenterRef.current = centerKey;
     try {
       map.flyTo(center, zoom, { duration: 1.0 });
     } catch (error) {
-      console.error("Leaflet flyTo animation error bypassed safely:", error);
+      console.error("Leaflet flyTo error:", error);
     }
   }, [center, zoom, map]);
 
   return null;
 }
 
-function FitBoundsOnMarkers({ markers }: { markers: MapMarker[] }) {
+// مكون فرعي آمن لعمل Zoom وتعديل حدود الخريطة بناءً على شعاع الدائرة رياضيّاً
+function FitBoundsOnCircle({ circleBoundary }: { circleBoundary: MapCircleBoundary | null }) {
   const map = useMap();
 
-  // Hovering a card flips `active` and rebuilds the marker array. Keying the
-  // effect on the set of positions (not the array identity) keeps the viewport
-  // still while the user moves the pointer over the result list.
-  const signature = useMemo(
-    () =>
-      markers
-        .filter((marker) => marker && isValidPosition(marker.position))
-        .map((marker) => `${marker.id}:${marker.position[0]},${marker.position[1]}`)
-        .sort()
-        .join('|'),
-    [markers],
-  );
-
   useEffect(() => {
-    if (!signature) return;
+    if (!circleBoundary || !isValidPosition(circleBoundary.center)) return;
 
-    const positions = signature
-      .split('|')
-      .map((entry) => entry.split(':')[1])
-      .map((pair) => pair.split(',').map(Number) as [number, number]);
+    const [lat, lng] = circleBoundary.center;
+    const radiusMeters = circleBoundary.radius;
 
-    if (positions.length === 0) return;
+    // حساب إحداثيات الحدود الرياضية لشعاع الدائرة لتجنب أخطاء DOM الخاصة بـ Leaflet
+    const latDelta = radiusMeters / 111000;
+    const lngDelta = radiusMeters / (111000 * Math.cos((lat * Math.PI) / 180));
+
+    const southWest = L.latLng(lat - latDelta, lng - lngDelta);
+    const northEast = L.latLng(lat + latDelta, lng + lngDelta);
+    const bounds = L.latLngBounds(southWest, northEast);
 
     const timer = setTimeout(() => {
       map.invalidateSize();
-      if (positions.length === 1) {
-        map.flyTo(positions[0], 14, { duration: 1 });
-      } else {
-        map.fitBounds(L.latLngBounds(positions), { padding: [50, 50], duration: 1 });
-      }
-    }, 300);
+      map.fitBounds(bounds, { 
+        padding: [50, 50], 
+        duration: 1.0 
+      });
+    }, 250);
 
     return () => clearTimeout(timer);
-  }, [signature, map]);
+  }, [circleBoundary, map]);
 
-  return null;
-}
-
-function InteractiveMarker({ marker, icon }: { marker: MapMarker; icon: L.Icon }) {
-  const markerRef = useRef<L.Marker>(null);
-
-  useEffect(() => {
-    if (!markerRef.current) return;
-
-    if (marker.active) {
-      markerRef.current.openPopup();
-    } else {
-      markerRef.current.closePopup();
-    }
-  }, [marker.active]);
-
-  return (
-    <Marker ref={markerRef} position={marker.position} icon={icon}>
-      <Popup closeButton={false} autoClose={false} closeOnClick={false}>
-        <div className="p-1 font-sans">
-          <span className="font-bold text-slate-800 block text-sm">{marker.label}</span>
-          {marker.address && <span className="text-xs text-slate-500 block mt-0.5">{marker.address}</span>}
-        </div>
-      </Popup>
-    </Marker>
-  );
-}
-
-function MapInitializer() {
-  const map = useMap();
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      map.invalidateSize();
-    }, 100);
-    return () => clearTimeout(timer);
-  }, [map]);
-  return null;
-}
-
-function MapPicker({ onLocationSelect }: { onLocationSelect: (lat: number, lng: number) => void }) {
-  useMapEvents({
-    click(e) {
-      onLocationSelect(e.latlng.lat, e.latlng.lng);
-    },
-  });
   return null;
 }
 
@@ -177,23 +125,74 @@ export default function MapComponent({
   isPicker = false,
   onLocationSelect,
   markers = [],
+  circleBoundary = null,
 }: MapComponentProps) {
   const [isMounted, setIsMounted] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearching, setIsSearching] = useState(false);
+  
+  const [pickedLocation, setPickedLocation] = useState<{
+    lat: number;
+    lng: number;
+    address: string;
+    loading: boolean;
+  } | null>(null);
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
-  const icons = useMarkerIcons();
+  useEffect(() => {
+    if (isValidPosition(center) && isPicker) {
+      setPickedLocation(prev => {
+        if (prev && prev.lat === center[0] && prev.lng === center[1]) return prev;
+        return {
+          lat: center[0],
+          lng: center[1],
+          address: displayLabel || "الموقع المختار",
+          loading: false
+        };
+      });
+    }
+  }, [center, isPicker, displayLabel]);
 
+  const icons = useMarkerIcons();
   const hasCenter = isValidPosition(center);
   const activePosition: [number, number] = hasCenter ? center : FALLBACK_CENTER;
   const safeMarkers = useMemo(
     () => (Array.isArray(markers) ? markers.filter((m) => m && isValidPosition(m.position)) : []),
     [markers],
   );
+
+  const handleReverseGeocode = async (lat: number, lng: number) => {
+    if (!isPicker || !onLocationSelect) return;
+
+    setPickedLocation({ lat, lng, address: "جاري جلب العنوان...", loading: true });
+
+    try {
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&accept-language=ar`
+      );
+      const data = await response.json();
+      const addressText = data.display_name || "موقع بدون عنوان";
+
+      setPickedLocation({ lat, lng, address: addressText, loading: false });
+      onLocationSelect(lat, lng, addressText);
+    } catch (error) {
+      console.error("Reverse Geocoding error:", error);
+      setPickedLocation({ lat, lng, address: "تعسّر جلب العنوان", loading: false });
+      onLocationSelect(lat, lng, "");
+    }
+  };
+
+  function MapPickerHandler() {
+    useMapEvents({
+      click(e) {
+        handleReverseGeocode(e.latlng.lat, e.latlng.lng);
+      },
+    });
+    return null;
+  }
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -206,8 +205,12 @@ export default function MapComponent({
       );
       const data = await response.json();
       if (data && data.length > 0) {
-        const { lat, lon } = data[0];
-        onLocationSelect?.(parseFloat(lat), parseFloat(lon));
+        const { lat, lon, display_name } = data[0];
+        const parsedLat = parseFloat(lat);
+        const parsedLng = parseFloat(lon);
+        
+        setPickedLocation({ lat: parsedLat, lng: parsedLng, address: display_name, loading: false });
+        onLocationSelect?.(parsedLat, parsedLng, display_name);
       }
     } catch (error) {
       console.error("Search error:", error);
@@ -227,17 +230,17 @@ export default function MapComponent({
           <form onSubmit={handleSearch} className="relative group">
             <input
               type="text"
-              placeholder="Search for city center..."
+              placeholder="البحث عن مدينة أو عنوان..."
               className="w-full bg-white/90 backdrop-blur-md border-none rounded-2xl py-3 px-12 shadow-2xl text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
-            <Search className={`absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 ${isSearching ? 'animate-pulse text-indigo-500' : 'text-slate-400'}`} />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <button
               type="submit"
               className="absolute right-2 top-1/2 -translate-y-1/2 bg-indigo-600 text-white text-[10px] font-black px-3 py-1.5 rounded-xl hover:bg-indigo-700 transition-all"
             >
-              FIND
+              بحث
             </button>
           </form>
         </div>
@@ -251,42 +254,77 @@ export default function MapComponent({
         style={{ height: '100%', width: '100%', zIndex: 1 }}
       >
         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-        <MapInitializer />
 
-        {/* The selected city / zone stays pinned at its centre even when result
-            markers are on screen, so the current filter is always visible. */}
-        {hasCenter && icons?.red && (
+        <FitBoundsOnCircle circleBoundary={circleBoundary} />
+
+        {circleBoundary && isValidPosition(circleBoundary.center) && (
+          <Circle
+            center={circleBoundary.center}
+            radius={circleBoundary.radius}
+            pathOptions={{
+              color: circleBoundary.color || '#6366f1',
+              fillColor: circleBoundary.color || '#6366f1',
+              fillOpacity: 0.15,
+              weight: 2,
+            }}
+          />
+        )}
+
+        {isPicker && pickedLocation && icons?.red && (
+          <Marker position={[pickedLocation.lat, pickedLocation.lng]} icon={icons.red} zIndexOffset={1000}>
+            <Popup autoOpen>
+              <div className="p-2 font-sans max-w-xs">
+                <span className="font-bold text-indigo-600 block text-xs mb-1">الموقع المحدد:</span>
+                {pickedLocation.loading ? (
+                  <div className="flex items-center gap-2 text-slate-500 text-xs py-1">
+                    <Loader2 className="w-3 h-3 animate-spin text-indigo-600" />
+                    <span>جاري جلب تفاصيل العنوان...</span>
+                  </div>
+                ) : (
+                  <p className="text-slate-700 text-xs font-medium leading-relaxed">{pickedLocation.address}</p>
+                )}
+              </div>
+            </Popup>
+          </Marker>
+        )}
+
+        {!isPicker && hasCenter && icons?.red && (
           <Marker position={activePosition} icon={icons.red} zIndexOffset={1000}>
             <Popup>
-              <span className="font-bold text-indigo-600">{displayLabel || "Selected Center"}</span>
+              <span className="font-bold text-indigo-600">{displayLabel || "المركز المحدد"}</span>
             </Popup>
           </Marker>
         )}
 
         {icons && safeMarkers.map((marker) => (
-          <InteractiveMarker
+          <Marker
             key={`pin-biz-${marker.id}`}
-            marker={marker}
+            position={marker.position}
             icon={marker.active ? icons.violet : icons.blue}
-          />
+          >
+            <Popup>
+              <div className="p-1 font-sans">
+                <span className="font-bold text-slate-800 block text-sm">{marker.label}</span>
+                {marker.address && <span className="text-xs text-slate-500 block mt-0.5">{marker.address}</span>}
+              </div>
+            </Popup>
+          </Marker>
         ))}
 
-        {/* 🌟 CONTROLLED: MapPicker only triggers click events when isPicker is true */}
-        {isPicker && onLocationSelect && <MapPicker onLocationSelect={onLocationSelect} />}
-
+        {isPicker && <MapPickerHandler />}
         <MapViewUpdater center={activePosition} zoom={13} />
-        <FitBoundsOnMarkers markers={safeMarkers} />
       </MapContainer>
 
-      {onLocationSelect && (
+      {isPicker && onLocationSelect && (
         <button
+          type="button"
           onClick={() => {
             navigator.geolocation.getCurrentPosition((pos) => {
-              onLocationSelect(pos.coords.latitude, pos.coords.longitude);
+              handleReverseGeocode(pos.coords.latitude, pos.coords.longitude);
             });
           }}
           className="absolute bottom-6 right-6 z-[500] bg-white p-3 rounded-2xl shadow-xl border border-slate-100 hover:bg-slate-50 text-indigo-600 transition-all"
-          title="My Location"
+          title="موقعي الحالي"
         >
           <Navigation2 className="w-5 h-5 fill-current" />
         </button>

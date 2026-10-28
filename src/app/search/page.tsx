@@ -33,8 +33,11 @@ const readLocalisation = (source: any): [number, number] | null => {
   return lat === null || lng === null ? null : [lat, lng];
 };
 
-const businessPosition = (biz: any): [number, number] | null =>
-  readLocalisation(biz?.contact?.address?.localisation);
+
+  const businessPosition = (biz: any): [number, number] | null =>
+  readLocalisation(biz?.localisation) ||                   // 1. الإحداثيات مباشرة في الشركة (localisationId)
+  readLocalisation(biz?.Address?.localisation) ||          // 2. عبر العنوان المباشر Address
+  readLocalisation(biz?.contact?.address?.localisation);   // 3. عبر Contact -> Address
 
 const businessAddress = (biz: any, langSuffix: string): string =>
   biz?.contact?.address?.[`lineAddress${langSuffix}`] ||
@@ -44,6 +47,27 @@ const businessAddress = (biz: any, langSuffix: string): string =>
   biz?.Address?.lineAddressFr ||
   biz?.Address?.lineAddressAr ||
   "";
+
+// دالة حساب المسافة بالأمتار بين نقطتين جغرافيتين (Haversine Formula)
+const calculateDistanceInMeters = (
+  lat1: number, 
+  lon1: number, 
+  lat2: number, 
+  lon2: number
+): number => {
+  const R = 6371e3; // نصف قطر الأرض بالمتر
+  const φ1 = (lat1 * Math.PI) / 180;
+  const φ2 = (lat2 * Math.PI) / 180;
+  const Δφ = ((lat2 - lat1) * Math.PI) / 180;
+  const Δλ = ((lon2 - lon1) * Math.PI) / 180;
+
+  const a =
+    Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+    Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+  return R * c;
+};
 
 interface CompactSelectProps {
   label: string;
@@ -134,7 +158,6 @@ export default function SearchPage() {
   const [allZones, setAllZones] = useState<any[]>([]);
   const [services, setServices] = useState<any[]>([]);
   const [businesses, setBusinesses] = useState<any[]>([]);
-  const [totalResults, setTotalResults] = useState(0);
   const [selectedCityId, setSelectedCityId] = useState<string>("");
   const [selectedZoneId, setSelectedZoneId] = useState<string>("");
   const [selectedServiceId, setSelectedServiceId] = useState<string>("");
@@ -142,14 +165,12 @@ export default function SearchPage() {
 
   const langSuffix = i18n.language.charAt(0).toUpperCase() + i18n.language.slice(1);
 
-  // Sync state with URL Search Parameters
   useEffect(() => {
     setSelectedCityId(searchParams.get("cityId") || "");
     setSelectedZoneId(searchParams.get("zoneId") || "");
     setSelectedServiceId(searchParams.get("service") || "");
   }, [searchParams]);
 
-  // Load lookup data for filters
   useEffect(() => {
     const loadFilters = async () => {
       try {
@@ -197,7 +218,6 @@ export default function SearchPage() {
 
   const hasActiveFilter = Boolean(activeFilters.cityId || activeFilters.zoneId || activeFilters.serviceId);
 
-  // Fetch businesses when URL filter parameters change
   useEffect(() => {
     let cancelled = false;
     const fetchBusinesses = async () => {
@@ -205,7 +225,6 @@ export default function SearchPage() {
 
       if (!cityId && !zoneId && !serviceId) {
         setBusinesses([]);
-        setTotalResults(0);
         setLoading(false);
         return;
       }
@@ -223,14 +242,11 @@ export default function SearchPage() {
         if (cancelled) return;
 
         const extractedData = response?.data || response?.results || [];
-
         setBusinesses(Array.isArray(extractedData) ? extractedData : []);
-        setTotalResults(typeof response?.meta?.total === 'number' ? response.meta.total : (Array.isArray(extractedData) ? extractedData.length : 0));
       } catch (error) {
         console.error("❌ Fetch Businesses Error:", error);
         if (cancelled) return;
         setBusinesses([]);
-        setTotalResults(0);
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -243,24 +259,22 @@ export default function SearchPage() {
     };
   }, [activeFilters]);
 
-  // Filter available zones by the selected city
   const filteredZones = useMemo(() => {
     if (!selectedCityId) return [];
     return allZones.filter(zone => String(zone.normalizedCityId) === String(selectedCityId));
   }, [selectedCityId, allZones]);
 
-  // Priority center for the map view: Selected Zone > Selected City > Average of business positions
   const activeMapCenter = useMemo((): [number, number] | undefined => {
     if (selectedZoneId) {
       const zone = allZones.find(z => String(z.id) === String(selectedZoneId));
-      if (zone?.lat !== null && zone?.lat !== undefined && zone?.lng !== null && zone?.lng !== undefined) {
+      if (zone?.lat != null && zone?.lng != null) {
         return [zone.lat, zone.lng];
       }
     }
 
     if (selectedCityId) {
       const city = cities.find(c => String(c.id) === String(selectedCityId));
-      if (city?.lat !== null && city?.lat !== undefined && city?.lng !== null && city?.lng !== undefined) {
+      if (city?.lat != null && city?.lng != null) {
         return [city.lat, city.lng];
       }
     }
@@ -276,6 +290,51 @@ export default function SearchPage() {
 
     return [totalLat / located.length, totalLng / located.length];
   }, [selectedCityId, selectedZoneId, cities, allZones, businesses]);
+
+  // حساب حدود ونصف قطر الدائرة للمنطقة أو المدينة المختارة
+  const activeCircleBoundary = useMemo(() => {
+    if (selectedZoneId) {
+      const zone = allZones.find(z => String(z.id) === String(selectedZoneId));
+      if (zone?.lat != null && zone?.lng != null) {
+        return {
+          center: [zone.lat, zone.lng] as [number, number],
+          radius: 3500, // 3.5 كم للمنطقة
+          color: '#8b5cf6', // لون بنفسجي للمنطقة
+        };
+      }
+    }
+
+    if (selectedCityId) {
+      const city = cities.find(c => String(c.id) === String(selectedCityId));
+      if (city?.lat != null && city?.lng != null) {
+        return {
+          center: [city.lat, city.lng] as [number, number],
+          radius: 12000, // 12 كم للمدينة
+          color: '#6366f1', // لون نيلي للمدينة
+        };
+      }
+    }
+
+    return null;
+  }, [selectedCityId, selectedZoneId, allZones, cities]);
+
+  // تصفية الشركات برمجياً لتظهر فقط الواقعة ضمن شعاع الدائرة المحددة
+  const filteredBusinessesWithinRadius = useMemo(() => {
+    if (!Array.isArray(businesses)) return [];
+    if (!activeCircleBoundary) return businesses;
+
+    const [centerLat, centerLng] = activeCircleBoundary.center;
+    const radiusMeters = activeCircleBoundary.radius;
+
+    return businesses.filter((biz: any) => {
+      const bizPos = businessPosition(biz);
+      if (!bizPos) return false;
+      const distance = calculateDistanceInMeters(centerLat, centerLng, bizPos[0], bizPos[1]);
+      return distance <= radiusMeters;
+    });
+  }, [businesses, activeCircleBoundary]);
+
+  const totalResults = filteredBusinessesWithinRadius.length;
 
   const activeMapLabel = useMemo(() => {
     if (selectedZoneId) {
@@ -320,9 +379,9 @@ export default function SearchPage() {
   };
 
   const mapMarkers = useMemo(() => {
-    if (!Array.isArray(businesses)) return [];
+    if (!Array.isArray(filteredBusinessesWithinRadius)) return [];
 
-    return businesses.map((biz: any) => {
+    return filteredBusinessesWithinRadius.map((biz: any) => {
       if (!biz) return null;
       const position = businessPosition(biz);
       if (!position) return null;
@@ -334,7 +393,7 @@ export default function SearchPage() {
         active: hoveredBizId === biz.id
       };
     }).filter((m): m is NonNullable<typeof m> => m !== null);
-  }, [businesses, langSuffix, hoveredBizId]);
+  }, [filteredBusinessesWithinRadius, langSuffix, hoveredBizId]);
 
   return (
     <div className="relative min-h-screen w-full bg-slate-50/50" dir={isRtl ? 'rtl' : 'ltr'}>
@@ -429,7 +488,7 @@ export default function SearchPage() {
               )}
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {businesses.map((biz: any) => {
+                {filteredBusinessesWithinRadius.map((biz: any) => {
                   const title = biz[`name${langSuffix}`] || biz.nameFr || biz.nameEn || "Business";
                   const desc = biz[`descr${langSuffix}`] || biz.descrFr || biz.descrEn;
                   const flyerUrl = biz.flyer?.path || biz.flyer?.url;
@@ -504,7 +563,7 @@ export default function SearchPage() {
                 })}
               </div>
 
-              {hasActiveFilter && businesses.length === 0 && (
+              {hasActiveFilter && filteredBusinessesWithinRadius.length === 0 && (
                 <div className="text-center py-20 bg-white rounded-2rem border border-dashed border-slate-200">
                   <Search size={40} className="mx-auto text-slate-200 mb-4" />
                   <p className="text-slate-500 font-bold">{t("search.no_results")}</p>
@@ -522,6 +581,7 @@ export default function SearchPage() {
               center={activeMapCenter}
               displayLabel={activeMapLabel}
               markers={mapMarkers}
+              circleBoundary={activeCircleBoundary}
             />
           </div>
         </div>
