@@ -369,7 +369,10 @@
         "name": "Nom",
         "description": "Description",
         "upload_video": "Charger la vidéo",
-        "upload_image": "Charger l'image"
+        "upload_image": "Charger l'image",
+        "change_image": "Changer l'image",
+        "update_now": "Mettre à jour maintenant",
+        "update_loading": "Mise à jour en cours..."
       }
     },
     "business": {

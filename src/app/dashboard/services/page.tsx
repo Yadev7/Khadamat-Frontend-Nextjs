@@ -155,6 +155,46 @@ export default function ServicesPage() {
     setIsEditModalOpen(true);
   };
 
+  // const handleEditSubmit = async (e: React.FormEvent) => {
+  //   e.preventDefault();
+  //   if (!editingId) return;
+  //   setIsUploading(true);
+
+  //   try {
+  //     let finalImage = undefined;
+
+  //     if (editImage) {
+  //       const res = await uploadFile(editImage);
+  //       const uploadedId = res.file?.id || res.id || res.data?.id;
+  //       if (uploadedId) {
+  //         finalImage = { id: uploadedId };
+  //       }
+  //     } else {
+  //       const currentService = services.find((s) => s.id === editingId);
+  //       if (currentService?.image?.id) {
+  //         finalImage = { id: currentService.image.id };
+  //       }
+  //     }
+
+  //     const payload = {
+  //       ...editFormData,
+  //       image: finalImage,
+  //     };
+
+  //     await updateService(editingId, payload);
+
+  //     Toast.fire({ icon: 'success', title: 'تم التحديث بنجاح' });
+  //     setIsEditModalOpen(false);
+  //     setEditImage(null);
+  //     fetchServices();
+  //   } catch (error) {
+  //     console.error('Update Error:', error);
+  //     MySwal.fire('Error', 'فشل التحديث - تأكد من الاتصال بالسيرفر', 'error');
+  //   } finally {
+  //     setIsUploading(false);
+  //   }
+  // };
+
   const handleEditSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingId) return;
@@ -186,6 +226,7 @@ export default function ServicesPage() {
       Toast.fire({ icon: 'success', title: 'تم التحديث بنجاح' });
       setIsEditModalOpen(false);
       setEditImage(null);
+      setEditImagePreview(null); // ← Clear preview state here
       fetchServices();
     } catch (error) {
       console.error('Update Error:', error);
@@ -435,7 +476,7 @@ export default function ServicesPage() {
                       </div>
                       <div className="flex items-center gap-4 py-4">
                         <label className="bg-blue-50 text-blue-600 px-4 py-2 rounded-lg cursor-pointer font-medium dark:bg-blue-950 dark:text-blue-400">
-                          تغيير الصورة
+                         {t('dashboard.infos-general.common.change_image')}
                           <input
                             type="file"
                             className="hidden"
@@ -469,7 +510,7 @@ export default function ServicesPage() {
                           disabled={isUploading}
                           className="px-8 py-2 bg-amber-500 text-white rounded-lg font-bold hover:bg-amber-600 disabled:opacity-50 dark:bg-amber-600 dark:hover:bg-amber-700"
                         >
-                          {isUploading ? 'جاري الحفظ...' : 'تحديث الآن'}
+                          {isUploading ? t('dashboard.infos-general.common.update_loading') : t('dashboard.infos-general.common.update_now')}
                         </button>
                       </div>
                     </form>
@@ -482,7 +523,7 @@ export default function ServicesPage() {
 
         {/* PREVIEW MODAL */}
         <Transition appear show={isPreviewModalOpen} as={Fragment}>
-          <Dialog as="div" className="relative z-100" onClose={() => setIsPreviewModalOpen(false)}>
+          <Dialog as="div" className="relative z-[100]" onClose={() => setIsPreviewModalOpen(false)}>
             <Transition.Child
               as={Fragment}
               enter="ease-out duration-300"
@@ -513,7 +554,14 @@ export default function ServicesPage() {
                       <XMarkIcon className="w-6 h-6 text-gray-800 dark:text-gray-300" />
                     </button>
                     {previewImageSrc && (
-                      <img src={previewImageSrc} alt="Preview" className="w-full h-auto max-h-[80vh] object-contain rounded-xl" />
+                      <img
+                        src={previewImageSrc}
+                        alt="Preview"
+                        className="w-full h-auto max-h-[80vh] object-contain rounded-xl"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = 'https://via.placeholder.com/600x400?text=Image+Not+Found';
+                        }}
+                      />
                     )}
                   </Dialog.Panel>
                 </Transition.Child>

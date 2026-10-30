@@ -376,7 +376,10 @@
         "name": "الاسم",
         "description": "الوصف",
         "upload_video": "رفع فيديو",
-        "upload_image": "رفع صورة"
+        "upload_image": "رفع صورة",
+        "change_image": "تغيير الصورة",
+        "update_now": "تحديث الآن",
+        "update_loading": "جاري التحديث..."
       }
     },
     "business": {

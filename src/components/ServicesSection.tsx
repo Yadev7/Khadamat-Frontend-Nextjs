@@ -1,7 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
-import Image from 'next/image';
+import { useEffect, useState } from 'react';
 import { ArrowRight, Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
@@ -13,6 +12,20 @@ interface Service {
   description: string;
   image: string;
 }
+
+const getImageUrl = (path: string) => {
+  if (!path) return '';
+  if (path.startsWith('http')) return path;
+  if (path.startsWith('/')) {
+    const domain = process.env.NEXT_PUBLIC_API_ENDPOINT?.replace('/api', '') || 'http://localhost:3001';
+    return `${domain}${path}`;
+  }
+  if (path.startsWith('files/')) {
+    const domain = process.env.NEXT_PUBLIC_API_ENDPOINT?.replace('/api', '') || 'http://localhost:3001';
+    return `${domain}/${path}`;
+  }
+  return `${process.env.NEXT_PUBLIC_API_ENDPOINT}/v1/files/${path}`;
+};
 
 const ServicesSection = () => {
   const router = useRouter();
@@ -48,7 +61,7 @@ const ServicesSection = () => {
             id: s.id,
             title: title || t("services_section.categories.default_title"),
             description: description || t("services_section.categories.default_description"),
-            image: s.image?.path || "/PlumbingCarlos.png" // Fallback to a default image
+            image: s.image?.path ? getImageUrl(s.image.path) : "/PlumbingCarlos.png"
           };
         });
 
@@ -119,11 +132,13 @@ const ServicesSection = () => {
             >
               {/* Image Container */}
               <div className="relative h-64 w-full overflow-hidden">
-                <Image
+                <img
                   src={service.image}
                   alt={service.title}
-                  fill
-                  className="object-cover transition-transform duration-700 ease-out group-hover:scale-110"
+                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = '/PlumbingCarlos.png';
+                  }}
                 />
               </div>
 
