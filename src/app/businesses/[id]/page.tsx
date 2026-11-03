@@ -347,11 +347,11 @@ export default function PublicBusinessDetailsPage() {
               )}
 
               <div className="grid grid-cols-2 gap-4">
-                <button onClick={() => window.location.href = `tel:${phoneNumber}`} className="bg-gray-900 text-white py-4 rounded-3xl font-bold">Call</button>
-                <button onClick={() => setIsWhatsAppModalOpen(true)} className="bg-[#25D366] text-white py-4 rounded-3xl font-bold">WhatsApp</button>
-                <button onClick={() => setIsModalOpen(true)} className="bg-white border-2 py-4 rounded-3xl font-bold">Message</button>
+                <button onClick={() => window.location.href = `tel:${phoneNumber}`} className="bg-gray-900 text-white py-4 rounded-3xl font-bold">{t("details_ads.call")}</button>
+                <button onClick={() => setIsWhatsAppModalOpen(true)} className="bg-[#25D366] text-white py-4 rounded-3xl font-bold">{t("details_ads.whatsapp")}</button>
+                <button onClick={() => setIsModalOpen(true)} className="bg-white border-2 py-4 rounded-3xl font-bold">{t("details_ads.message")}</button>
                 <button onClick={() => setIsRecordModalOpen(true)} className="flex items-center justify-center gap-2 bg-white border-2 py-4 rounded-3xl font-bold">
-                  <Mic size={18} /> Record
+                  <Mic size={18} /> {t("details_ads.record_audio")}
                 </button>
               </div>
             </div>
@@ -596,11 +596,11 @@ export default function PublicBusinessDetailsPage() {
       {isWhatsAppModalOpen && (
         <div className="fixed inset-0 z-150 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
           <div className="bg-white w-full max-w-sm rounded-[2.5rem] p-8 text-center space-y-6">
-            <h3 className="text-xl font-black">Start WhatsApp Chat?</h3>
-            <button onClick={() => { window.open(`https://wa.me/${phoneNumber.replace(/[^0-9]/g, '')}?text=Hello, I found your profile.`, '_blank'); setIsWhatsAppModalOpen(false); }} className="w-full bg-[#25D366] text-white py-4 rounded-2xl font-bold">Continue to Chat</button>
-            <button onClick={() => setIsWhatsAppModalOpen(false)} className="w-full bg-gray-100 py-4 rounded-2xl font-bold">Cancel</button>
+            <h3 className="text-xl font-black">{t("details_ads.start_whatsapp_chat")}</h3>
+            <button onClick={() => { window.open(`https://wa.me/${phoneNumber.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(t("details_ads.whatsapp_default_msg") || "Hello, I found your profile.")}`, '_blank'); setIsWhatsAppModalOpen(false); }} className="w-full bg-[#25D366] text-white py-4 rounded-2xl font-bold">{t("details_ads.continue_to_chat")}</button>
+            <button onClick={() => setIsWhatsAppModalOpen(false)} className="w-full bg-gray-100 py-4 rounded-2xl font-bold">{t("details_ads.cancel")}</button>
           </div>
-        </div>
+        </div>  
       )}
     </div>
   );

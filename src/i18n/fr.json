@@ -126,13 +126,20 @@
     "rating": "Évaluation",
     "message": "Laisser un Message",
     "whatsapp": "WhatsApp",
+    "continue_to_chat": "Continuer à discuter",
+    "record_audio": "Enregistrer un audio",
+    "call": "Appeler maintenant",
     "your_email": "Votre e-mail (facultatif)",
     "your_phone": "Votre téléphone (facultatif)",
     "message_placeholder": "Écrivez votre message...",
     "empty_message": "Veuillez d'abord écrire un message.",
     "message_sent": "Message envoyé !",
     "message_sent_desc": "Votre message a été livré à l'entreprise.",
-    "message_error": "Échec de l'envoi"
+    "message_error": "Échec de l'envoi",
+    "whatsapp_default_msg": "Bonjour, j'ai trouvé votre profil sur la plateforme Khadamat et je souhaite me renseigner sur vos services.",
+    "whatsapp_error": "Échec de l'ouverture de WhatsApp. Veuillez vérifier les paramètres de votre appareil.",
+    "cancel": "Annuler",
+    "start_whatsapp_chat": "Commencer la discussion WhatsApp ?"
   },
   "how_it_works": {
   "process": "Le processus",

@@ -3,7 +3,7 @@
 import { useSearchParams, useRouter } from "next/navigation";
 import { useState, useEffect, useRef, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { MapPin, LayoutGrid, HandPlatter, ChevronDown, Search, ArrowRight, Loader2 } from "lucide-react";
+import { MapPin, LayoutGrid, HandPlatter, ChevronDown, Search, ArrowRight, Loader2, Map as MapIcon, Grid, PlusCircle } from "lucide-react";
 import dynamic from "next/dynamic";
 
 // API Imports
@@ -33,11 +33,10 @@ const readLocalisation = (source: any): [number, number] | null => {
   return lat === null || lng === null ? null : [lat, lng];
 };
 
-
-  const businessPosition = (biz: any): [number, number] | null =>
-  readLocalisation(biz?.localisation) ||                   // 1. الإحداثيات مباشرة في الشركة (localisationId)
-  readLocalisation(biz?.Address?.localisation) ||          // 2. عبر العنوان المباشر Address
-  readLocalisation(biz?.contact?.address?.localisation);   // 3. عبر Contact -> Address
+const businessPosition = (biz: any): [number, number] | null =>
+  readLocalisation(biz?.localisation) ||
+  readLocalisation(biz?.Address?.localisation) ||
+  readLocalisation(biz?.contact?.address?.localisation);
 
 const businessAddress = (biz: any, langSuffix: string): string =>
   biz?.contact?.address?.[`lineAddress${langSuffix}`] ||
@@ -48,26 +47,31 @@ const businessAddress = (biz: any, langSuffix: string): string =>
   biz?.Address?.lineAddressAr ||
   "";
 
-// دالة حساب المسافة بالأمتار بين نقطتين جغرافيتين (Haversine Formula)
-const calculateDistanceInMeters = (
-  lat1: number, 
-  lon1: number, 
-  lat2: number, 
-  lon2: number
-): number => {
-  const R = 6371e3; // نصف قطر الأرض بالمتر
+const calculateDistanceInMeters = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
+  const R = 6371e3;
   const φ1 = (lat1 * Math.PI) / 180;
   const φ2 = (lat2 * Math.PI) / 180;
   const Δφ = ((lat2 - lat1) * Math.PI) / 180;
   const Δλ = ((lon2 - lon1) * Math.PI) / 180;
 
-  const a =
-    Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
-    Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+  const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) + Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
   return R * c;
 };
+
+const BusinessCardSkeleton = () => (
+  <div className="flex flex-col bg-white rounded-2xl overflow-hidden border border-slate-100 p-3 animate-pulse">
+    <div className="h-32 w-full bg-slate-200 rounded-xl mb-2.5" />
+    <div className="h-4 bg-slate-200 rounded-md w-3/4 mb-2" />
+    <div className="h-3 bg-slate-100 rounded-md w-1/2 mb-2.5" />
+    <div className="h-3 bg-slate-100 rounded-md w-full mb-1" />
+    <div className="pt-2.5 border-t border-slate-50 flex items-center justify-between">
+      <div className="h-7 bg-slate-200 rounded-lg w-1/3" />
+      <div className="h-3.5 bg-slate-200 rounded-md w-1/4" />
+    </div>
+  </div>
+);
 
 interface CompactSelectProps {
   label: string;
@@ -153,15 +157,24 @@ export default function SearchPage() {
   const router = useRouter();
   const { t, i18n } = useTranslation();
   const isRtl = i18n.language === 'ar';
+  
   const [loading, setLoading] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [cities, setCities] = useState<any[]>([]);
   const [allZones, setAllZones] = useState<any[]>([]);
   const [services, setServices] = useState<any[]>([]);
   const [businesses, setBusinesses] = useState<any[]>([]);
+  
+  // Pagination State (10 per page)
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const pageSize = 10;
+
   const [selectedCityId, setSelectedCityId] = useState<string>("");
   const [selectedZoneId, setSelectedZoneId] = useState<string>("");
   const [selectedServiceId, setSelectedServiceId] = useState<string>("");
   const [hoveredBizId, setHoveredBizId] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<"cards" | "map">("cards");
 
   const langSuffix = i18n.language.charAt(0).toUpperCase() + i18n.language.slice(1);
 
@@ -169,6 +182,7 @@ export default function SearchPage() {
     setSelectedCityId(searchParams.get("cityId") || "");
     setSelectedZoneId(searchParams.get("zoneId") || "");
     setSelectedServiceId(searchParams.get("service") || "");
+    setPage(1);
   }, [searchParams]);
 
   useEffect(() => {
@@ -229,11 +243,15 @@ export default function SearchPage() {
         return;
       }
 
-      setLoading(true);
+      if (page === 1) {
+        setLoading(true);
+      } else {
+        setLoadingMore(true);
+      }
 
       try {
         const relations = 'service,flyer,contact.address.localisation,localisation,Address,Address.localisation';
-        const response = await getBusinesses(1, 20, {
+        const response = await getBusinesses(page, pageSize, {
           service: serviceId || undefined,
           cityId: cityId || undefined,
           zoneId: zoneId || undefined
@@ -242,13 +260,28 @@ export default function SearchPage() {
         if (cancelled) return;
 
         const extractedData = response?.data || response?.results || [];
-        setBusinesses(Array.isArray(extractedData) ? extractedData : []);
+        
+        if (extractedData.length < pageSize) {
+          setHasMore(false);
+        } else {
+          setHasMore(true);
+        }
+
+        setBusinesses(prev => {
+          if (page === 1) return Array.isArray(extractedData) ? extractedData : [];
+          const existingIds = new Set(prev.map((b: any) => b.id));
+          const newItems = (Array.isArray(extractedData) ? extractedData : []).filter((b: any) => !existingIds.has(b.id));
+          return [...prev, ...newItems];
+        });
       } catch (error) {
         console.error("❌ Fetch Businesses Error:", error);
         if (cancelled) return;
-        setBusinesses([]);
+        if (page === 1) setBusinesses([]);
       } finally {
-        if (!cancelled) setLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+          setLoadingMore(false);
+        }
       }
     };
 
@@ -257,7 +290,7 @@ export default function SearchPage() {
     return () => {
       cancelled = true;
     };
-  }, [activeFilters]);
+  }, [activeFilters, page]);
 
   const filteredZones = useMemo(() => {
     if (!selectedCityId) return [];
@@ -267,16 +300,11 @@ export default function SearchPage() {
   const activeMapCenter = useMemo((): [number, number] | undefined => {
     if (selectedZoneId) {
       const zone = allZones.find(z => String(z.id) === String(selectedZoneId));
-      if (zone?.lat != null && zone?.lng != null) {
-        return [zone.lat, zone.lng];
-      }
+      if (zone?.lat != null && zone?.lng != null) return [zone.lat, zone.lng];
     }
-
     if (selectedCityId) {
       const city = cities.find(c => String(c.id) === String(selectedCityId));
-      if (city?.lat != null && city?.lng != null) {
-        return [city.lat, city.lng];
-      }
+      if (city?.lat != null && city?.lng != null) return [city.lat, city.lng];
     }
 
     const located = (Array.isArray(businesses) ? businesses : [])
@@ -291,34 +319,22 @@ export default function SearchPage() {
     return [totalLat / located.length, totalLng / located.length];
   }, [selectedCityId, selectedZoneId, cities, allZones, businesses]);
 
-  // حساب حدود ونصف قطر الدائرة للمنطقة أو المدينة المختارة
   const activeCircleBoundary = useMemo(() => {
     if (selectedZoneId) {
       const zone = allZones.find(z => String(z.id) === String(selectedZoneId));
       if (zone?.lat != null && zone?.lng != null) {
-        return {
-          center: [zone.lat, zone.lng] as [number, number],
-          radius: 3500, // 3.5 كم للمنطقة
-          color: '#8b5cf6', // لون بنفسجي للمنطقة
-        };
+        return { center: [zone.lat, zone.lng] as [number, number], radius: 4500, color: '#8b5cf6' };
       }
     }
-
     if (selectedCityId) {
       const city = cities.find(c => String(c.id) === String(selectedCityId));
       if (city?.lat != null && city?.lng != null) {
-        return {
-          center: [city.lat, city.lng] as [number, number],
-          radius: 12000, // 12 كم للمدينة
-          color: '#6366f1', // لون نيلي للمدينة
-        };
+        return { center: [city.lat, city.lng] as [number, number], radius: 12000, color: '#6366f1' };
       }
     }
-
     return null;
   }, [selectedCityId, selectedZoneId, allZones, cities]);
 
-  // تصفية الشركات برمجياً لتظهر فقط الواقعة ضمن شعاع الدائرة المحددة
   const filteredBusinessesWithinRadius = useMemo(() => {
     if (!Array.isArray(businesses)) return [];
     if (!activeCircleBoundary) return businesses;
@@ -327,12 +343,23 @@ export default function SearchPage() {
     const radiusMeters = activeCircleBoundary.radius;
 
     return businesses.filter((biz: any) => {
+      const bizZoneId =
+        biz?.zoneId ||
+        biz?.areaId ||
+        biz?.Address?.zoneId ||
+        biz?.Address?.cityAreaId ||
+        biz?.contact?.address?.zoneId;
+
+      if (selectedZoneId && bizZoneId) {
+        return String(bizZoneId) === String(selectedZoneId);
+      }
+
       const bizPos = businessPosition(biz);
-      if (!bizPos) return false;
+      if (!bizPos) return true;
       const distance = calculateDistanceInMeters(centerLat, centerLng, bizPos[0], bizPos[1]);
       return distance <= radiusMeters;
     });
-  }, [businesses, activeCircleBoundary]);
+  }, [businesses, activeCircleBoundary, selectedZoneId]);
 
   const totalResults = filteredBusinessesWithinRadius.length;
 
@@ -350,6 +377,7 @@ export default function SearchPage() {
 
   const handleSearchUpdate = () => {
     setLoading(true);
+    setPage(1);
     const params = new URLSearchParams();
     if (selectedCityId) params.set("cityId", selectedCityId);
     if (selectedZoneId) params.set("zoneId", selectedZoneId);
@@ -371,53 +399,65 @@ export default function SearchPage() {
     const cleanFilename = flyerRaw.replace(/\\/g, "/").split("/").pop();
     if (!cleanFilename) return fallbackImage;
 
-    const baseEndpoint = (process.env.NEXT_PUBLIC_API_ENDPOINT || "http://localhost:3000")
-      .replace(/\/$/, "")
-      .replace(/\/v1$/, "");
-
+    const baseEndpoint = (process.env.NEXT_PUBLIC_API_ENDPOINT || "http://localhost:3000").replace(/\/$/, "").replace(/\/v1$/, "");
     return `${baseEndpoint}/v1/files/${cleanFilename}`;
   };
 
-  const mapMarkers = useMemo(() => {
-    if (!Array.isArray(filteredBusinessesWithinRadius)) return [];
+  // const mapMarkers = useMemo(() => {
+  //   if (!Array.isArray(filteredBusinessesWithinRadius)) return [];
 
-    return filteredBusinessesWithinRadius.map((biz: any) => {
-      if (!biz) return null;
-      const position = businessPosition(biz);
-      if (!position) return null;
-      return {
-        id: biz.id,
-        position,
-        label: biz[`name${langSuffix}`] || biz.nameFr || biz.nameEn || "Business",
-        address: businessAddress(biz, langSuffix),
-        active: hoveredBizId === biz.id
-      };
-    }).filter((m): m is NonNullable<typeof m> => m !== null);
-  }, [filteredBusinessesWithinRadius, langSuffix, hoveredBizId]);
+  //   return filteredBusinessesWithinRadius.map((biz: any) => {
+  //     if (!biz) return null;
+  //     const position = businessPosition(biz);
+  //     if (!position) return null;
+  //     return {
+  //       id: biz.id,
+  //       position,
+  //       label: biz[`name${langSuffix}`] || biz.nameFr || biz.nameEn || "Business",
+  //       flyerUrl: resolveFlyerUrl(biz.flyer?.path || biz.flyer?.url),
+  //       address: businessAddress(biz, langSuffix),
+  //       active: hoveredBizId === biz.id
+  //     };
+  //   }).filter((m): m is NonNullable<typeof m> => m !== null);
+  // }, [filteredBusinessesWithinRadius, langSuffix, hoveredBizId]);
+
+  const mapMarkers = useMemo(() => {
+  if (!Array.isArray(filteredBusinessesWithinRadius)) return [];
+
+  return filteredBusinessesWithinRadius.map((biz: any) => {
+    if (!biz) return null;
+    const position = businessPosition(biz);
+    if (!position) return null;
+    return {
+      id: biz.id,
+      position,
+      label: biz[`name${langSuffix}`] || biz.nameFr || biz.nameEn || "Business",
+      address: businessAddress(biz, langSuffix),
+      flyerUrl: resolveFlyerUrl(biz.flyer?.path || biz.flyer?.url),
+      phone: biz.phoneGround || biz.contact?.phoneGround || "",
+      whatsapp: biz.phoneCell || biz.contact?.phoneCell  || "",
+      active: hoveredBizId === biz.id
+    };
+  }).filter((m): m is NonNullable<typeof m> => m !== null);
+}, [filteredBusinessesWithinRadius, langSuffix, hoveredBizId]);
 
   return (
-    <div className="relative min-h-screen w-full bg-slate-50/50" dir={isRtl ? 'rtl' : 'ltr'}>
-      {/* --- SEARCH BAR LAYOUT --- */}
+    <div className="relative min-h-screen w-full bg-slate-50/50 overflow-hidden" dir={isRtl ? 'rtl' : 'ltr'}>
+      {/* Search Bar */}
       <div className="fixed top-15 left-0 right-0 z-30 px-2 py-6 md:px-6 bg-white/80 backdrop-blur-xl border-b border-slate-100">
         <div className="container mx-auto max-w-6xl">
           <div className="bg-white/95 backdrop-blur-md border border-slate-200 shadow-[0_20px_50px_rgba(0,0,0,0.1)] rounded-3xl md:rounded-full p-2 flex flex-col md:flex-row items-center gap-1 transition-all hover:border-indigo-200">
-
             <CompactSelect
               label={t("search.city")}
               icon={<MapPin size={20} />}
               options={cities.map(c => ({ id: c.id, name: c.displayName }))}
               value={cities.find(c => String(c.id) === String(selectedCityId))?.displayName || ""}
               selectedValueId={selectedCityId}
-              onChange={(id) => {
-                setSelectedCityId(id);
-                setSelectedZoneId("");
-              }}
+              onChange={(id) => { setSelectedCityId(id); setSelectedZoneId(""); }}
               placeholder={t("search.select_city")}
             />
-
             <div className="hidden md:block w-px h-10 bg-slate-100 shrink-0 mx-1" />
             <div className="block md:hidden w-full h-px bg-slate-100 my-1" />
-
             <CompactSelect
               label={t("search.zone")}
               icon={<LayoutGrid size={20} />}
@@ -428,10 +468,8 @@ export default function SearchPage() {
               onChange={(id) => setSelectedZoneId(id)}
               placeholder={selectedCityId ? (filteredZones.length === 0 ? "No Areas" : t("search.select_zone")) : t("search.select_zone")}
             />
-
             <div className="hidden md:block w-px h-10 bg-slate-100 shrink-0 mx-1" />
             <div className="block md:hidden w-full h-px bg-slate-100 my-1" />
-
             <div className="flex-[1.4] flex flex-col md:flex-row items-center min-w-0 w-full gap-3 md:gap-0">
               <CompactSelect
                 label={t("search.service")}
@@ -442,36 +480,59 @@ export default function SearchPage() {
                 onChange={(id) => setSelectedServiceId(id)}
                 placeholder={t("search.select_service")}
               />
-
               <button
+                type="button"
                 onClick={handleSearchUpdate}
                 disabled={loading}
                 className="w-full md:w-auto bg-indigo-600 hover:bg-indigo-700 text-white p-4 md:px-10 rounded-2xl md:rounded-full active:scale-95 transition-all flex items-center justify-center gap-3 shadow-lg shadow-indigo-100 disabled:opacity-50 md:ml-2"
               >
                 {loading ? <Loader2 size={22} className="animate-spin" /> : <Search size={22} />}
-                <span className="font-black text-sm uppercase tracking-widest">
-                  {t("search.button")}
-                </span>
+                <span className="font-black text-sm uppercase tracking-widest">{t("search.button")}</span>
               </button>
             </div>
           </div>
         </div>
       </div>
 
-      {/* --- BUSINESS CARDS AND MAP VIEWPORTS --- */}
-      <div className="flex flex-col lg:flex-row h-screen pt-36">
-        <div className="w-full lg:w-1/2 overflow-y-auto px-4 md:px-8 pb-20 custom-scrollbar">
-          {!loading && hasActiveFilter && (
-            <div className="max-w-2xl mb-8">
-              <h2 className="text-3xl font-black text-slate-900 tracking-tight">
+      {/* Main Viewports Container */}
+      <div className="flex flex-col h-[calc(100vh-6rem)] mt-36 relative">
+        
+        {/* Toggle Switch Centered Right Underneath Search Bar */}
+        <div className="flex justify-center my-4 z-20 shrink-0">
+          <div className="bg-slate-900/90 backdrop-blur-md p-1.5 rounded-full shadow-lg border border-slate-700 flex items-center gap-1">
+            <button 
+              type="button"
+              onClick={() => setViewMode("cards")} 
+              className={`flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all ${viewMode === "cards" ? "bg-indigo-600 text-white shadow-md scale-105" : "text-slate-300 hover:text-white"}`}
+            >
+              <Grid size={15} /><span>Cards</span>
+            </button>
+            <button 
+              type="button"
+              onClick={() => setViewMode("map")} 
+              className={`flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all ${viewMode === "map" ? "bg-indigo-600 text-white shadow-md scale-105" : "text-slate-300 hover:text-white"}`}
+            >
+              <MapIcon size={15} /><span>Map</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Cards Viewport (Small Cards Grid) */}
+{/* Cards Viewport (Optimized Compact Grid) */}
+        <div className={`w-full flex-1 overflow-y-auto px-4 md:px-8 pb-32 custom-scrollbar transition-all duration-300 ${
+          viewMode === "map" ? "hidden" : "block"
+        }`}>
+          <div className="flex items-center justify-between mb-4">
+            {!loading && hasActiveFilter && (
+              <h2 className="text-xl font-black text-slate-900 tracking-tight">
                 {`${totalResults} ${t("search.results_found")}`}
               </h2>
-            </div>
-          )}
+            )}
+          </div>
 
           {loading ? (
-            <div className="flex justify-center py-20">
-              <Loader2 size={40} className="animate-spin text-indigo-600" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
+              <BusinessCardSkeleton /><BusinessCardSkeleton /><BusinessCardSkeleton /><BusinessCardSkeleton />
             </div>
           ) : (
             <>
@@ -481,13 +542,12 @@ export default function SearchPage() {
                     <HandPlatter size={48} className="text-indigo-500" />
                   </div>
                   <h3 className="text-2xl font-bold text-slate-800 mb-2">{t("search.welcome_title") || "Ready to search?"}</h3>
-                  <p className="text-slate-400 max-w-sm">
-                    {t("search.welcome_text") || "Please select a service or region from the bar above to discover businesses."}
-                  </p>
+                  <p className="text-slate-400 max-w-sm">{t("search.welcome_text") || "Please select a service or region from the bar above to discover businesses."}</p>
                 </div>
               )}
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Beautiful Compact Grid Layout (Fits 3-4 cards cleanly per row) */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3.5">
                 {filteredBusinessesWithinRadius.map((biz: any) => {
                   const title = biz[`name${langSuffix}`] || biz.nameFr || biz.nameEn || "Business";
                   const desc = biz[`descr${langSuffix}`] || biz.descrFr || biz.descrEn;
@@ -499,62 +559,57 @@ export default function SearchPage() {
                       key={biz.id}
                       onMouseEnter={() => setHoveredBizId(biz.id)}
                       onMouseLeave={() => setHoveredBizId(null)}
-                      className="group flex flex-col bg-white rounded-4xl overflow-hidden transition-all duration-500 hover:shadow-2xl hover:shadow-slate-200 border border-slate-100"
+                      className="group flex flex-col bg-white rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-indigo-50/50 hover:-translate-y-0.5 border border-slate-100/80 p-2.5"
                     >
-                      <div 
-                        onClick={() => router.push(`/businesses/${biz.id}`)}
-                        className="relative h-52 w-full overflow-hidden bg-slate-100 cursor-pointer"
-                      >
-                        <img
-                          src={img}
-                          alt={title}
-                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                          onError={(e) => {
-                            const target = e.target as HTMLImageElement;
+                      {/* Image Thumbnail */}
+                      <div onClick={() => router.push(`/businesses/${biz.id}`)} className="relative h-28 w-full overflow-hidden rounded-xl bg-slate-100 cursor-pointer">
+                        <img 
+                          src={img} 
+                          alt={title} 
+                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
+                          onError={(e) => { 
+                            const target = e.target as HTMLImageElement; 
                             if (target.src !== "https://images.unsplash.com/photo-1560179707-f14e90ef3623?q=80&w=500") {
-                              target.src = "https://images.unsplash.com/photo-1560179707-f14e90ef3623?q=80&w=500";
+                              target.src = "https://images.unsplash.com/photo-1560179707-f14e90ef3623?q=80&w=500"; 
                             }
-                          }}
+                          }} 
                         />
-
-                        <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-md px-3 py-1 rounded-full">
-                          <span className="text-[10px] font-black text-indigo-600 uppercase">
+                        <div className="absolute top-2 left-2 bg-slate-900/70 backdrop-blur-md px-2 py-0.5 rounded-md">
+                          <span className="text-[9px] font-black text-white uppercase tracking-wider">
                             {biz.service?.[`nameServ${langSuffix}`] || biz.service?.[`name${langSuffix}`] || biz.service?.nameServFr || biz.service?.nameFr}
                           </span>
                         </div>
                       </div>
 
-                      <div className="p-6 flex flex-col grow">
-                        <h3 
-                          onClick={() => router.push(`/businesses/${biz.id}`)}
-                          className="text-xl font-bold text-slate-900 mb-2 group-hover:text-indigo-600 transition-colors line-clamp-1 cursor-pointer"
-                        >
+                      {/* Card Body */}
+                      <div className="p-2 flex flex-col grow">
+                        <h3 onClick={() => router.push(`/businesses/${biz.id}`)} className="text-xs font-black text-slate-900 mb-1 group-hover:text-indigo-600 transition-colors line-clamp-1 cursor-pointer tracking-tight">
                           {title}
                         </h3>
-                        <div className="flex items-center gap-1.5 text-slate-400 mb-3">
-                          <MapPin size={14} />
-                          <span className="text-xs font-bold truncate">{businessAddress(biz, langSuffix) || "Address not provided"}</span>
-                        </div>
-                        <p className="text-slate-500 text-sm leading-relaxed line-clamp-2 mb-4">{desc}</p>
                         
-                        <div className="mt-auto pt-4 border-t border-slate-50 flex items-center justify-between gap-3">
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              router.push(`/rating-report?businessId=${biz.id}`);
-                            }}
-                            className="flex-1 bg-amber-50 hover:bg-amber-100 text-amber-700 py-2.5 px-4 rounded-2xl font-bold text-xs transition-colors flex items-center justify-center gap-1.5"
+                        <div className="flex items-center gap-1 text-slate-400 mb-1.5">
+                          <MapPin size={10} className="shrink-0 text-indigo-500" />
+                          <span className="text-[10px] font-medium truncate">{businessAddress(biz, langSuffix) || "Address not provided"}</span>
+                        </div>
+
+                        <p className="text-slate-500 text-[10px] leading-relaxed line-clamp-2 mb-3">{desc}</p>
+                        
+                        {/* Actions Footer */}
+                        <div className="mt-auto pt-2 border-t border-slate-50 flex items-center justify-between gap-1.5">
+                          <button 
+                            type="button" 
+                            onClick={(e) => { e.stopPropagation(); router.push(`/rating-report?businessId=${biz.id}`); }} 
+                            className="bg-amber-50 hover:bg-amber-100 text-amber-700 py-1.5 px-2.5 rounded-xl font-bold text-[10px] transition-colors flex items-center gap-1"
                           >
-                            <span>⭐ Rate & Review</span>
+                            <span>⭐ Rate</span>
                           </button>
 
                           <div 
-                            onClick={() => router.push(`/businesses/${biz.id}`)}
-                            className="flex items-center gap-1 text-indigo-600 font-bold text-sm cursor-pointer hover:underline"
+                            onClick={() => router.push(`/businesses/${biz.id}`)} 
+                            className="flex items-center gap-0.5 text-indigo-600 font-extrabold text-[10px] cursor-pointer hover:underline"
                           >
-                            <span>{t("search.view_details")}</span>
-                            <ArrowRight size={16} className={isRtl ? "rotate-180" : ""} />
+                            <span>{t("search.view_details") || "Details"}</span>
+                            <ArrowRight size={11} className={isRtl ? "rotate-180" : ""} />
                           </div>
                         </div>
                       </div>
@@ -562,6 +617,21 @@ export default function SearchPage() {
                   );
                 })}
               </div>
+
+              {/* Load More Pagination */}
+              {hasActiveFilter && hasMore && filteredBusinessesWithinRadius.length > 0 && (
+                <div className="mt-8 text-center pb-12">
+                  <button
+                    type="button"
+                    onClick={() => setPage(prev => prev + 1)}
+                    disabled={loadingMore}
+                    className="bg-indigo-50 hover:bg-indigo-100 text-indigo-600 px-8 py-3 rounded-2xl font-bold text-sm transition-all inline-flex items-center gap-2 disabled:opacity-50 shadow-sm"
+                  >
+                    {loadingMore ? <Loader2 size={18} className="animate-spin" /> : <PlusCircle size={18} />}
+                    <span>Load More Results</span>
+                  </button>
+                </div>
+              )}
 
               {hasActiveFilter && filteredBusinessesWithinRadius.length === 0 && (
                 <div className="text-center py-20 bg-white rounded-2rem border border-dashed border-slate-200">
@@ -573,11 +643,13 @@ export default function SearchPage() {
           )}
         </div>
 
-        {/* --- MAP PANELS GRAPHIC INTERFACE --- */}
-        <div className="hidden lg:block lg:w-1/2 h-full p-4 relative">
+        {/* Map Viewport */}
+        <div className={`w-full h-full p-4 relative transition-all duration-300 ${
+          viewMode === "cards" ? "hidden" : "block"
+        }`}>
           <div className="w-full h-full rounded-4xl overflow-hidden shadow-inner border-4 border-white relative">
             <MapComponent
-              key={`map-layer-trigger-${selectedCityId}-${selectedZoneId}`}
+              key={`map-view-${selectedCityId}-${selectedZoneId}-${viewMode}`}
               center={activeMapCenter}
               displayLabel={activeMapLabel}
               markers={mapMarkers}

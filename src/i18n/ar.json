@@ -127,13 +127,20 @@
     "rating": "التقييم",
     "message": "اترك رسالة",
     "whatsapp": "واتساب",
+    "continue_to_chat": "استمر للدردشة",
+    "record_audio": "تسجيل صوتي",
+    "call": "اتصل الآن",
     "your_email": "بريدك الإلكتروني (اختياري)",
     "your_phone": "هاتفك (اختياري)",
     "message_placeholder": "اكتب رسالتك...",
     "empty_message": "يرجى كتابة رسالة أولاً.",
     "message_sent": "تم إرسال الرسالة!",
     "message_sent_desc": "تم توصيل رسالتك إلى النشاط التجاري.",
-    "message_error": "فشل الإرسال"
+    "message_error": "فشل الإرسال",
+    "whatsapp_default_msg": "مرحبًا، لقد وجدت ملفك الشخصي على منصة خدمات وأود الاستفسار عن خدماتك.",
+    "whatsapp_error": "فشل فتح واتساب. يرجى التحقق من إعدادات جهازك.",
+    "cancel": "إلغاء",
+    "start_whatsapp_chat": "ابدأ الدردشة على واتساب؟"
   },
   "how_it_works": {
   "process": "خطوات العمل",

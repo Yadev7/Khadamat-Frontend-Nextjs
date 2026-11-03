@@ -2,7 +2,7 @@
 import { useEffect, useMemo, useState, useRef } from 'react';
 import { MapContainer, TileLayer, Marker, Circle, useMap, useMapEvents, Popup } from 'react-leaflet';
 import L from 'leaflet';
-import { Search, Navigation2, Loader2 } from 'lucide-react';
+import { Search, Navigation2, Loader2, Phone, MessageCircle, ExternalLink } from 'lucide-react';
 import 'leaflet/dist/leaflet.css';
 
 export type MapMarker = {
@@ -11,6 +11,10 @@ export type MapMarker = {
   label?: string;
   address?: string;
   active?: boolean;
+  flyerUrl?: string;
+  phone?: string;
+  whatsapp?: string;
+  onViewDetails?: () => void;
 };
 
 export type MapCircleBoundary = {
@@ -39,6 +43,8 @@ const MARKER_ICONS = {
 const isValidPosition = (value: unknown): value is [number, number] =>
   Array.isArray(value) &&
   value.length === 2 &&
+  typeof value[0] === 'number' &&
+  typeof value[1] === 'number' &&
   Number.isFinite(value[0]) &&
   Number.isFinite(value[1]);
 
@@ -73,31 +79,49 @@ function MapViewUpdater({ center, zoom }: { center: [number, number]; zoom: numb
   const lastCenterRef = useRef<string>('');
 
   useEffect(() => {
-    if (!isValidPosition(center)) return;
-    const centerKey = `${center[0]}-${center[1]}`;
+    if (!map || !isValidPosition(center)) return;
+    
+    const [lat, lng] = center;
+    if (isNaN(lat) || isNaN(lng)) return;
+
+    const centerKey = `${lat}-${lng}`;
     if (centerKey === lastCenterRef.current) return;
     lastCenterRef.current = centerKey;
+
     try {
-      map.flyTo(center, zoom, { duration: 1.0 });
+      map.setView([lat, lng], zoom, { animate: false });
     } catch (error) {
-      console.error("Leaflet flyTo error:", error);
+      console.error("Leaflet setView error:", error);
     }
   }, [center, zoom, map]);
 
   return null;
 }
 
-// مكون فرعي آمن لعمل Zoom وتعديل حدود الخريطة بناءً على شعاع الدائرة رياضيّاً
+function InvalidateMapSize() {
+  const map = useMap();
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      try {
+        map.invalidateSize();
+      } catch (e) {
+        console.error("Leaflet invalidateSize error:", e);
+      }
+    }, 150);
+    return () => clearTimeout(timer);
+  }, [map]);
+  return null;
+}
+
 function FitBoundsOnCircle({ circleBoundary }: { circleBoundary: MapCircleBoundary | null }) {
   const map = useMap();
 
   useEffect(() => {
-    if (!circleBoundary || !isValidPosition(circleBoundary.center)) return;
+    if (!circleBoundary || !circleBoundary.center || !isValidPosition(circleBoundary.center)) return;
 
     const [lat, lng] = circleBoundary.center;
     const radiusMeters = circleBoundary.radius;
 
-    // حساب إحداثيات الحدود الرياضية لشعاع الدائرة لتجنب أخطاء DOM الخاصة بـ Leaflet
     const latDelta = radiusMeters / 111000;
     const lngDelta = radiusMeters / (111000 * Math.cos((lat * Math.PI) / 180));
 
@@ -106,11 +130,15 @@ function FitBoundsOnCircle({ circleBoundary }: { circleBoundary: MapCircleBounda
     const bounds = L.latLngBounds(southWest, northEast);
 
     const timer = setTimeout(() => {
-      map.invalidateSize();
-      map.fitBounds(bounds, { 
-        padding: [50, 50], 
-        duration: 1.0 
-      });
+      try {
+        map.invalidateSize();
+        map.fitBounds(bounds, { 
+          padding: [50, 50], 
+          duration: 1.0 
+        });
+      } catch (e) {
+        console.error("Leaflet fitBounds error:", e);
+      }
     }, 250);
 
     return () => clearTimeout(timer);
@@ -129,7 +157,6 @@ export default function MapComponent({
 }: MapComponentProps) {
   const [isMounted, setIsMounted] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [isSearching, setIsSearching] = useState(false);
   
   const [pickedLocation, setPickedLocation] = useState<{
     lat: number;
@@ -157,8 +184,8 @@ export default function MapComponent({
   }, [center, isPicker, displayLabel]);
 
   const icons = useMarkerIcons();
-  const hasCenter = isValidPosition(center);
-  const activePosition: [number, number] = hasCenter ? center : FALLBACK_CENTER;
+  const activePosition: [number, number] = isValidPosition(center) ? center : FALLBACK_CENTER;
+
   const safeMarkers = useMemo(
     () => (Array.isArray(markers) ? markers.filter((m) => m && isValidPosition(m.position)) : []),
     [markers],
@@ -198,7 +225,6 @@ export default function MapComponent({
     e.preventDefault();
     if (!searchQuery.trim()) return;
 
-    setIsSearching(true);
     try {
       const response = await fetch(
         `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchQuery)}`,
@@ -209,13 +235,13 @@ export default function MapComponent({
         const parsedLat = parseFloat(lat);
         const parsedLng = parseFloat(lon);
         
-        setPickedLocation({ lat: parsedLat, lng: parsedLng, address: display_name, loading: false });
-        onLocationSelect?.(parsedLat, parsedLng, display_name);
+        if (!isNaN(parsedLat) && !isNaN(parsedLng)) {
+          setPickedLocation({ lat: parsedLat, lng: parsedLng, address: display_name, loading: false });
+          onLocationSelect?.(parsedLat, parsedLng, display_name);
+        }
       }
     } catch (error) {
       console.error("Search error:", error);
-    } finally {
-      setIsSearching(false);
     }
   };
 
@@ -255,6 +281,7 @@ export default function MapComponent({
       >
         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
 
+        <InvalidateMapSize />
         <FitBoundsOnCircle circleBoundary={circleBoundary} />
 
         {circleBoundary && isValidPosition(circleBoundary.center) && (
@@ -272,7 +299,7 @@ export default function MapComponent({
 
         {isPicker && pickedLocation && icons?.red && (
           <Marker position={[pickedLocation.lat, pickedLocation.lng]} icon={icons.red} zIndexOffset={1000}>
-            <Popup autoOpen>
+            <Popup>
               <div className="p-2 font-sans max-w-xs">
                 <span className="font-bold text-indigo-600 block text-xs mb-1">الموقع المحدد:</span>
                 {pickedLocation.loading ? (
@@ -288,14 +315,15 @@ export default function MapComponent({
           </Marker>
         )}
 
-        {!isPicker && hasCenter && icons?.red && (
-          <Marker position={activePosition} icon={icons.red} zIndexOffset={1000}>
+        {!isPicker && isValidPosition(center) && icons?.red && (
+          <Marker position={center} icon={icons.red} zIndexOffset={1000}>
             <Popup>
               <span className="font-bold text-indigo-600">{displayLabel || "المركز المحدد"}</span>
             </Popup>
           </Marker>
         )}
 
+        {/* Business Markers with Flyer & Call/Message buttons */}
         {icons && safeMarkers.map((marker) => (
           <Marker
             key={`pin-biz-${marker.id}`}
@@ -303,9 +331,67 @@ export default function MapComponent({
             icon={marker.active ? icons.violet : icons.blue}
           >
             <Popup>
-              <div className="p-1 font-sans">
-                <span className="font-bold text-slate-800 block text-sm">{marker.label}</span>
-                {marker.address && <span className="text-xs text-slate-500 block mt-0.5">{marker.address}</span>}
+              <div className="p-1 font-sans w-56">
+                {marker.flyerUrl && (
+                  <div className="h-24 w-full overflow-hidden rounded-xl bg-slate-100 mb-2">
+                    <img 
+                      src={marker.flyerUrl} 
+                      alt={marker.label || "Business"} 
+                      className="w-full h-full object-cover" 
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.src = "https://images.unsplash.com/photo-1560179707-f14e90ef3623?q=80&w=500";
+                      }}
+                    />
+                  </div>
+                )}
+                
+                <span className="font-black text-slate-900 block text-sm truncate mb-0.5">{marker.label}</span>
+                {marker.address && <span className="text-[11px] text-slate-500 block truncate mb-3">{marker.address}</span>}
+                
+                {/* Action Buttons */}
+                <div className="grid grid-cols-3 gap-1.5 pt-2 border-t border-slate-100">
+                  {marker.phone ? (
+                    <a
+                      href={`tel:${marker.phone}`}
+                      className="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 py-1.5 px-2 rounded-lg font-bold text-[10px] flex items-center justify-center gap-1 transition-colors"
+                      title="اتصال"
+                    >
+                      <Phone size={12} />
+                      <span>اتصال</span>
+                    </a>
+                  ) : (
+                    <button  className="bg-slate-50 text-slate-300 py-1.5 px-2 rounded-lg font-bold text-[10px] flex items-center justify-center gap-1 opacity-50 cursor-not-allowed">
+                      <Phone size={12} /><span>اتصال</span>
+                    </button>
+                  )}
+
+                  {marker.whatsapp || marker.phone ? (
+                    <a
+                      href={`https://wa.me/${marker.whatsapp || marker.phone}?text=Hello,%20I%20found%20your%20business%20on%20the%20platform.`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="bg-green-50 hover:bg-green-100 text-green-700 py-1.5 px-2 rounded-lg font-bold text-[10px] flex items-center justify-center gap-1 transition-colors"
+                      title="مراسلة"
+                    >
+                      <MessageCircle size={12} />
+                      <span>واتساب</span>
+                    </a>
+                  ) : (
+                    <button  className="bg-slate-50 text-slate-300 py-1.5 px-2 rounded-lg font-bold text-[10px] flex items-center justify-center gap-1 opacity-50 cursor-not-allowed">
+                      <MessageCircle size={12} /><span>مراسلة</span>
+                    </button>
+                  )}
+
+                  <a
+                    href={`/businesses/${marker.id}`}
+                    className="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 py-1.5 px-2 rounded-lg font-bold text-[10px] flex items-center justify-center gap-1 transition-colors"
+                    title="التفاصيل"
+                  >
+                    <ExternalLink size={12} />
+                    <span>التفاصيل</span>
+                  </a>
+                </div>
               </div>
             </Popup>
           </Marker>
