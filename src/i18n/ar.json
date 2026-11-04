@@ -98,12 +98,14 @@
     "service": "الخدمة",
     "list": "قائمة",
     "map": "خريطة",
+    "cards": "بطاقات",
     "select_city": "اختر مدينة",
     "select_zone": "اختر منطقة",
     "select_service": "اختر خدمة",
     "no_results": "لم يتم العثور على مزودين يطابقون معاييرك.",
     "results_found": "من المزودين يطابقون معاييرك",
-    "view_details": "عرض التفاصيل"
+    "view_details": "عرض التفاصيل",
+    "welcome_title": "مرحبًا بك في صفحة البحث"
   },
   "forgot_password_page": {
     "title": "استعادة كلمة المرور",
@@ -412,7 +414,31 @@
       "create_new_business_description": "أكمل 5 خطوات لإضافة إدخال جديد إلى قاعدة البيانات",
       "managing": "إدارة",
       "back_to_directory": "العودة إلى الدليل",
-      "records": "سجلات"
+      "records": "سجلات",
+      "validation_error": "خطأ في التحقق من صحة البيانات. يرجى التحقق من الحقول المطلوبة.",
+      "step1": {
+  "title": "الخطوة 1: المعلومات الأساسية",
+  "description": "قدم المعلومات الأساسية حول عملك التجاري.",
+  "name_english": "الاسم بالإنجليزية",
+  "name_arabic": "الاسم بالعربية",
+  "name_french": "الاسم بالفرنسية",
+  "description_english": "الوصف بالإنجليزية",
+  "description_arabic": "الوصف بالعربية",
+  "description_french": "الوصف بالفرنسية",
+  "service_type": "نوع الخدمة",
+  "select_service": "اختر الخدمة",
+  "business_owner": "صاحب العمل",
+  "select_owner": "اختر المالك",
+  "website_url": "رابط الموقع",
+  "social_media": "وسائل التواصل الاجتماعي",
+  "service": "الخدمات",
+  "contact": "الاتصال",
+  "management": "الإدارة",
+  "media": "الوسائط",
+  "recap": "ملخص",
+  "next": "التالي",
+  "previous": "السابق"
+}
     }
   }
 }

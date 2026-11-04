@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, Fragment } from 'react';
+import { useState, useEffect, Fragment, useMemo } from 'react';
 import { getServices, createService, deleteService, uploadFile, updateService } from '@/api/services-api';
 import {
   PlusIcon,
@@ -9,7 +9,9 @@ import {
   CloudArrowUpIcon,
   PencilSquareIcon,
   XMarkIcon,
-  SparklesIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  MagnifyingGlassIcon,
 } from '@heroicons/react/24/outline';
 import { useTranslation } from 'react-i18next';
 import Swal from 'sweetalert2';
@@ -45,11 +47,17 @@ const getImageUrl = (path: string) => {
 };
 
 export default function ServicesPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const currentLang = i18n.language ? i18n.language.charAt(0).toUpperCase() + i18n.language.slice(1) : 'Ar';
+  const isRtl = i18n.language === 'ar';
+
   const [services, setServices] = useState<any[]>([]);
   const [isUploading, setIsUploading] = useState(false);
-  const [isTranslatingAdd, setIsTranslatingAdd] = useState(false);
-  const [isTranslatingEdit, setIsTranslatingEdit] = useState(false);
+
+  // --- Search & Pagination States ---
+  const [searchQuery, setSearchQuery] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   // States for Add Form
   const [addFormData, setAddFormData] = useState({
@@ -97,6 +105,33 @@ export default function ServicesPage() {
     fetchServices();
   }, []);
 
+  // --- Filter & Pagination Calculations ---
+  const filteredServices = useMemo(() => {
+    if (!searchQuery.trim()) return services;
+    const query = searchQuery.toLowerCase();
+    return services.filter((s) => 
+      (s.nameServAr && s.nameServAr.toLowerCase().includes(query)) ||
+      (s.nameServFr && s.nameServFr.toLowerCase().includes(query)) ||
+      (s.nameServEn && s.nameServEn.toLowerCase().includes(query)) ||
+      (s.descrAr && s.descrAr.toLowerCase().includes(query)) ||
+      (s.descrFr && s.descrFr.toLowerCase().includes(query)) ||
+      (s.descrEn && s.descrEn.toLowerCase().includes(query))
+    );
+  }, [services, searchQuery]);
+
+  const totalPages = Math.ceil(filteredServices.length / itemsPerPage) || 1;
+
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(Math.max(totalPages, 1));
+    }
+  }, [filteredServices.length, totalPages, currentPage]);
+
+  const paginatedServices = useMemo(() => {
+    const start = (currentPage - 1) * itemsPerPage;
+    return filteredServices.slice(start, start + itemsPerPage);
+  }, [filteredServices, currentPage, itemsPerPage]);
+
   const handleAddSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsUploading(true);
@@ -124,7 +159,7 @@ export default function ServicesPage() {
 
       await createService(payload);
 
-      Toast.fire({ icon: 'success', title: t('services_page.success_msg') });
+      Toast.fire({ icon: 'success', title: t('services_page.success_msg', 'تمت الإضافة بنجاح') });
 
       setAddFormData({ nameServAr: '', nameServFr: '', nameServEn: '', descrAr: '', descrFr: '', descrEn: '' });
       setAddImage(null);
@@ -133,6 +168,7 @@ export default function ServicesPage() {
       setAddVideoPreview(null);
 
       fetchServices();
+      setCurrentPage(1);
     } catch (error) {
       console.error('Add Error:', error);
       MySwal.fire('Error', 'فشلت الإضافة', 'error');
@@ -154,46 +190,6 @@ export default function ServicesPage() {
     setEditImagePreview(service.image?.path ? getImageUrl(service.image.path) : null);
     setIsEditModalOpen(true);
   };
-
-  // const handleEditSubmit = async (e: React.FormEvent) => {
-  //   e.preventDefault();
-  //   if (!editingId) return;
-  //   setIsUploading(true);
-
-  //   try {
-  //     let finalImage = undefined;
-
-  //     if (editImage) {
-  //       const res = await uploadFile(editImage);
-  //       const uploadedId = res.file?.id || res.id || res.data?.id;
-  //       if (uploadedId) {
-  //         finalImage = { id: uploadedId };
-  //       }
-  //     } else {
-  //       const currentService = services.find((s) => s.id === editingId);
-  //       if (currentService?.image?.id) {
-  //         finalImage = { id: currentService.image.id };
-  //       }
-  //     }
-
-  //     const payload = {
-  //       ...editFormData,
-  //       image: finalImage,
-  //     };
-
-  //     await updateService(editingId, payload);
-
-  //     Toast.fire({ icon: 'success', title: 'تم التحديث بنجاح' });
-  //     setIsEditModalOpen(false);
-  //     setEditImage(null);
-  //     fetchServices();
-  //   } catch (error) {
-  //     console.error('Update Error:', error);
-  //     MySwal.fire('Error', 'فشل التحديث - تأكد من الاتصال بالسيرفر', 'error');
-  //   } finally {
-  //     setIsUploading(false);
-  //   }
-  // };
 
   const handleEditSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -226,7 +222,7 @@ export default function ServicesPage() {
       Toast.fire({ icon: 'success', title: 'تم التحديث بنجاح' });
       setIsEditModalOpen(false);
       setEditImage(null);
-      setEditImagePreview(null); // ← Clear preview state here
+      setEditImagePreview(null);
       fetchServices();
     } catch (error) {
       console.error('Update Error:', error);
@@ -238,7 +234,7 @@ export default function ServicesPage() {
 
   const handleDelete = (id: string) => {
     MySwal.fire({
-      title: t('common.confirm_delete_title'),
+      title: t('common.confirm_delete_title', 'هل أنت متأكد من الحذف؟'),
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#ef4444',
@@ -246,7 +242,7 @@ export default function ServicesPage() {
       if (result.isConfirmed) {
         await deleteService(id);
         fetchServices();
-        Toast.fire({ icon: 'success', title: t('common.deleted') });
+        Toast.fire({ icon: 'success', title: t('common.deleted', 'تم الحذف بنجاح') });
       }
     });
   };
@@ -254,10 +250,11 @@ export default function ServicesPage() {
   return (
     <div className="min-h-screen bg-gray-50/50 p-4 md:p-8 font-sans dark:bg-gray-950">
       <div className="max-w-6xl mx-auto space-y-8">
+        
         {/* ADD FORM SECTION */}
         <section className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 dark:bg-gray-900 dark:border-gray-800">
           <h2 className="text-xl font-bold mb-6 flex items-center gap-2 text-blue-600 dark:text-blue-400">
-            <PlusIcon className="w-6 h-6" /> {t('services_page.title')}
+            <PlusIcon className="w-6 h-6" /> {t('services_page.title', 'إدارة الخدمات')}
           </h2>
           <form onSubmit={handleAddSubmit} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -268,7 +265,7 @@ export default function ServicesPage() {
                   className="border p-3 rounded-xl bg-gray-50 outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100 dark:placeholder-gray-400"
                   value={(addFormData as any)[`nameServ${l}`]}
                   onChange={(e) => setAddFormData({ ...addFormData, [`nameServ${l}`]: e.target.value })}
-                  required
+                  required={l === 'Ar' || l === 'Fr'}
                 />
               ))}
             </div>
@@ -280,7 +277,7 @@ export default function ServicesPage() {
                   className="border p-3 rounded-xl bg-gray-50 outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100 dark:placeholder-gray-400"
                   value={(addFormData as any)[`descr${l}`]}
                   onChange={(e) => setAddFormData({ ...addFormData, [`descr${l}`]: e.target.value })}
-                  required
+                  required={l === 'Ar' || l === 'Fr'}
                 />
               ))}
             </div>
@@ -288,7 +285,7 @@ export default function ServicesPage() {
             <div className="flex flex-wrap items-center gap-4">
               <label className="flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-lg cursor-pointer hover:bg-gray-200 transition dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-gray-300">
                 <CloudArrowUpIcon className="w-5 h-5" />
-                {t('dashboard.infos-general.common.upload_image')}
+                {t('dashboard.infos-general.common.upload_image', 'رفع صورة')}
                 <input
                   type="file"
                   accept="image/*"
@@ -306,7 +303,7 @@ export default function ServicesPage() {
 
               <label className="flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-lg cursor-pointer hover:bg-gray-200 transition dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-gray-300">
                 <CloudArrowUpIcon className="w-5 h-5" />
-                {t('dashboard.infos-general.common.upload_video')}
+                {t('dashboard.infos-general.common.upload_video', 'رفع فيديو')}
                 <input
                   type="file"
                   accept="video/*"
@@ -331,81 +328,203 @@ export default function ServicesPage() {
                 disabled={isUploading}
                 className="bg-blue-600 text-white px-8 py-2 rounded-lg font-bold hover:bg-blue-700 disabled:opacity-50 md:ml-auto w-full md:w-auto"
               >
-                {isUploading ? t('dashboard.infos-general.common.loading') : t('dashboard.infos-general.common.add_new')}
+                {isUploading ? t('dashboard.infos-general.common.loading', 'جاري التحميل...') : t('dashboard.infos-general.common.add_new', 'إضافة خدمة جديدة')}
               </button>
             </div>
           </form>
         </section>
 
-        {/* LIST SECTION */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-x-auto dark:bg-gray-900 dark:border-gray-800">
-          <table className="w-full text-right border-collapse">
-            <thead className="bg-gray-50 text-gray-600 text-sm dark:bg-gray-800 dark:text-gray-300">
-              <tr>
-                <th className="px-6 py-4 border-b dark:border-gray-700">{t('dashboard.infos-general.common.icon')}</th>
-                <th className="px-6 py-4 border-b dark:border-gray-700">{t('dashboard.infos-general.common.name')} (AR)</th>
-                <th className="px-6 py-4 border-b dark:border-gray-700">{t('dashboard.infos-general.common.name')} (FR)</th>
-                <th className="px-6 py-4 border-b dark:border-gray-700">{t('dashboard.infos-general.common.name')} (EN)</th>
-                <th className="px-6 py-4 border-b dark:border-gray-700">{t('dashboard.infos-general.common.description')} (AR)</th>
-                <th className="px-6 py-4 border-b dark:border-gray-700">{t('dashboard.infos-general.common.description')} (FR)</th>
-                <th className="px-6 py-4 border-b dark:border-gray-700">{t('dashboard.infos-general.common.description')} (EN)</th>
-                <th className="px-6 py-4 border-b text-center dark:border-gray-700">{t('dashboard.infos-general.common.operations')}</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
-              {services.map((s) => (
-                <tr key={s.id} className="hover:bg-gray-50 transition-colors dark:hover:bg-gray-800">
-                  <td className="px-6 py-4">
-                    <div className="w-12 h-12 rounded-xl bg-gray-100 flex items-center justify-center overflow-hidden border border-gray-200 shadow-sm dark:bg-gray-800 dark:border-gray-700">
-                      {s.image?.path ? (
-                        <img
-                          src={getImageUrl(s.image.path)}
-                          className="w-full h-full object-cover transition-transform hover:scale-110 cursor-pointer"
-                          alt={s.nameServAr}
-                          onClick={() => {
-                            setPreviewImageSrc(getImageUrl(s.image.path));
-                            setIsPreviewModalOpen(true);
-                          }}
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).src = 'https://via.placeholder.com/150?text=No+Image';
-                          }}
-                        />
-                      ) : (
-                        <PhotoIcon className="w-6 h-6 text-gray-400" />
-                      )}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 font-medium text-gray-900 dark:text-gray-100">{s.nameServAr}</td>
-                  <td className="px-6 py-4 text-gray-600 dark:text-gray-300">{s.nameServFr}</td>
-                  <td className="px-6 py-4 text-gray-600 dark:text-gray-300">{s.nameServEn || '-'}</td>
-                  <td className="px-6 py-4 text-sm text-gray-500 max-w-xs truncate dark:text-gray-400">{s.descrAr}</td>
-                  <td className="px-6 py-4 text-sm text-gray-600 max-w-xs truncate dark:text-gray-300">{s.descrFr}</td>
-                  <td className="px-6 py-4 text-sm text-gray-600 max-w-xs truncate dark:text-gray-300">{s.descrEn || '-'}</td>
-                  <td className="px-6 py-4">
-                    <div className="flex justify-center gap-2">
-                      <button
-                        onClick={() => openEditModal(s)}
-                        className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition dark:text-blue-400 dark:hover:bg-blue-950"
-                        title="تعديل"
-                      >
-                        <PencilSquareIcon className="w-5 h-5" />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(s.id)}
-                        className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition dark:text-red-400 dark:hover:bg-red-950"
-                        title="حذف"
-                      >
-                        <TrashIcon className="w-5 h-5" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        {/* LIST SECTION WITH SEARCH FILTER & CARD GRID */}
+        <div className="space-y-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 px-1">
+            <h3 className="text-lg font-bold text-gray-800 dark:text-gray-200">
+              {t('dashboard.infos-general.tabs.service_tab', 'قائمة الخدمات')} ({filteredServices.length} {services.length !== totalPages ? `/ ${services.length}` : ''})
+            </h3>
 
-          {services.length === 0 && (
-            <div className="text-center py-10 text-gray-400 dark:text-gray-500">{t('dashboard.infos-general.not_found')}</div>
+            {/* --- LIVE SEARCH FILTER BAR --- */}
+            <div className="relative w-full sm:w-72">
+              <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400">
+                <MagnifyingGlassIcon className="w-5 h-5" />
+              </span>
+              <input
+                type="text"
+                placeholder={t('common.search_placeholder', 'بحث عن خدمة...')}
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setCurrentPage(1);
+                }}
+                className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-blue-500 shadow-sm dark:bg-gray-900 dark:border-gray-800 dark:text-gray-100 dark:placeholder-gray-500 transition-all"
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => {
+                    setSearchQuery('');
+                    setCurrentPage(1);
+                  }}
+                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+                >
+                  <XMarkIcon className="w-4 h-4" />
+                </button>
+              )}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {paginatedServices.map((s) => {
+              const displayName = s[`nameServ${currentLang}`] || s.nameServAr || s.nameServFr;
+              const displayDesc = s[`descr${currentLang}`] || s.descrAr || s.descrFr;
+
+              return (
+                <div
+                  key={s.id}
+                  className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm flex flex-col justify-between dark:bg-gray-900 dark:border-gray-800 transition hover:shadow-md"
+                >
+                  <div>
+                    {/* Header: Image & Actions */}
+                    <div className="flex items-start justify-between gap-4 mb-4">
+                      <div className="w-16 h-16 rounded-2xl bg-gray-100 flex items-center justify-center overflow-hidden border border-gray-200 shadow-sm shrink-0 dark:bg-gray-800 dark:border-gray-700">
+                        {s.image?.path ? (
+                          <img
+                            src={getImageUrl(s.image.path)}
+                            className="w-full h-full object-cover transition-transform hover:scale-105 cursor-pointer"
+                            alt={s.nameServAr}
+                            onClick={() => {
+                              setPreviewImageSrc(getImageUrl(s.image.path));
+                              setIsPreviewModalOpen(true);
+                            }}
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src = 'https://via.placeholder.com/150?text=No+Image';
+                            }}
+                          />
+                        ) : (
+                          <PhotoIcon className="w-8 h-8 text-gray-400" />
+                        )}
+                      </div>
+
+                      {/* Action buttons */}
+                      <div className="flex items-center gap-1 bg-gray-50 dark:bg-gray-800/60 p-1.5 rounded-xl border border-gray-100 dark:border-gray-700/50">
+                        <button
+                          onClick={() => openEditModal(s)}
+                          className="p-2 text-blue-600 hover:bg-blue-100/50 rounded-lg transition dark:text-blue-400 dark:hover:bg-blue-900/40"
+                          title="تعديل"
+                        >
+                          <PencilSquareIcon className="w-5 h-5" />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(s.id)}
+                          className="p-2 text-red-500 hover:bg-red-100/50 rounded-lg transition dark:text-red-400 dark:hover:bg-red-900/40"
+                          title="حذف"
+                        >
+                          <TrashIcon className="w-5 h-5" />
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Title */}
+                    <h4 className="font-bold text-gray-900 dark:text-gray-100 text-lg mb-1 line-clamp-1">
+                      {displayName}
+                    </h4>
+
+                    {/* Description */}
+                    <p className="text-gray-500 dark:text-gray-400 text-sm line-clamp-2 leading-relaxed mb-4">
+                      {displayDesc || '-'}
+                    </p>
+                  </div>
+
+                  {/* Footer tags for available translations */}
+                  <div className="pt-3 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between text-xs text-gray-400">
+                    <span className="flex gap-1.5 font-medium">
+                      <span className={s.nameServAr ? 'text-blue-600 dark:text-blue-400' : 'opacity-40'}>AR</span>
+                      <span>/</span>
+                      <span className={s.nameServFr ? 'text-blue-600 dark:text-blue-400' : 'opacity-40'}>FR</span>
+                      <span>/</span>
+                      <span className={s.nameServEn ? 'text-blue-600 dark:text-blue-400' : 'opacity-40'}>EN</span>
+                    </span>
+                    <span>ID: {s.id.slice(0, 6)}...</span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {filteredServices.length === 0 && (
+            <div className="text-center py-12 bg-white rounded-2xl border border-gray-100 shadow-sm dark:bg-gray-900 dark:border-gray-800 text-gray-400 dark:text-gray-500">
+              {searchQuery ? t('common.no_search_results', 'لا توجد نتائج تطابق بحثك') : t('dashboard.infos-general.not_found', 'لا توجد خدمات متاحة حالياً')}
+            </div>
+          )}
+
+          {/* --- PAGINATION CONTROLS: 1 2 3 4 5 STYLE --- */}
+          {filteredServices.length > 0 && (
+            <div className="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm dark:bg-gray-900 dark:border-gray-800 mt-6 space-y-4">
+              
+              {/* Top row: Per-page selector & item counts */}
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-xs font-semibold text-gray-500 dark:text-gray-400 pb-3 border-b border-gray-100 dark:border-gray-800">
+                <div className="flex items-center gap-2">
+                  <span>{t('common.show', 'عرض')}</span>
+                  <select
+                    value={itemsPerPage}
+                    onChange={(e) => {
+                      setItemsPerPage(Number(e.target.value));
+                      setCurrentPage(1);
+                    }}
+                    className="bg-gray-50 border border-gray-200 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200 rounded-xl px-3 py-1.5 outline-none focus:ring-2 focus:ring-blue-500 font-bold cursor-pointer"
+                  >
+                    <option value={10}>10</option>
+                    <option value={20}>20</option>
+                    <option value={50}>50</option>
+                  </select>
+                  <span>{t('common.per_page', 'لكل صفحة')}</span>
+                </div>
+
+                <span>
+                  {t('common.showing', 'عرض')} {Math.min((currentPage - 1) * itemsPerPage + 1, filteredServices.length)} - {Math.min(currentPage * itemsPerPage, filteredServices.length)} {t('common.of', 'من')} {filteredServices.length} {t('common.items', 'عنصر')}
+                </span>
+              </div>
+
+              {/* Bottom row: Clickable numbers 1 2 3 4 5 ... */}
+              <div className="flex items-center justify-center gap-2 flex-wrap pt-1">
+                <button
+                  onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                  disabled={currentPage === 1}
+                  className="flex items-center gap-1 px-3 py-2 rounded-xl border border-gray-200 text-xs font-bold text-gray-700 hover:bg-gray-50 disabled:opacity-40 disabled:hover:bg-transparent dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800 transition-colors"
+                >
+                  {isRtl ? <ChevronRightIcon className="w-4 h-4" /> : <ChevronLeftIcon className="w-4 h-4" />}
+                  <span>{t('common.prev', 'السابق')}</span>
+                </button>
+
+                {/* Numbered Page List */}
+                <div className="flex items-center gap-1.5 overflow-x-auto px-1">
+                  {Array.from({ length: totalPages }, (_, index) => {
+                    const pageNum = index + 1;
+                    const isActive = currentPage === pageNum;
+                    return (
+                      <button
+                        key={pageNum}
+                        onClick={() => setCurrentPage(pageNum)}
+                        className={`w-10 h-10 rounded-xl font-bold text-sm transition-all flex items-center justify-center shadow-sm ${
+                          isActive
+                            ? 'bg-blue-600 text-white shadow-blue-500/25 scale-105'
+                            : 'bg-gray-50 border border-gray-200 text-gray-700 hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-700'
+                        }`}
+                      >
+                        {pageNum}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <button
+                  onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                  disabled={currentPage === totalPages}
+                  className="flex items-center gap-1 px-3 py-2 rounded-xl border border-gray-200 text-xs font-bold text-gray-700 hover:bg-gray-50 disabled:opacity-40 disabled:hover:bg-transparent dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800 transition-colors"
+                >
+                  <span>{t('common.next', 'التالي')}</span>
+                  {isRtl ? <ChevronLeftIcon className="w-4 h-4" /> : <ChevronRightIcon className="w-4 h-4" />}
+                </button>
+              </div>
+
+            </div>
           )}
         </div>
 
@@ -437,7 +556,7 @@ export default function ServicesPage() {
                   <Dialog.Panel className="w-full max-w-2xl transform overflow-hidden rounded-2xl bg-white p-6 shadow-xl transition-all dark:bg-gray-900 dark:border dark:border-gray-800">
                     <div className="flex justify-between items-center mb-6">
                       <Dialog.Title className="text-xl font-bold dark:text-gray-100">
-                        {t('dashboard.infos-general.tabs.service_tab')}
+                        {t('dashboard.infos-general.tabs.service_tab', 'تعديل الخدمة')}
                       </Dialog.Title>
                       <button onClick={() => setIsEditModalOpen(false)}>
                         <XMarkIcon className="w-6 h-6 text-gray-400 dark:text-gray-500" />
@@ -448,13 +567,13 @@ export default function ServicesPage() {
                         {['Ar', 'Fr', 'En'].map((l) => (
                           <div key={l}>
                             <label className="text-xs font-bold text-gray-500 dark:text-gray-400">
-                              {t('dashboard.infos-general.common.name')} ({l})
+                              {t('dashboard.infos-general.common.name', 'الاسم')} ({l})
                             </label>
                             <input
                               className="w-full border p-3 rounded-xl mt-1 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
                               value={(editFormData as any)[`nameServ${l}`]}
                               onChange={(e) => setEditFormData({ ...editFormData, [`nameServ${l}`]: e.target.value })}
-                              required
+                              required={l === 'Ar' || l === 'Fr'}
                             />
                           </div>
                         ))}
@@ -463,21 +582,21 @@ export default function ServicesPage() {
                         {['Ar', 'Fr', 'En'].map((l) => (
                           <div key={l}>
                             <label className="text-xs font-bold text-gray-500 dark:text-gray-400">
-                              {t('dashboard.infos-general.common.description')} ({l})
+                              {t('dashboard.infos-general.common.description', 'الوصف')} ({l})
                             </label>
                             <textarea
                               className="w-full border p-3 rounded-xl mt-1 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
                               value={(editFormData as any)[`descr${l}`]}
                               onChange={(e) => setEditFormData({ ...editFormData, [`descr${l}`]: e.target.value })}
-                              required
+                              required={l === 'Ar' || l === 'Fr'}
                             />
                           </div>
                         ))}
                       </div>
                       <div className="flex items-center gap-4 py-4">
                         <label className="bg-blue-50 text-blue-600 px-4 py-2 rounded-lg cursor-pointer font-medium dark:bg-blue-950 dark:text-blue-400">
-                         {t('dashboard.infos-general.common.change_image')}
-                          <input
+                           {t('dashboard.infos-general.common.change_image', 'تغيير الصورة')}
+                           <input
                             type="file"
                             className="hidden"
                             onChange={(e) => {
@@ -503,14 +622,14 @@ export default function ServicesPage() {
                           onClick={() => setIsEditModalOpen(false)}
                           className="px-6 py-2 text-gray-500 font-medium dark:text-gray-400"
                         >
-                          {t('dashboard.infos-general.common.cancel')}
+                          {t('dashboard.infos-general.common.cancel', 'إلغاء')}
                         </button>
                         <button
                           type="submit"
                           disabled={isUploading}
                           className="px-8 py-2 bg-amber-500 text-white rounded-lg font-bold hover:bg-amber-600 disabled:opacity-50 dark:bg-amber-600 dark:hover:bg-amber-700"
                         >
-                          {isUploading ? t('dashboard.infos-general.common.update_loading') : t('dashboard.infos-general.common.update_now')}
+                          {isUploading ? t('dashboard.infos-general.common.update_loading', 'جاري التحديث...') : t('dashboard.infos-general.common.update_now', 'تحديث الآن')}
                         </button>
                       </div>
                     </form>

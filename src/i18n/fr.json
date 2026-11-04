@@ -96,13 +96,15 @@
     "zone": "Zone",
     "service": "Service",
     "list": "Liste",
-    "map": "Carte",
+    "map": "Plan",
+    "cards": "Cartes",
     "select_city": "Sélectionnez une ville",
     "select_zone": "Sélectionnez une zone",
     "select_service": "Sélectionnez un service",
     "no_results": "Aucun prestataire trouvé correspondant à vos critères.",
     "results_found": "prestataires trouvés correspondant à vos critères.",
-    "view_details": "Voir les détails"
+    "view_details": "Voir les détails",
+    "welcome_title": "Bienvenue sur la page de recherche"
   },
   "forgot_password_page": {
     "title": "Récupération de mot de passe",
@@ -405,7 +407,31 @@
       "create_new_business_description": "Complétez les 5 étapes pour ajouter une nouvelle entrée à la base de données",
       "managing": "Gestion de",
       "back_to_directory": "Retour à l'annuaire",
-      "records": "enregistrements"
+      "records": "enregistrements",
+      "validation_error": "Veuillez corriger les erreurs dans le formulaire avant de continuer.",
+    "step1": {
+        "title": "Étape 1 : Informations de base",
+        "description": "Fournissez les informations de base sur votre entreprise.",
+        "name_english": "Nom en anglais",
+        "name_arabic": "Nom en arabe",
+        "name_french": "Nom en français",
+        "description_english": "Description en anglais",
+        "description_arabic": "Description en arabe",
+        "description_french": "Description en français",
+        "service_type": "Type de service",
+        "select_service": "Sélectionner un service",
+        "business_owner": "Propriétaire de l'entreprise",
+        "select_owner": "Sélectionner un propriétaire",
+        "website_url": "Site Web",
+        "social_media": "Réseaux sociaux",
+        "service": "Service",
+        "contact": "Contact",
+        "management": "Gestion",
+        "media": "Média",
+        "recap": "Récapitulatif",
+        "next": "Suivant",
+        "previous": "Précédent"
+      }
     }
   }
 }

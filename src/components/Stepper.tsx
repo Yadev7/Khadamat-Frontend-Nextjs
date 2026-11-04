@@ -3,9 +3,10 @@
 import React, { useState } from "react";
 import { ChevronLeft, ChevronRight, Check, AlertCircle, Loader2 } from "lucide-react";
 import { useFormContext } from "react-hook-form";
-import { STEP_FIELDS } from "@/app/dashboard/business/add/schema"; // Import the mapping
+import { STEP_FIELDS } from "@/app/dashboard/business/add/schema";
 import withReactContent from "sweetalert2-react-content";
 import Swal from "sweetalert2";
+import { useTranslation } from "react-i18next";
 
 interface Step {
   step: number;
@@ -21,104 +22,39 @@ interface StepperProps {
 export default function Stepper({ steps, onSubmit }: StepperProps) {
   const [activeStep, setActiveStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
+
+  // --- 1. Hook into real i18next ---
+  const { t } = useTranslation();
+
   // Access form methods from FormProvider
   const { trigger, formState: { errors } } = useFormContext();
 
   const currentStepIndex = activeStep - 1;
   const CurrentStepComponent = steps[currentStepIndex]?.content;
 
+  const handleNext = async () => {
+    const fieldsToValidate = STEP_FIELDS[currentStepIndex as keyof typeof STEP_FIELDS];
 
-  // Inside components/Stepper.tsx
+    const isStepValid = await trigger(fieldsToValidate as any);
 
-const handleNext = async () => {
-  // 1. Determine which fields to validate based on the current step index
-  const fieldsToValidate = STEP_FIELDS[currentStepIndex as keyof typeof STEP_FIELDS];
-
-  // 2. Trigger validation
-  // This tells React Hook Form to check the schema only for the current step's inputs
-  const isStepValid = await trigger(fieldsToValidate as any);
-
-  // 3. BLOCKING LOGIC
-  if (!isStepValid) {
-    // If invalid, the errors object will be populated automatically
-    // We do NOT increment the step
-    console.log("Validation failed for step", activeStep);
-    return; 
-  }
-
-  // 4. If valid, proceed
-  if (activeStep < steps.length) {
-    setActiveStep((prev) => prev + 1);
-  } else {
-    // Final Submit logic...
-    setIsSubmitting(true);
-    try {
-      await onSubmit();
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setIsSubmitting(false);
+    if (!isStepValid) {
+      console.log("Validation failed for step", activeStep);
+      return; 
     }
-  }
-};
 
-  // const handleNext = async () => {
-  //   // 1. Identify fields for the current step
-  //   const fieldsToValidate = STEP_FIELDS[currentStepIndex];
-
-  //   // 2. Trigger validation
-  //   // trigger() returns true if valid, false if invalid
-  //   const isStepValid = await trigger(fieldsToValidate as any);
-
-  //   if (!isStepValid) {
-  //     // OPTIONAL: Show a popup alert if you want it to be more aggressive
-  //     withReactContent(Swal).fire({
-  //       icon: 'error',
-  //       title: 'Form Incomplete',
-  //       text: 'Please fill in all required fields marked in red before proceeding.',
-  //       confirmButtonColor: '#4f46e5'
-  //     });
-  //     return; // STOP HERE
-  //   }
-
-  //   // 3. If valid, move forward
-  //   if (activeStep < steps.length) {
-  //     setActiveStep((prev) => prev + 1);
-  //   } else {
-  //     setIsSubmitting(true);
-  //     try {
-  //       await onSubmit();
-  //     } catch (error) {
-  //       console.error("Submission failed", error);
-  //     } finally {
-  //       setIsSubmitting(false);
-  //     }
-  //   }
-  // };
-
-  // const handleNext = async () => {
-  //   // 1. Get fields for current step
-  //   const fieldsToValidate = STEP_FIELDS[currentStepIndex];
-
-  //   // 2. Trigger validation only for these fields
-  //   const isStepValid = await trigger(fieldsToValidate as any);
-
-  //   if (isStepValid) {
-  //     if (activeStep < steps.length) {
-  //       setActiveStep((prev) => prev + 1);
-  //     } else {
-  //       setIsSubmitting(true);
-  //       try {
-  //         await onSubmit();
-  //       } catch (error) {
-  //         console.error("Submission failed", error);
-  //       } finally {
-  //         setIsSubmitting(false);
-  //       }
-  //     }
-  //   }
-  // };
+    if (activeStep < steps.length) {
+      setActiveStep((prev) => prev + 1);
+    } else {
+      setIsSubmitting(true);
+      try {
+        await onSubmit();
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setIsSubmitting(false);
+      }
+    }
+  };
 
   const handleBack = () => {
     if (activeStep > 1) {
@@ -128,7 +64,7 @@ const handleNext = async () => {
 
   return (
     <div className="max-w-4xl mx-auto">
-      {/* Indicators (Unchanged structure, added logic) */}
+      {/* Indicators */}
       <div className="flex justify-between items-center mb-6 sm:mb-10 overflow-x-auto">
         {steps.map((step, index) => {
           const isCompleted = activeStep > step.step;
@@ -168,7 +104,7 @@ const handleNext = async () => {
         {Object.keys(errors).length > 0 && (
           <div className="mt-4 p-3 bg-red-50 text-red-600 rounded-xl flex items-center gap-2 text-sm font-medium animate-in fade-in dark:bg-red-950 dark:text-red-400">
             <AlertCircle size={16} />
-            Please fill in all required fields to continue.
+            {t("dashboard.business.validation_error")}
           </div>
         )}
       </div>
@@ -183,7 +119,7 @@ const handleNext = async () => {
             activeStep === 1 ? "opacity-0 pointer-events-none" : "text-slate-600 hover:bg-slate-100 active:scale-95 dark:text-gray-300 dark:hover:bg-gray-800"
           }`}
         >
-          <ChevronLeft size={20} /> Back
+          <ChevronLeft size={20} /> {t("common.back", "Back")}
         </button>
 
         <button
@@ -195,10 +131,10 @@ const handleNext = async () => {
           {isSubmitting ? (
             <Loader2 className="animate-spin" size={20} />
           ) : activeStep === steps.length ? (
-            "Complete & Submit"
+            t("business.complete_submit", "Complete & Submit")
           ) : (
             <>
-              Next <ChevronRight size={20} />
+              {t("dashboard.business.step1.next", "Next")} <ChevronRight size={20} />
             </>
           )}
         </button>

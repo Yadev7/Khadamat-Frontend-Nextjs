@@ -403,64 +403,49 @@ export default function SearchPage() {
     return `${baseEndpoint}/v1/files/${cleanFilename}`;
   };
 
-  // const mapMarkers = useMemo(() => {
-  //   if (!Array.isArray(filteredBusinessesWithinRadius)) return [];
-
-  //   return filteredBusinessesWithinRadius.map((biz: any) => {
-  //     if (!biz) return null;
-  //     const position = businessPosition(biz);
-  //     if (!position) return null;
-  //     return {
-  //       id: biz.id,
-  //       position,
-  //       label: biz[`name${langSuffix}`] || biz.nameFr || biz.nameEn || "Business",
-  //       flyerUrl: resolveFlyerUrl(biz.flyer?.path || biz.flyer?.url),
-  //       address: businessAddress(biz, langSuffix),
-  //       active: hoveredBizId === biz.id
-  //     };
-  //   }).filter((m): m is NonNullable<typeof m> => m !== null);
-  // }, [filteredBusinessesWithinRadius, langSuffix, hoveredBizId]);
-
   const mapMarkers = useMemo(() => {
-  if (!Array.isArray(filteredBusinessesWithinRadius)) return [];
+    if (!Array.isArray(filteredBusinessesWithinRadius)) return [];
 
-  return filteredBusinessesWithinRadius.map((biz: any) => {
-    if (!biz) return null;
-    const position = businessPosition(biz);
-    if (!position) return null;
-    return {
-      id: biz.id,
-      position,
-      label: biz[`name${langSuffix}`] || biz.nameFr || biz.nameEn || "Business",
-      address: businessAddress(biz, langSuffix),
-      flyerUrl: resolveFlyerUrl(biz.flyer?.path || biz.flyer?.url),
-      phone: biz.phoneGround || biz.contact?.phoneGround || "",
-      whatsapp: biz.phoneCell || biz.contact?.phoneCell  || "",
-      active: hoveredBizId === biz.id
-    };
-  }).filter((m): m is NonNullable<typeof m> => m !== null);
-}, [filteredBusinessesWithinRadius, langSuffix, hoveredBizId]);
+    return filteredBusinessesWithinRadius.map((biz: any) => {
+      if (!biz) return null;
+      const position = businessPosition(biz);
+      if (!position) return null;
+      return {
+        id: biz.id,
+        position,
+        label: biz[`name${langSuffix}`] || biz.nameFr || biz.nameEn || "Business",
+        address: businessAddress(biz, langSuffix),
+        flyerUrl: resolveFlyerUrl(biz.flyer?.path || biz.flyer?.url),
+        phone: biz.phoneGround || biz.contact?.phoneGround || "",
+        whatsapp: biz.phoneCell || biz.contact?.phoneCell  || "",
+        active: hoveredBizId === biz.id
+      };
+    }).filter((m): m is NonNullable<typeof m> => m !== null);
+  }, [filteredBusinessesWithinRadius, langSuffix, hoveredBizId]);
 
   return (
-    <div className="relative min-h-screen w-full bg-slate-50/50 overflow-hidden" dir={isRtl ? 'rtl' : 'ltr'}>
-      {/* Search Bar */}
-      <div className="fixed top-15 left-0 right-0 z-30 px-2 py-6 md:px-6 bg-white/80 backdrop-blur-xl border-b border-slate-100">
-        <div className="container mx-auto max-w-6xl">
-          <div className="bg-white/95 backdrop-blur-md border border-slate-200 shadow-[0_20px_50px_rgba(0,0,0,0.1)] rounded-3xl md:rounded-full p-2 flex flex-col md:flex-row items-center gap-1 transition-all hover:border-indigo-200">
+    <div className="relative min-h-screen w-full bg-slate-50/50 overflow-hidden pb-16" dir={isRtl ? 'rtl' : 'ltr'}>
+      
+      {/* Sticky Search & Toggle Header */}
+      <div className="sticky top-0 left-0 right-0 z-40 px-3 py-3 md:px-6 bg-white/90 backdrop-blur-xl border-b border-slate-100 shadow-sm">
+        <div className="container mx-auto max-w-6xl space-y-3">
+          
+          {/* Search Inputs Bar */}
+          <div className="bg-white/95 backdrop-blur-md border border-slate-200 shadow-[0_20px_50px_rgba(0,0,0,0.06)] rounded-3xl md:rounded-full p-2 flex flex-col md:flex-row items-center gap-1 transition-all">
             <CompactSelect
               label={t("search.city")}
-              icon={<MapPin size={20} />}
+              icon={<MapPin size={18} />}
               options={cities.map(c => ({ id: c.id, name: c.displayName }))}
               value={cities.find(c => String(c.id) === String(selectedCityId))?.displayName || ""}
               selectedValueId={selectedCityId}
               onChange={(id) => { setSelectedCityId(id); setSelectedZoneId(""); }}
               placeholder={t("search.select_city")}
             />
-            <div className="hidden md:block w-px h-10 bg-slate-100 shrink-0 mx-1" />
+            <div className="hidden md:block w-px h-8 bg-slate-100 shrink-0 mx-1" />
             <div className="block md:hidden w-full h-px bg-slate-100 my-1" />
             <CompactSelect
               label={t("search.zone")}
-              icon={<LayoutGrid size={20} />}
+              icon={<LayoutGrid size={18} />}
               options={filteredZones.map(z => ({ id: z.id, name: z.displayName }))}
               value={filteredZones.find(z => String(z.id) === String(selectedZoneId))?.displayName || ""}
               selectedValueId={selectedZoneId}
@@ -468,12 +453,13 @@ export default function SearchPage() {
               onChange={(id) => setSelectedZoneId(id)}
               placeholder={selectedCityId ? (filteredZones.length === 0 ? "No Areas" : t("search.select_zone")) : t("search.select_zone")}
             />
-            <div className="hidden md:block w-px h-10 bg-slate-100 shrink-0 mx-1" />
+            <div className="hidden md:block w-px h-8 bg-slate-100 shrink-0 mx-1" />
             <div className="block md:hidden w-full h-px bg-slate-100 my-1" />
-            <div className="flex-[1.4] flex flex-col md:flex-row items-center min-w-0 w-full gap-3 md:gap-0">
+            
+            <div className="flex-[1.4] flex flex-col md:flex-row items-center min-w-0 w-full gap-2 md:gap-0">
               <CompactSelect
                 label={t("search.service")}
-                icon={<HandPlatter size={20} />}
+                icon={<HandPlatter size={18} />}
                 options={services.map(s => ({ id: s.id, name: s.displayName }))}
                 value={services.find(s => String(s.id) === String(selectedServiceId))?.displayName || ""}
                 selectedValueId={selectedServiceId}
@@ -484,52 +470,48 @@ export default function SearchPage() {
                 type="button"
                 onClick={handleSearchUpdate}
                 disabled={loading}
-                className="w-full md:w-auto bg-indigo-600 hover:bg-indigo-700 text-white p-4 md:px-10 rounded-2xl md:rounded-full active:scale-95 transition-all flex items-center justify-center gap-3 shadow-lg shadow-indigo-100 disabled:opacity-50 md:ml-2"
+                className="w-full md:w-auto bg-indigo-600 hover:bg-indigo-700 text-white p-3 md:px-8 rounded-2xl md:rounded-full active:scale-95 transition-all flex items-center justify-center gap-2 shadow-md shadow-indigo-100 disabled:opacity-50 md:ml-2"
               >
-                {loading ? <Loader2 size={22} className="animate-spin" /> : <Search size={22} />}
-                <span className="font-black text-sm uppercase tracking-widest">{t("search.button")}</span>
+                {loading ? <Loader2 size={18} className="animate-spin" /> : <Search size={18} />}
+                <span className="font-black text-xs uppercase tracking-widest">{t("search.button")}</span>
               </button>
             </div>
           </div>
+
+          {/* Cards / Map Viewport Toggle Switch Bar */}
+          <div className="flex items-center justify-between px-1">
+            <div className="text-xs font-bold text-slate-500">
+              {!loading && hasActiveFilter && `${totalResults} ${t("search.results_found")}`}
+            </div>
+            
+            <div className="bg-slate-900/90 backdrop-blur-md p-1 rounded-full shadow-md border border-slate-700 flex items-center gap-1 mx-auto md:mx-0">
+              <button 
+                type="button"
+                onClick={() => setViewMode("cards")} 
+                className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold transition-all ${viewMode === "cards" ? "bg-indigo-600 text-white shadow-md scale-105" : "text-slate-300 hover:text-white"}`}
+              >
+                <Grid size={13} /><span>{t("search.cards")}</span>
+              </button>
+              <button 
+                type="button"
+                onClick={() => setViewMode("map")} 
+                className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold transition-all ${viewMode === "map" ? "bg-indigo-600 text-white shadow-md scale-105" : "text-slate-300 hover:text-white"}`}
+              >
+                <MapIcon size={13} /><span>{t("search.map")}</span>
+              </button>
+            </div>
+          </div>
+
         </div>
       </div>
 
       {/* Main Viewports Container */}
-      <div className="flex flex-col h-[calc(100vh-6rem)] mt-36 relative">
+      <div className="flex flex-col min-h-[calc(100vh-10rem)] relative mt-2">
         
-        {/* Toggle Switch Centered Right Underneath Search Bar */}
-        <div className="flex justify-center my-4 z-20 shrink-0">
-          <div className="bg-slate-900/90 backdrop-blur-md p-1.5 rounded-full shadow-lg border border-slate-700 flex items-center gap-1">
-            <button 
-              type="button"
-              onClick={() => setViewMode("cards")} 
-              className={`flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all ${viewMode === "cards" ? "bg-indigo-600 text-white shadow-md scale-105" : "text-slate-300 hover:text-white"}`}
-            >
-              <Grid size={15} /><span>Cards</span>
-            </button>
-            <button 
-              type="button"
-              onClick={() => setViewMode("map")} 
-              className={`flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all ${viewMode === "map" ? "bg-indigo-600 text-white shadow-md scale-105" : "text-slate-300 hover:text-white"}`}
-            >
-              <MapIcon size={15} /><span>Map</span>
-            </button>
-          </div>
-        </div>
-
-        {/* Cards Viewport (Small Cards Grid) */}
-{/* Cards Viewport (Optimized Compact Grid) */}
-        <div className={`w-full flex-1 overflow-y-auto px-4 md:px-8 pb-32 custom-scrollbar transition-all duration-300 ${
+        {/* Cards Viewport (Optimized Compact Grid) */}
+        <div className={`w-full flex-1 px-3 md:px-8 pb-32 transition-all duration-300 ${
           viewMode === "map" ? "hidden" : "block"
         }`}>
-          <div className="flex items-center justify-between mb-4">
-            {!loading && hasActiveFilter && (
-              <h2 className="text-xl font-black text-slate-900 tracking-tight">
-                {`${totalResults} ${t("search.results_found")}`}
-              </h2>
-            )}
-          </div>
-
           {loading ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
               <BusinessCardSkeleton /><BusinessCardSkeleton /><BusinessCardSkeleton /><BusinessCardSkeleton />
@@ -537,17 +519,16 @@ export default function SearchPage() {
           ) : (
             <>
               {!hasActiveFilter && (
-                <div className="flex flex-col items-center justify-center py-32 bg-white rounded-[3rem] border-2 border-dashed border-slate-100 text-center px-6">
-                  <div className="p-6 bg-indigo-50 rounded-full mb-6">
-                    <HandPlatter size={48} className="text-indigo-500" />
+                <div className="flex flex-col items-center justify-center py-28 bg-white rounded-[2.5rem] border-2 border-dashed border-slate-100 text-center px-6 mt-4">
+                  <div className="p-5 bg-indigo-50 rounded-full mb-4">
+                    <HandPlatter size={40} className="text-indigo-500" />
                   </div>
-                  <h3 className="text-2xl font-bold text-slate-800 mb-2">{t("search.welcome_title") || "Ready to search?"}</h3>
-                  <p className="text-slate-400 max-w-sm">{t("search.welcome_text") || "Please select a service or region from the bar above to discover businesses."}</p>
+                  <h3 className="text-xl font-bold text-slate-800 mb-1">{t("search.welcome_title")}</h3>
                 </div>
               )}
 
-              {/* Beautiful Compact Grid Layout (Fits 3-4 cards cleanly per row) */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3.5">
+              {/* Compact Grid Layout */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3.5 mt-2">
                 {filteredBusinessesWithinRadius.map((biz: any) => {
                   const title = biz[`name${langSuffix}`] || biz.nameFr || biz.nameEn || "Business";
                   const desc = biz[`descr${langSuffix}`] || biz.descrFr || biz.descrEn;
@@ -634,7 +615,7 @@ export default function SearchPage() {
               )}
 
               {hasActiveFilter && filteredBusinessesWithinRadius.length === 0 && (
-                <div className="text-center py-20 bg-white rounded-2rem border border-dashed border-slate-200">
+                <div className="text-center py-20 bg-white rounded-2rem border border-dashed border-slate-200 mt-4">
                   <Search size={40} className="mx-auto text-slate-200 mb-4" />
                   <p className="text-slate-500 font-bold">{t("search.no_results")}</p>
                 </div>
@@ -644,10 +625,10 @@ export default function SearchPage() {
         </div>
 
         {/* Map Viewport */}
-        <div className={`w-full h-full p-4 relative transition-all duration-300 ${
+        <div className={`w-full h-[calc(100vh-14rem)] p-3 relative transition-all duration-300 ${
           viewMode === "cards" ? "hidden" : "block"
         }`}>
-          <div className="w-full h-full rounded-4xl overflow-hidden shadow-inner border-4 border-white relative">
+          <div className="w-full h-full rounded-3xl overflow-hidden shadow-inner border-2 border-white relative">
             <MapComponent
               key={`map-view-${selectedCityId}-${selectedZoneId}-${viewMode}`}
               center={activeMapCenter}
