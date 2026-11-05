@@ -142,7 +142,7 @@ export default function CitiesPage() {
       {/* Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {cities.map((city) => (
-          <div key={city.id} className="bg-white rounded-[2rem] p-6 border border-slate-200 hover:shadow-xl transition-all group relative dark:bg-gray-900 dark:border-gray-800">
+          <div key={city.id} className="bg-white rounded-2rem p-6 border border-slate-200 hover:shadow-xl transition-all group relative dark:bg-gray-900 dark:border-gray-800">
             <div className="flex justify-between items-start mb-6">
               <div className="p-4 bg-slate-50 rounded-2xl text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-colors dark:bg-slate-800 dark:text-indigo-400">
                 <MapIcon className="w-6 h-6" />
@@ -166,7 +166,7 @@ export default function CitiesPage() {
       {/* Modal */}
 {/* Modal */}
 {isModalOpen && (
-  <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+  <div className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
     <div className="bg-white w-full max-w-5xl rounded-[2.5rem] p-6 md:p-10 shadow-2xl overflow-y-auto max-h-[95vh] dark:bg-gray-900">
       
       {/* Modal Header */}
@@ -226,7 +226,7 @@ export default function CitiesPage() {
         </div>
 
         {/* Map Section (Forces right side on desktop, bottom on mobile, sandboxed via relative z-0) */}
-        <div className="order-1 lg:order-2 lg:col-span-7 h-[350px] lg:h-[500px] w-full rounded-[2rem] overflow-hidden border-4 border-slate-50 shadow-inner relative z-0 dark:border-gray-800">
+        <div className="order-1 lg:order-2 lg:col-span-7 h-87.5 lg:h-500px w-full rounded-2rem overflow-hidden border-4 border-slate-50 shadow-inner relative z-0 dark:border-gray-800">
           <MapComponent
             center={[formData.latitude, formData.longitude]}
             displayLabel={isAr ? formData.nameAr : formData.nameEn}

@@ -104,7 +104,12 @@
     "no_results": "Aucun prestataire trouvé correspondant à vos critères.",
     "results_found": "prestataires trouvés correspondant à vos critères.",
     "view_details": "Voir les détails",
-    "welcome_title": "Bienvenue sur la page de recherche"
+    "welcome_title": "Bienvenue sur la page de recherche",
+    "whatsapp": "WhatsApp",
+    "call": "Appeler",
+    "message": "Envoyer un message",
+    "record_audio": "Enregistrer un audio",
+    "details": "Détails"
   },
   "forgot_password_page": {
     "title": "Récupération de mot de passe",
@@ -431,7 +436,24 @@
         "recap": "Récapitulatif",
         "next": "Suivant",
         "previous": "Précédent"
-      }
+      },
+    "step2": {
+        "title": "Étape 2 : Gestion",
+        "description": "Fournissez les informations de gestion sur votre entreprise.",
+        "manager_name": "Nom du gestionnaire",
+        "manager_email": "E-mail du gestionnaire",
+        "manager_phone": "Téléphone du gestionnaire",
+        "manager_position": "Poste du gestionnaire",
+        "street_address": "Adresse de la rue",
+        "click_on_map": "Cliquez sur la carte pour mettre à jour l'emplacement géographique",
+        "full_name": "Nom complet",
+        "full_name_ar": "Nom complet (Arabe)",
+        "next": "Suivant",
+        "previous": "Précédent",
+        "existing_manager": "un contact existant",
+        "choose_existing_manager": "Choisir un contact existant",
+        "add_new_manager": "Ajouter un nouveau contact"
     }
   }
+}
 }

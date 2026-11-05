@@ -573,7 +573,7 @@ export default function SearchPage() {
                           <span className="text-[10px] font-medium truncate">{businessAddress(biz, langSuffix) || "Address not provided"}</span>
                         </div>
 
-                        <p className="text-slate-500 text-[10px] leading-relaxed line-clamp-2 mb-3">{desc}</p>
+                        <p className="text-slate-700 text-[14px] leading-relaxed line-clamp-2 mb-3">{desc}</p>
                         
                         {/* Actions Footer */}
                         <div className="mt-auto pt-2 border-t border-slate-50 flex items-center justify-between gap-1.5">

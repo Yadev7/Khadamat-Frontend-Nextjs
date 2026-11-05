@@ -104,7 +104,12 @@
     "no_results": "No providers found matching your criteria.",
     "results_found": "Found providers matching your criteria.",
     "view_details": "View Details",
-    "welcome_title": "Welcome to the Search Page"
+    "welcome_title": "Welcome to the Search Page",
+    "whatsapp": "WhatsApp",
+    "call": "Call",
+    "message": "Send a Message",
+    "record_audio": "Record Audio",
+    "details": "Details"
   },
   "forgot_password_page": {
     "title": "Password Recovery",
@@ -431,7 +436,33 @@
     "recap": "Recap",
     "next": "Next",
     "previous": "Previous"
+  },
+ "step2": {
+      "title": "Step 2: Management",
+      "description": "Provide the management information about your business.",
+      "manager_name": "Manager Name",
+      "manager_email": "Manager Email",
+      "manager_phone": "Manager Phone",
+      "manager_position": "Manager Position",
+      "street_address": "Street / Address Line",
+      "next": "Next",
+      "previous": "Previous",
+      "choose_existing_manager": "Select Existing Manager",
+      "existing_manager": "Existing Contact",
+      "loading_map": "Loading Map...",
+      "loading": "Loading...",
+      "select_existing_contact": "Select Existing Contact",
+      "identity_details": "Identity Details",
+      "full_name": "Full Name", 
+      "full_name_ar": "Full Name (Arabic)",
+      "geographic_location": "Geographic Location (Click Map to Update)",
+      "latitude": "Latitude",
+      "longitude": "Longitude",
+      "click_on_map": "Click on map...",
+      "no_address_provided": "No specific address provided"
+      
+      
+    }
   }
-  }
-  }
+}
 }

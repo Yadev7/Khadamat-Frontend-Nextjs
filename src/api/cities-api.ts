@@ -15,10 +15,12 @@ export interface CityData {
 // largest page the lookup endpoints allow instead of the 10-row default.
 export const LOOKUP_LIMIT = 500;
 
-export const getCities = async () => {
+export const getCities  = async () => {
   const response = await api.get('/v1/cities', {
     params: { relations: 'localisation', limit: LOOKUP_LIMIT },
   });
+
+ 
 
   // Handles standard arrays as well as NestJS infinity/paginated response formats ({ data: [...] })
   return Array.isArray(response.data)

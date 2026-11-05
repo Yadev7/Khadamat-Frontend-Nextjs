@@ -4,6 +4,7 @@ import { MapContainer, TileLayer, Marker, Circle, useMap, useMapEvents, Popup } 
 import L from 'leaflet';
 import { Search, Navigation2, Loader2, Phone, MessageCircle, ExternalLink } from 'lucide-react';
 import 'leaflet/dist/leaflet.css';
+import { t } from 'i18next';
 
 export type MapMarker = {
   id: string;
@@ -80,7 +81,7 @@ function MapViewUpdater({ center, zoom }: { center: [number, number]; zoom: numb
 
   useEffect(() => {
     if (!map || !isValidPosition(center)) return;
-    
+
     const [lat, lng] = center;
     if (isNaN(lat) || isNaN(lng)) return;
 
@@ -132,9 +133,9 @@ function FitBoundsOnCircle({ circleBoundary }: { circleBoundary: MapCircleBounda
     const timer = setTimeout(() => {
       try {
         map.invalidateSize();
-        map.fitBounds(bounds, { 
-          padding: [50, 50], 
-          duration: 1.0 
+        map.fitBounds(bounds, {
+          padding: [50, 50],
+          duration: 1.0
         });
       } catch (e) {
         console.error("Leaflet fitBounds error:", e);
@@ -157,7 +158,7 @@ export default function MapComponent({
 }: MapComponentProps) {
   const [isMounted, setIsMounted] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  
+
   const [pickedLocation, setPickedLocation] = useState<{
     lat: number;
     lng: number;
@@ -234,7 +235,7 @@ export default function MapComponent({
         const { lat, lon, display_name } = data[0];
         const parsedLat = parseFloat(lat);
         const parsedLng = parseFloat(lon);
-        
+
         if (!isNaN(parsedLat) && !isNaN(parsedLng)) {
           setPickedLocation({ lat: parsedLat, lng: parsedLng, address: display_name, loading: false });
           onLocationSelect?.(parsedLat, parsedLng, display_name);
@@ -334,10 +335,10 @@ export default function MapComponent({
               <div className="p-1 font-sans w-56">
                 {marker.flyerUrl && (
                   <div className="h-24 w-full overflow-hidden rounded-xl bg-slate-100 mb-2">
-                    <img 
-                      src={marker.flyerUrl} 
-                      alt={marker.label || "Business"} 
-                      className="w-full h-full object-cover" 
+                    <img
+                      src={marker.flyerUrl}
+                      alt={marker.label || "Business"}
+                      className="w-full h-full object-cover"
                       onError={(e) => {
                         const target = e.target as HTMLImageElement;
                         target.src = "https://images.unsplash.com/photo-1560179707-f14e90ef3623?q=80&w=500";
@@ -345,51 +346,51 @@ export default function MapComponent({
                     />
                   </div>
                 )}
-                
+
                 <span className="font-black text-slate-900 block text-sm truncate mb-0.5">{marker.label}</span>
                 {marker.address && <span className="text-[11px] text-slate-500 block truncate mb-3">{marker.address}</span>}
-                
+
                 {/* Action Buttons */}
                 <div className="grid grid-cols-3 gap-1.5 pt-2 border-t border-slate-100">
                   {marker.phone ? (
                     <a
                       href={`tel:${marker.phone}`}
                       className="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 py-1.5 px-2 rounded-lg font-bold text-[10px] flex items-center justify-center gap-1 transition-colors"
-                      title="اتصال"
+                      title="call"
                     >
                       <Phone size={12} />
-                      <span>اتصال</span>
+                      <span>{t("search.call")}</span>
                     </a>
                   ) : (
-                    <button  className="bg-slate-50 text-slate-300 py-1.5 px-2 rounded-lg font-bold text-[10px] flex items-center justify-center gap-1 opacity-50 cursor-not-allowed">
-                      <Phone size={12} /><span>اتصال</span>
+                    <button className="bg-slate-50 text-slate-300 py-1.5 px-2 rounded-lg font-bold text-[10px] flex items-center justify-center gap-1 opacity-50 cursor-not-allowed">
+                      <Phone size={12} /><span>{t("search.call")}</span>
                     </button>
                   )}
 
                   {marker.whatsapp || marker.phone ? (
                     <a
-                      href={`https://wa.me/${marker.whatsapp || marker.phone}?text=Hello,%20I%20found%20your%20business%20on%20the%20platform.`}
+                      href={`https://wa.me/${(marker.whatsapp || marker.phone || '').replace(/[^0-9]/g, '')}?text=${encodeURIComponent(t("details_ads.whatsapp_default_msg") || "Hello, I found your profile.")}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="bg-green-50 hover:bg-green-100 text-green-700 py-1.5 px-2 rounded-lg font-bold text-[10px] flex items-center justify-center gap-1 transition-colors"
-                      title="مراسلة"
+                      title="whatsapp"
                     >
                       <MessageCircle size={12} />
-                      <span>واتساب</span>
+                      <span>{t("search.whatsapp")}</span>
                     </a>
                   ) : (
-                    <button  className="bg-slate-50 text-slate-300 py-1.5 px-2 rounded-lg font-bold text-[10px] flex items-center justify-center gap-1 opacity-50 cursor-not-allowed">
-                      <MessageCircle size={12} /><span>مراسلة</span>
+                    <button className="bg-slate-50 text-slate-300 py-1.5 px-2 rounded-lg font-bold text-[10px] flex items-center justify-center gap-1 opacity-50 cursor-not-allowed">
+                      <MessageCircle size={12} /><span>{t("search.message")}</span>
                     </button>
                   )}
 
                   <a
                     href={`/businesses/${marker.id}`}
                     className="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 py-1.5 px-2 rounded-lg font-bold text-[10px] flex items-center justify-center gap-1 transition-colors"
-                    title="التفاصيل"
+                    title="details"
                   >
                     <ExternalLink size={12} />
-                    <span>التفاصيل</span>
+                    <span>{t("search.details")}</span>
                   </a>
                 </div>
               </div>
@@ -409,7 +410,7 @@ export default function MapComponent({
               handleReverseGeocode(pos.coords.latitude, pos.coords.longitude);
             });
           }}
-          className="absolute bottom-6 right-6 z-[500] bg-white p-3 rounded-2xl shadow-xl border border-slate-100 hover:bg-slate-50 text-indigo-600 transition-all"
+          className="absolute bottom-6 right-6 z-500 bg-white p-3 rounded-2xl shadow-xl border border-slate-100 hover:bg-slate-50 text-indigo-600 transition-all"
           title="موقعي الحالي"
         >
           <Navigation2 className="w-5 h-5 fill-current" />
