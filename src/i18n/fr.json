@@ -217,13 +217,33 @@
     "object": "Objet *",
     "message": "Votre Message *",
     "button": "Envoyer",
+    "optional": "Facultatif",
+    "new_dev_maroc_description": "Agence de communication et Publicité à Fès",
+    "info": "Informations",
+    "new_dev_maroc": {
+      "name": "New Dev Maroc",
+      "address": "2eme étage N°7, Bureaux Rayane, Av St Louis, Fès",
+      "phone": "+212 5 35 65 07 57",
+      "email": "contact@newdevmaroc.com"
+    },
+    "horaires": {
+      "title": "Horaires d'ouverture",
+      "monday_friday": "Du Lundi au Vendredi (09h - 18h)",
+      "saturday": "Samedi (9h - 13h)",
+      "sunday": "Dimanche : Fermé"
+    },
     "placeholder": {
       "name": "Votre Nom",
       "email": "Votre Email",
       "subject": "Sujet de votre message",
       "message": "Comment pouvons-nous vous aider ?",
       "demande_inscription": "Demande d'inscription",
-      "autre": "Autre"
+      "autre": "Autre",
+      "type": "Type de demande",
+      "tel": "Numéro de téléphone",
+      "write_service": "Précisez le service",
+      "placeholder_service": "Entrez le nom du votre service",
+      "other_service": "Autre Service"
     }
   },
   "about": {

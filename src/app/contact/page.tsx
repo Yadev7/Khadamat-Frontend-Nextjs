@@ -82,7 +82,7 @@ export default function ContactPage() {
                             {/* BOUTONS RADIO : TYPE DE DEMANDE */}
                             <div className="space-y-2">
                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                    Type de demande <span className="text-red-500">*</span>
+                                    {t('contact.placeholder.type')} <span className="text-red-500">*</span>
                                 </label>
                                 <div className="flex items-center space-x-6">
                                     <label className="flex items-center space-x-2 cursor-pointer text-sm text-gray-700 dark:text-gray-300">
@@ -140,7 +140,7 @@ export default function ContactPage() {
                                     />
                                 </div>
                                 <div className="group">
-                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Téléphone</label>
+                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t("contact.placeholder.tel")}</label>
                                     <input
                                         type="tel"
                                         name="phone"
@@ -180,7 +180,7 @@ export default function ContactPage() {
                                                     );
                                                 })}
                                                 {/* Option Autre */}
-                                                <option value="custom">{t("contact.other_service", "Autre")}</option>
+                                                <option value="custom">{t("contact.placeholder.other_service")}</option>
                                             </select>
                                         </div>
                                     </div>
@@ -189,7 +189,7 @@ export default function ContactPage() {
                                     {formData.serviceId === 'custom' && (
                                         <div className="group animate-fadeIn">
                                             <label className="text-xs font-bold text-gray-600 dark:text-gray-400 uppercase tracking-widest ml-1 mb-1 flex items-center gap-1">
-                                                <PenTool size={12} /> Précisez le service
+                                                <PenTool size={12} /> 
                                             </label>
                                             <input
                                                 type="text"
@@ -198,7 +198,7 @@ export default function ContactPage() {
                                                 value={formData.customService}
                                                 onChange={handleChange}
                                                 className={inputClasses}
-                                                placeholder="Saisissez le nom du service..."
+                                                placeholder={t("contact.placeholder.placeholder_service")}
                                             />
                                         </div>
                                     )}
@@ -222,7 +222,7 @@ export default function ContactPage() {
                             {/* CHAMP MESSAGE (OPTIONNEL) */}
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                    {t("contact.message")} <span className="text-xs text-gray-400 font-normal">(Optionnel)</span>
+                                    {t("contact.message")} <span className="text-xs text-gray-400 font-normal">({t("contact.optional")})</span>
                                 </label>
                                 <textarea
                                     rows={5}
@@ -259,7 +259,7 @@ export default function ContactPage() {
                                 </div>
                                 <div>
                                     <h1 className="text-xl font-bold tracking-tight uppercase">New Dev Maroc</h1>
-                                    <p className="text-xs text-blue-400 font-medium">Agence de communication et Publicité à Fès</p>
+                                    <p className="text-xs text-blue-400 font-medium">{t("contact.new_dev_maroc_description")}</p>
                                 </div>
                             </div>
 
@@ -270,21 +270,21 @@ export default function ContactPage() {
                                     <div className="bg-blue-500/10 p-2 rounded-lg group-hover:bg-blue-500/20 transition">
                                         <MapPin className="w-5 h-5 text-blue-400" />
                                     </div>
-                                    <p className="text-slate-300 text-sm leading-relaxed">2eme étage N°7, Bureaux Rayane, Av St Louis, Fès</p>
+                                    <p className="text-slate-300 text-sm leading-relaxed">{t("contact.new_dev_maroc.address")}</p>
                                 </div>
 
                                 <div className="flex items-center space-x-4 group">
                                     <div className="bg-blue-500/10 p-2 rounded-lg group-hover:bg-blue-500/20 transition">
                                         <Phone className="w-5 h-5 text-blue-400" />
                                     </div>
-                                    <p className="text-slate-300 text-sm">+212 5 35 65 07 57</p>
+                                    <p className="text-slate-300 text-sm">{t("contact.new_dev_maroc.phone")}</p>
                                 </div>
 
                                 <div className="flex items-center space-x-4 group">
                                     <div className="bg-blue-500/10 p-2 rounded-lg group-hover:bg-blue-500/20 transition">
                                         <Mail className="w-5 h-5 text-blue-400" />
                                     </div>
-                                    <p className="text-slate-300 text-sm">contact@newdevmaroc.com</p>
+                                    <p className="text-slate-300 text-sm">{t("contact.new_dev_maroc.email")}</p>
                                 </div>
                             </div>
                         </div>
@@ -292,15 +292,15 @@ export default function ContactPage() {
                         <div className="mt-12 pt-6 border-t border-slate-700 space-y-2">
                             <div className="flex items-center space-x-4">
                                 <Clock className="w-5 h-5 text-blue-500" />
-                                <p className="text-xs text-slate-400 italic">Du Lundi au Vendredi (09h - 18h)</p>
+                                <p className="text-xs text-slate-400 italic">{t("contact.horaires.monday_friday")}</p>
                             </div>
                             <div className="flex items-center space-x-4">
                                 <Clock className="w-5 h-5 text-blue-500" />
-                                <p className="text-xs text-slate-400 italic">Samedi (9h - 13h)</p>
+                                <p className="text-xs text-slate-400 italic">{t("contact.horaires.saturday")}</p>
                             </div>
                             <div className="flex items-center space-x-4">
                                 <Clock className="w-5 h-5 text-blue-500" />
-                                <p className="text-xs text-slate-400 italic">Dimanche : Férié</p>
+                                <p className="text-xs text-slate-400 italic">{t("contact.horaires.sunday")}</p>
                             </div>
                         </div>
                     </div>

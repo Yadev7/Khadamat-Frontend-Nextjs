@@ -157,14 +157,14 @@ export default function SearchPage() {
   const router = useRouter();
   const { t, i18n } = useTranslation();
   const isRtl = i18n.language === 'ar';
-  
+
   const [loading, setLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [cities, setCities] = useState<any[]>([]);
   const [allZones, setAllZones] = useState<any[]>([]);
   const [services, setServices] = useState<any[]>([]);
   const [businesses, setBusinesses] = useState<any[]>([]);
-  
+
   // Pagination State (10 per page)
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
@@ -260,7 +260,7 @@ export default function SearchPage() {
         if (cancelled) return;
 
         const extractedData = response?.data || response?.results || [];
-        
+
         if (extractedData.length < pageSize) {
           setHasMore(false);
         } else {
@@ -425,12 +425,12 @@ export default function SearchPage() {
 
   return (
     <div className="relative min-h-screen w-full bg-slate-50/50 overflow-hidden pb-16" dir={isRtl ? 'rtl' : 'ltr'}>
-      
+
       {/* Sticky Search & Toggle Header */}
       <div className="sticky top-0 left-0 right-0 z-40 px-3 py-3 md:px-6 bg-white/90 backdrop-blur-xl border-b border-slate-100 shadow-sm">
-        <div className="container mx-auto max-w-6xl space-y-3">
-          
-          {/* Search Inputs Bar */}
+        <div className="container mx-auto max-w-7xl space-y-3">
+
+          {/* Search Inputs Bar with Integrated Desktop/Web Toggle Switch */}
           <div className="bg-white/95 backdrop-blur-md border border-slate-200 shadow-[0_20px_50px_rgba(0,0,0,0.06)] rounded-3xl md:rounded-full p-2 flex flex-col md:flex-row items-center gap-1 transition-all">
             <CompactSelect
               label={t("search.city")}
@@ -455,7 +455,7 @@ export default function SearchPage() {
             />
             <div className="hidden md:block w-px h-8 bg-slate-100 shrink-0 mx-1" />
             <div className="block md:hidden w-full h-px bg-slate-100 my-1" />
-            
+
             <div className="flex-[1.4] flex flex-col md:flex-row items-center min-w-0 w-full gap-2 md:gap-0">
               <CompactSelect
                 label={t("search.service")}
@@ -466,25 +466,47 @@ export default function SearchPage() {
                 onChange={(id) => setSelectedServiceId(id)}
                 placeholder={t("search.select_service")}
               />
+
               <button
                 type="button"
                 onClick={handleSearchUpdate}
                 disabled={loading}
-                className="w-full md:w-auto bg-indigo-600 hover:bg-indigo-700 text-white p-3 md:px-8 rounded-2xl md:rounded-full active:scale-95 transition-all flex items-center justify-center gap-2 shadow-md shadow-indigo-100 disabled:opacity-50 md:ml-2"
+                className="w-full md:w-auto bg-indigo-600 hover:bg-indigo-700 text-white p-3 md:px-8 rounded-2xl md:rounded-full active:scale-95 transition-all flex items-center justify-center gap-2 shadow-md shadow-indigo-100 disabled:opacity-50 md:ml-1"
               >
                 {loading ? <Loader2 size={18} className="animate-spin" /> : <Search size={18} />}
                 <span className="font-black text-xs uppercase tracking-widest">{t("search.button")}</span>
               </button>
+
+              {/* Desktop/Web Cards & Map Viewport Toggle Switch Integrated In-Line */}
+              <div className="hidden md:flex bg-slate-900/90 backdrop-blur-md p-1 rounded-full shadow-inner border border-slate-700 items-center gap-1 mx-2 shrink-0">
+                <button 
+                  type="button"
+                  onClick={() => setViewMode("cards")} 
+                  className={`flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-bold transition-all ${viewMode === "cards" ? "bg-indigo-600 text-white shadow-md scale-105" : "text-slate-300 hover:text-white"}`}
+                >
+                  <Grid size={13} /><span>{t("search.cards")}</span>
+                </button>
+                <button 
+                  type="button"
+                  onClick={() => setViewMode("map")} 
+                  className={`flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-bold transition-all ${viewMode === "map" ? "bg-indigo-600 text-white shadow-md scale-105" : "text-slate-300 hover:text-white"}`}
+                >
+                  <MapIcon size={13} /><span>{t("search.map")}</span>
+                </button>
+              </div>
+
+
             </div>
           </div>
 
-          {/* Cards / Map Viewport Toggle Switch Bar */}
+          {/* Sub-bar / Mobile Toggle Switch Bar */}
           <div className="flex items-center justify-between px-1">
             <div className="text-xs font-bold text-slate-500">
               {!loading && hasActiveFilter && `${totalResults} ${t("search.results_found")}`}
             </div>
-            
-            <div className="bg-slate-900/90 backdrop-blur-md p-1 rounded-full shadow-md border border-slate-700 flex items-center gap-1 mx-auto md:mx-0">
+
+            {/* Mobile-only view toggle switch */}
+            <div className="flex md:hidden bg-slate-900/90 backdrop-blur-md p-1 rounded-full shadow-md border border-slate-700 items-center gap-1 mx-auto">
               <button 
                 type="button"
                 onClick={() => setViewMode("cards")} 
@@ -507,7 +529,7 @@ export default function SearchPage() {
 
       {/* Main Viewports Container */}
       <div className="flex flex-col min-h-[calc(100vh-10rem)] relative mt-2">
-        
+
         {/* Cards Viewport (Optimized Compact Grid) */}
         <div className={`w-full flex-1 px-3 md:px-8 pb-32 transition-all duration-300 ${
           viewMode === "map" ? "hidden" : "block"
@@ -528,7 +550,7 @@ export default function SearchPage() {
               )}
 
               {/* Compact Grid Layout */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3.5 mt-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4.5 mt-2">
                 {filteredBusinessesWithinRadius.map((biz: any) => {
                   const title = biz[`name${langSuffix}`] || biz.nameFr || biz.nameEn || "Business";
                   const desc = biz[`descr${langSuffix}`] || biz.descrFr || biz.descrEn;
@@ -567,14 +589,14 @@ export default function SearchPage() {
                         <h3 onClick={() => router.push(`/businesses/${biz.id}`)} className="text-xs font-black text-slate-900 mb-1 group-hover:text-indigo-600 transition-colors line-clamp-1 cursor-pointer tracking-tight">
                           {title}
                         </h3>
-                        
+
                         <div className="flex items-center gap-1 text-slate-400 mb-1.5">
                           <MapPin size={10} className="shrink-0 text-indigo-500" />
                           <span className="text-[10px] font-medium truncate">{businessAddress(biz, langSuffix) || "Address not provided"}</span>
                         </div>
 
                         <p className="text-slate-700 text-[14px] leading-relaxed line-clamp-2 mb-3">{desc}</p>
-                        
+
                         {/* Actions Footer */}
                         <div className="mt-auto pt-2 border-t border-slate-50 flex items-center justify-between gap-1.5">
                           <button 

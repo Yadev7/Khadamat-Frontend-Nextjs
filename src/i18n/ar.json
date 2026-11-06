@@ -218,13 +218,33 @@
     "object": "الموضوع *",
     "message": "اترك رسالة *",
     "button": "ارسال",
+    "optional": "اختياري",
+    "new_dev_maroc_description": "وكالة اتصالات وإعلانات في فاس",
+    "info": "معلومات",
+    "new_dev_maroc": {
+      "name": "New Dev Maroc",
+      "address": "الطابق الثاني رقم 7، مكاتب رايان، شارع سانت لويس، فاس",
+      "phone": "+212 5 35 65 07 57",
+      "email": "contact@newdevmaroc.com"
+    },
+  "horaires": {
+    "title": "ساعات العمل",
+    "monday_friday": "من الإثنين إلى الجمعة: من 09:00 صباحاً إلى 06:00 مساءً",
+    "saturday": "السبت: من 09:00 صباحاً إلى 01:00 مساءً",
+    "sunday": "الأحد: مغلق"
+  },
     "placeholder": {
       "name": "اسمك *",
       "email": "البريد الإلكتروني *",
       "subject": "موضوع رسالتك",
       "message": "كيف يمكننا مساعدتك ؟",
       "demande_inscription": "طلب تسجيل",
-      "autre": "شيء آخر"
+      "autre": "شيء آخر",
+      "type": "نوع الطلب",
+      "tel": "رقم الهاتف",
+      "write_service": "حدد الخدمة",
+      "placeholder_service": "أدخل اسم خدمتك",
+      "other_service": "خدمة أخرى"
     }
   },
   "about": {
