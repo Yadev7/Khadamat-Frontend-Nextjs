@@ -31,7 +31,7 @@
     "description": "Join our platform as a service provider and start offering your skills to clients worldwide.",
     "sidebar_title": "Become a Tasker",
     "sidebar_description": "Join our community of taskers and grow your business.",
-    "submit": "Sign Up as a Tasker",
+    "submit": "Apply to Join",
     "sending": "Sending...",
     "alert": {
       "success_title": "Application Sent!",
@@ -47,6 +47,7 @@
       "phone": "Phone Number",
       "phone_placeholder": "Enter your phone number",
       "skills": "Skills and Services",
+      "message": "Message",
       "skills_placeholder": "Describe your skills and the services you offer",
       "audio": "Voice Introduction (optional)"
     },
@@ -209,7 +210,7 @@
     "short_description": "Directory of experts and services available in Morocco"
   },
   "contact": {
-    "write_us": "Write Us",
+    "write_us": "Motif for Contact",
     "instruction": "Your email address will not be published. Required fields are indicated by",
     "name": "Your Name*",
     "email": "Email *",
@@ -220,7 +221,9 @@
       "name": "Your Name",
       "email": "Your Email",
       "subject": "Subject of your message",
-      "message": "How we can help you ?"
+      "message": "How we can help you ?",
+      "demande_inscription": "Request for Registration",
+      "autre": "Other"
     }
   },
   "about": {

@@ -31,7 +31,7 @@
     "description": "Rejoignez notre plateforme en tant que prestataire de services et commencez à offrir vos compétences aux clients du monde entier.",
     "sidebar_title": "Devenir prestataire",
     "sidebar_description": "Rejoignez notre communauté de prestataires et développez votre activité.",
-    "submit": "S'inscrire en tant que prestataire",
+    "submit": "Demande d'inscription",
     "sending": "Envoi en cours...",
     "alert": {
       "success_title": "Candidature envoyée !",
@@ -210,7 +210,7 @@
     "short_description": "Annuaire des experts et services disponibles au Maroc"
   },
   "contact": {
-    "write_us": "Ecrivez-nous",
+    "write_us": "Motif de contact",
     "instruction": "Votre adresse email ne sera pas publiée. Les champs requis sont indiqués par",
     "name": "Votre Nom*",
     "email": "Adresse Email *",
@@ -221,7 +221,9 @@
       "name": "Votre Nom",
       "email": "Votre Email",
       "subject": "Sujet de votre message",
-      "message": "Comment pouvons-nous vous aider ?"
+      "message": "Comment pouvons-nous vous aider ?",
+      "demande_inscription": "Demande d'inscription",
+      "autre": "Autre"
     }
   },
   "about": {
