@@ -147,7 +147,10 @@
     "whatsapp_default_msg": "مرحبًا، لقد وجدت ملفك الشخصي على منصة خدمات وأود الاستفسار عن خدماتك.",
     "whatsapp_error": "فشل فتح واتساب. يرجى التحقق من إعدادات جهازك.",
     "cancel": "إلغاء",
-    "start_whatsapp_chat": "ابدأ الدردشة على واتساب؟"
+    "start_whatsapp_chat": "ابدأ الدردشة على واتساب؟",
+    "textAr": "نص بالعربية",
+    "textFr": "نص بالفرنسية",
+    "textEn": "نص بالإنجليزية"
   },
   "how_it_works": {
   "process": "خطوات العمل",
@@ -485,6 +488,20 @@
           "existing_manager": "مدير موجود سابقا",
           "choose_existing_manager": "اختر مدير موجود"
     }
+  },
+  "profile": {
+    "title": "الملف الشخصي",
+    "successUpdate": "تم تحديث البيانات بنجاح!",
+    "errorUpdate": "فشل في تحديث البيانات",
+    "roleDefault": "مستخدم",
+    "cancel": "إلغاء",
+    "saveChanges": "حفظ التغييرات",
+    "editProfile": "تعديل الملف",
+    "firstName": "الإسم الشخصي",
+    "lastName": "الإسم العائلي",
+    "email": "البريد الإلكتروني",
+    "readOnly": "للقراءة فقط",
+    "joinedDate": "تاريخ الإنضمام"
   }
 }
 }

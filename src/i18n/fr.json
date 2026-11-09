@@ -146,7 +146,10 @@
     "whatsapp_default_msg": "Bonjour, j'ai trouvé votre profil sur la plateforme Khadamat et je souhaite me renseigner sur vos services.",
     "whatsapp_error": "Échec de l'ouverture de WhatsApp. Veuillez vérifier les paramètres de votre appareil.",
     "cancel": "Annuler",
-    "start_whatsapp_chat": "Commencer la discussion WhatsApp ?"
+    "start_whatsapp_chat": "Commencer la discussion WhatsApp ?",
+    "textAr": "Texte en Arabe",
+    "textFr": "Texte en Français",
+    "textEn": "Texte en Anglais"
   },
   "how_it_works": {
   "process": "Le processus",
@@ -476,6 +479,20 @@
         "choose_existing_manager": "Choisir un contact existant",
         "add_new_manager": "Ajouter un nouveau contact"
     }
+  },
+  "profile": {
+    "title": "Profil",
+    "successUpdate": "Données mises à jour avec succès !",
+    "errorUpdate": "Échec de la mise à jour des données",
+    "roleDefault": "Utilisateur",
+    "cancel": "Annuler",
+    "saveChanges": "Enregistrer les modifications",
+    "editProfile": "Modifier le profil",
+    "firstName": "Prénom",
+    "lastName": "Nom",
+    "email": "E-mail",
+    "readOnly": "Lecture seule",
+    "joinedDate": "Date d'inscription"
   }
 }
 }

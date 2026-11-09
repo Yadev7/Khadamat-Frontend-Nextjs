@@ -476,7 +476,7 @@ export default function PublicBusinessDetailsPage() {
                 <p className="text-xs font-bold tracking-widest text-indigo-600 uppercase pt-2">Messages — textAr / textFr / textEn</p>
 
                 <div className="space-y-1">
-                  <label className="text-xs font-semibold text-gray-600">textAr <span className="text-gray-400 font-normal">(العربية)</span></label>
+                  <label className="text-xs font-semibold text-gray-600">{t('details_ads.textAr')}</label>
                   <textarea
                     dir="rtl"
                     rows={3}
@@ -488,7 +488,7 @@ export default function PublicBusinessDetailsPage() {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-xs font-semibold text-gray-600">textFr <span className="text-gray-400 font-normal">(Français)</span></label>
+                  <label className="text-xs font-semibold text-gray-600">{t('details_ads.textFr')}</label>
                   <textarea
                     rows={3}
                     value={textFr}
@@ -499,7 +499,7 @@ export default function PublicBusinessDetailsPage() {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-xs font-semibold text-gray-600">textEn <span className="text-gray-400 font-normal">(English)</span></label>
+                  <label className="text-xs font-semibold text-gray-600">{t('details_ads.textEn')}</label>
                   <textarea
                     rows={2}
                     value={textEn}

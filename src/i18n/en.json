@@ -146,7 +146,10 @@
     "whatsapp_default_msg": "Hello, I found your profile on Khadamat Platform and would like to inquire about your services.",
     "whatsapp_error": "Failed to open WhatsApp. Please check your device settings.",
     "cancel": "Cancel",
-    "start_whatsapp_chat": "Start WhatsApp Chat?"
+    "start_whatsapp_chat": "Start WhatsApp Chat?",
+    "textAr": "Text in Arabic",
+    "textFr": "Text in French",
+    "textEn": "Text in English"
   },
   "how_it_works": {
   "process": "The Process",
@@ -486,6 +489,20 @@
       
       
     }
+  },
+  "profile": {
+    "title": "Profile",
+    "successUpdate": "Data updated successfully!",
+    "errorUpdate": "Failed to update data",
+    "roleDefault": "User",
+    "cancel": "Cancel",
+    "saveChanges": "Save Changes",
+    "editProfile": "Edit Profile",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "email": "Email",
+    "readOnly": "Read-only",
+    "joinedDate": "Join Date"
   }
 }
 }

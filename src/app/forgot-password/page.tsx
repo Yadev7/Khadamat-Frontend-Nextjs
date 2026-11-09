@@ -8,7 +8,7 @@ const ForgotPasswordPage: FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
-
+ 
     const { t } = useTranslation();
 
   const handleSubmit = async (e: FormEvent) => {
