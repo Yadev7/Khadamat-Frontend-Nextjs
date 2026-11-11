@@ -2,11 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { useFormContext } from "react-hook-form";
+import { useTranslation } from "react-i18next"; // or "next-intl" depending on your setup
 import { UserCheck, UserPlus, ShieldCheck, Mail, Phone, User } from "lucide-react";
 import { getMembersList } from "@/api/businesses-api";
 
 export function Step3Manager() {
     const { register, watch, setValue, formState: { errors } } = useFormContext();
+    const { t } = useTranslation(); // adjust namespace if needed e.g., useTranslation('step3')
     const [members, setMembers] = useState<any[]>([]);
 
     const ownerId = watch("ownerId");
@@ -27,7 +29,6 @@ export function Step3Manager() {
 
     const selectedOwner = members.find((m) => String(m.id) === String(ownerId));
 
-    // --- CRITICAL FIX: Synchronize Owner Data into Hook Form State ---
     useEffect(() => {
         if (managementType === 'ownerId' && selectedOwner) {
             setValue("newManagerFirstName", selectedOwner.contact?.firstName || "");
@@ -37,8 +38,6 @@ export function Step3Manager() {
             setValue("newManagerEmail", selectedOwner.email || selectedOwner.contact?.email || "");
             setValue("newManagerPhone", selectedOwner.contact?.phoneCell || "");
         } else if (managementType === 'newManagedId') {
-            // Optional: Reset fields when switching to "New Manager" 
-            // so they start empty
             setValue("newManagerFirstName", "");
             setValue("newManagerFirstNameAr", "");
             setValue("newManagerLastName", "");
@@ -61,13 +60,13 @@ export function Step3Manager() {
                 <label className={`p-6 border-2 rounded-3xl cursor-pointer transition-all flex flex-col items-center gap-3 ${managementType === 'ownerId' ? 'border-indigo-600 bg-indigo-50 shadow-sm dark:bg-indigo-950' : 'border-slate-100 opacity-60 dark:border-gray-800'}`}>
                     <input type="radio" value="ownerId" {...register("managementType")} className="hidden" />
                     <UserCheck size={32} className={managementType === 'ownerId' ? 'text-indigo-600' : 'text-slate-400 dark:text-gray-500'} />
-                    <span className="font-bold text-slate-800 text-sm dark:text-gray-100">Owner is Manager</span>
+                    <span className="font-bold text-slate-800 text-sm dark:text-gray-100">{t("dashboard.business.step3.ownerIsManager")}</span>
                 </label>
 
                 <label className={`p-6 border-2 rounded-3xl cursor-pointer transition-all flex flex-col items-center gap-3 ${managementType === 'newManagedId' ? 'border-indigo-600 bg-indigo-50 shadow-sm dark:bg-indigo-950' : 'border-slate-100 opacity-60 dark:border-gray-800'}`}>
                     <input type="radio" value="newManagedId" {...register("managementType")} className="hidden" />
                     <UserPlus size={32} className={managementType === 'newManagedId' ? 'text-indigo-600' : 'text-slate-400 dark:text-gray-500'} />
-                    <span className="font-bold text-slate-800 text-sm dark:text-gray-100">New Manager</span>
+                    <span className="font-bold text-slate-800 text-sm dark:text-gray-100">{t("dashboard.business.step3.newManager")}</span>
                 </label>
             </div>
 
@@ -76,72 +75,72 @@ export function Step3Manager() {
                     <div className="flex items-center gap-2 border-b pb-3 border-slate-100 dark:border-gray-800">
                         {managementType === 'ownerId' ? <ShieldCheck size={18} className="text-emerald-500" /> : <User size={18} className="text-indigo-500" />}
                         <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-gray-500">
-                            {managementType === 'ownerId' ? "Owner Profile (Read Only)" : "New Manager Details"}
+                            {managementType === 'ownerId' ? t("dashboard.business.step3.ownerProfileReadOnly") : t("dashboard.business.step3.newManagerDetails")}
                         </h4>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-1">
-                            <label className="text-[10px] font-bold text-slate-400 uppercase ml-1 dark:text-gray-500">First Name (EN)</label>
+                            <label className="text-[10px] font-bold text-slate-400 uppercase ml-1 dark:text-gray-500">{t("dashboard.business.step3.firstNameEn")}</label>
                             <input
                                 {...register("newManagerFirstName")}
                                 readOnly={managementType === 'ownerId'}
-                                placeholder="First Name"
+                                placeholder={t("dashboard.business.step3.firstNameEnPlaceholder")}
                                 className={inputClass("newManagerFirstName", managementType === 'ownerId')}
                             />
                         </div>
 
                         <div className="space-y-1 text-right" dir="rtl">
-                            <label className="text-[10px] font-bold text-slate-400 uppercase mr-1 dark:text-gray-500">الاسم الشخصي</label>
+                            <label className="text-[10px] font-bold text-slate-400 uppercase mr-1 dark:text-gray-500">{t("dashboard.business.step3.firstNameAr")}</label>
                             <input
                                 {...register("newManagerFirstNameAr")}
                                 readOnly={managementType === 'ownerId'}
-                                placeholder="الاسم"
+                                placeholder={t("dashboard.business.step3.firstNameArPlaceholder")}
                                 className={`${inputClass("newManagerFirstNameAr", managementType === 'ownerId')} text-right`}
                             />
                         </div>
 
                         <div className="space-y-1">
-                            <label className="text-[10px] font-bold text-slate-400 uppercase ml-1 dark:text-gray-500">Last Name (EN)</label>
+                            <label className="text-[10px] font-bold text-slate-400 uppercase ml-1 dark:text-gray-500">{t("dashboard.business.step3.lastNameEn")}</label>
                             <input
                                 {...register("newManagerLastName")}
                                 readOnly={managementType === 'ownerId'}
-                                placeholder="Last Name"
+                                placeholder={t("dashboard.business.step3.lastNameEnPlaceholder")}
                                 className={inputClass("newManagerLastName", managementType === 'ownerId')}
                             />
                         </div>
 
                         <div className="space-y-1 text-right" dir="rtl">
-                            <label className="text-[10px] font-bold text-slate-400 uppercase mr-1 dark:text-gray-500">الاسم العائلي</label>
+                            <label className="text-[10px] font-bold text-slate-400 uppercase mr-1 dark:text-gray-500">{t("dashboard.business.step3.lastNameAr")}</label>
                             <input
                                 {...register("newManagerLastNameAr")}
                                 readOnly={managementType === 'ownerId'}
-                                placeholder="النسب"
+                                placeholder={t("dashboard.business.step3.lastNameArPlaceholder")}
                                 className={`${inputClass("newManagerLastNameAr", managementType === 'ownerId')} text-right`}
                             />
                         </div>
 
                         <div className="col-span-full space-y-1 pt-2">
                             <label className="text-[10px] font-bold text-slate-400 uppercase ml-1 flex items-center gap-1 dark:text-gray-500">
-                                <Mail size={10} /> Contact Email
+                                <Mail size={10} /> {t("dashboard.business.step3.contactEmail")}
                             </label>
                             <input
                                 {...register("newManagerEmail")}
                                 readOnly={managementType === 'ownerId'}
                                 type="email"
-                                placeholder="email@example.com"
+                                placeholder={t("dashboard.business.step3.contactEmailPlaceholder")}
                                 className={inputClass("newManagerEmail", managementType === 'ownerId')}
                             />
                         </div>
 
                         <div className="col-span-full space-y-1">
                             <label className="text-[10px] font-bold text-slate-400 uppercase ml-1 flex items-center gap-1 dark:text-gray-500">
-                                <Phone size={10} /> Mobile Phone
+                                <Phone size={10} /> {t("dashboard.business.step3.mobilePhone")}
                             </label>
                             <input
                                 {...register("newManagerPhone")}
                                 readOnly={managementType === 'ownerId'}
-                                placeholder="+212 ..."
+                                placeholder={t("dashboard.business.step3.mobilePhonePlaceholder")}
                                 className={inputClass("newManagerPhone", managementType === 'ownerId')}
                             />
                         </div>

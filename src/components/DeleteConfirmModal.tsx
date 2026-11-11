@@ -2,6 +2,7 @@
 
 import React from "react";
 import { AlertTriangle, X } from "lucide-react";
+import { t } from "i18next";
 
 interface Props {
   isOpen: boolean;
@@ -29,10 +30,9 @@ export default function DeleteConfirmModal({ isOpen, onClose, onConfirm, title }
             <AlertTriangle size={32} />
           </div>
           
-          <h2 className="text-2xl font-black text-slate-900 mb-2 dark:text-gray-100">Are you sure?</h2>
+          <h2 className="text-2xl font-black text-slate-900 mb-2 dark:text-gray-100">{t("dashboard.delete_confirmation.title")}</h2>
           <p className="text-slate-500 font-medium mb-8 dark:text-gray-400">
-            You are about to delete <span className="text-slate-900 font-bold dark:text-gray-100">{title}</span>. 
-            This action will archive the member and they will no longer appear in the list.
+            {t("dashboard.delete_confirmation.text")}
           </p>
 
           <div className="flex gap-3 w-full">
@@ -40,13 +40,13 @@ export default function DeleteConfirmModal({ isOpen, onClose, onConfirm, title }
               onClick={onClose}
               className="flex-1 px-6 py-4 rounded-xl font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 transition-colors dark:text-gray-300 dark:bg-gray-800 dark:hover:bg-gray-700"
             >
-              Cancel
+              {t("dashboard.delete_confirmation.cancelButtonText")}
             </button>
             <button
               onClick={onConfirm}
               className="flex-1 px-6 py-4 rounded-xl font-bold text-white bg-red-500 hover:bg-red-600 shadow-lg shadow-red-200 transition-all active:scale-95"
             >
-              Yes, Delete
+              {t("dashboard.delete_confirmation.confirmButtonText")}
             </button>
           </div>
         </div>

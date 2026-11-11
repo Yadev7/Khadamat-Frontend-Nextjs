@@ -488,7 +488,77 @@
       "no_address_provided": "No specific address provided"
       
       
-    }
+    },
+
+    "step3": {
+    "ownerIsManager": "Owner is Manager",
+    "newManager": "New Manager",
+    "ownerProfileReadOnly": "Owner Profile (Read Only)",
+    "newManagerDetails": "New Manager Details",
+    "firstNameEn": "First Name (EN)",
+    "firstNameEnPlaceholder": "First Name",
+    "firstNameAr": "الاسم الشخصي",
+    "firstNameArPlaceholder": "الاسم",
+    "lastNameEn": "Last Name (EN)",
+    "lastNameEnPlaceholder": "Last Name",
+    "lastNameAr": "الاسم العائلي",
+    "lastNameArPlaceholder": "النسب",
+    "contactEmail": "Contact Email",
+    "contactEmailPlaceholder": "email@example.com",
+    "mobilePhone": "Mobile Phone",
+    "mobilePhonePlaceholder": "+212 ..."
+  },
+  "step4": {
+    "imagesAndFlyers": "Images & Flyers",
+    "imagesGallery": "Images (Gallery)",
+    "flyer": "Flyer (PDF/JPG)",
+    "audioRecords": "Audio Records",
+    "audioArabic": "Audio Arabic",
+    "audioEnglish": "Audio English",
+    "audioFrench": "Audio French",
+    "videoRecords": "Video Records",
+    "videoArabic": "Video Arabic",
+    "videoEnglish": "Video English",
+    "videoFrench": "Video French"
+  },
+  "step5": {
+        "preparingReviewData": "Preparing review data...",
+        "title": "Review Business Configuration",
+        "finalStep": "Final Step",
+        "basicInformation": "Basic Information",
+        "nameLabel": "Name (EN / FR / AR)",
+        "serviceType": "Service Type",
+        "notSelected": "Not Selected",
+        "descriptionEn": "Description (EN)",
+        "descriptionFr": "Description (FR)",
+        "descriptionAr": "الوصف (AR)",
+        "noDescription": "No description",
+        "noDescriptionAr": "لا يوجد وصف",
+        "website": "Website",
+        "socialMedia": "Social Media",
+        "ownershipAndContact": "Ownership & Contact",
+        "businessOwner": "Business Owner",
+        "linkedContact": "Linked Contact",
+        "contactAddress": "Contact Address:",
+        "noAddressDetails": "No address details",
+        "managerDetails": "Manager Details",
+        "managementType": "Management Type",
+        "ownerIsManager": "Owner is Manager",
+        "assignedNewManager": "Assigned New Manager",
+        "managerName": "Manager Name",
+        "email": "Email",
+        "phone": "Phone",
+        "mediaAndUploads": "Media & Uploads",
+        "galleryImages": "Gallery Images",
+        "flyerPdfJpg": "Flyer PDF/JPG",
+        "audioAr": "Audio (AR)",
+        "audioEn": "Audio (EN)",
+        "audioFr": "Audio (FR)",
+        "videoAr": "Video (AR)",
+        "videoEn": "Video (EN)",
+        "videoFr": "Video (FR)",
+        "noFileUploaded": "No file uploaded"
+      }
   },
   "profile": {
     "title": "Profile",
@@ -503,6 +573,52 @@
     "email": "Email",
     "readOnly": "Read-only",
     "joinedDate": "Join Date"
-  }
+  },
+  "delete_confirmation": {
+    "title": "Are you sure?",
+    "text": "You won't be able to recover this item after deletion!",
+    "confirmButtonText": "Yes, delete it!",
+    "cancelButtonText": "Cancel",
+    "deletedTitle": "Deleted!",
+    "deletedText": "Item deleted successfully.",
+    "errorTitle": "Error",
+    "errorText": "An error occurred while deleting. Please try again."
 }
+  },
+  "modals": {
+    "add_city": {
+      "title": "Add New City",
+      "subtitle": "Define a new geographical location",
+      "name_fr": "City Name (FR)",
+      "name_fr_placeholder": "Ex: Casablanca",
+      "name_ar": "City Name (AR)",
+      "name_ar_placeholder": "Ex: الدار البيضاء",
+      "coordinates_title": "Map Pin Coordinates",
+      "latitude": "Latitude",
+      "longitude": "Longitude",
+      "coordinates_hint": "* These coordinates will be used to center the map when this city is selected.",
+      "submit_btn": "Save City",
+      "success_msg": "City created successfully",
+      "error_msg": "Failed to create city. Please check your inputs."
+    }
+  },
+  "rating_report" :{
+    "title": "Rate Worker",
+    "subtitle": "How was your experience?",
+    "select_rating": "Rate the worker",
+    "feedback_fr": "Feedback in French",
+    "feedback_fr_placeholder": "Please provide your feedback in French",
+    "feedback_ar": "Feedback in Arabic",
+    "feedback_ar_placeholder": "Please provide your feedback in Arabic",
+    "submit_btn": "Submit Review",
+    "safety_actions": "Safety Actions",
+    "report_worker_btn": "Report Worker",
+    "report_worker_title": "Report Worker",
+    "report_worker_subtitle": "Reason for reporting",
+    "report_worker_placeholder": "Please provide the reason for reporting this worker",
+    "report_worker_submit_btn": "Submit Report",
+    "report_worker_success_msg": "Report submitted successfully",
+    "report_worker_cancel_btn": "Cancel"
+  }
+
 }

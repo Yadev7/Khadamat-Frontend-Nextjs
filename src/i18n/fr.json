@@ -471,6 +471,7 @@
         "manager_position": "Poste du gestionnaire",
         "street_address": "Adresse de la rue",
         "click_on_map": "Cliquez sur la carte pour mettre à jour l'emplacement géographique",
+        "identity_details": "Détails de l'identité",
         "full_name": "Nom complet",
         "full_name_ar": "Nom complet (Arabe)",
         "next": "Suivant",
@@ -478,7 +479,76 @@
         "existing_manager": "un contact existant",
         "choose_existing_manager": "Choisir un contact existant",
         "add_new_manager": "Ajouter un nouveau contact"
-    }
+    },
+    "step3": {
+    "ownerIsManager": "Le propriétaire est le gérant",
+    "newManager": "Nouveau gérant",
+    "ownerProfileReadOnly": "Profil du propriétaire (Lecture seule)",
+    "newManagerDetails": "Détails du nouveau gérant",
+    "firstNameEn": "Prénom (EN)",
+    "firstNameEnPlaceholder": "Prénom",
+    "firstNameAr": "الاسم الشخصي",
+    "firstNameArPlaceholder": "الاسم",
+    "lastNameEn": "Nom (EN)",
+    "lastNameEnPlaceholder": "Nom",
+    "lastNameAr": "الاسم العائلي",
+    "lastNameArPlaceholder": "النسب",
+    "contactEmail": "E-mail de contact",
+    "contactEmailPlaceholder": "email@example.com",
+    "mobilePhone": "Téléphone portable",
+    "mobilePhonePlaceholder": "+212 ..."
+  },
+"step4": {
+    "imagesAndFlyers": "Images et prospectus",
+    "imagesGallery": "Images (Galerie)",
+    "flyer": "Prospectus (PDF/JPG)",
+    "audioRecords": "Enregistrements audio",
+    "audioArabic": "Audio arabe",
+    "audioEnglish": "Audio anglais",
+    "audioFrench": "Audio français",
+    "videoRecords": "Enregistrements vidéo",
+    "videoArabic": "Vidéo arabe",
+    "videoEnglish": "Vidéo anglaise",
+    "videoFrench": "Vidéo française"
+  },
+  "step5": {
+        "preparingReviewData": "Préparation des données de révision...",
+        "title": "Vérifier la configuration de l'entreprise",
+        "finalStep": "Étape finale",
+        "basicInformation": "Informations de base",
+        "nameLabel": "Nom (EN / FR / AR)",
+        "serviceType": "Type de service",
+        "notSelected": "Non sélectionné",
+        "descriptionEn": "Description (EN)",
+        "descriptionFr": "Description (FR)",
+        "descriptionAr": "الوصف (AR)",
+        "noDescription": "Aucune description",
+        "noDescriptionAr": "لا يوجد وصف",
+        "website": "Site web",
+        "socialMedia": "Réseaux sociaux",
+        "ownershipAndContact": "Propriété et contact",
+        "businessOwner": "Propriétaire de l'entreprise",
+        "linkedContact": "Contact lié",
+        "contactAddress": "Adresse de contact :",
+        "noAddressDetails": "Aucun détail d'adresse",
+        "managerDetails": "Détails du gérant",
+        "managementType": "Type de gestion",
+        "ownerIsManager": "Le propriétaire est le gérant",
+        "assignedNewManager": "Nouveau gérant assigné",
+        "managerName": "Nom du gérant",
+        "email": "E-mail",
+        "phone": "Téléphone",
+        "mediaAndUploads": "Médias et téléchargements",
+        "galleryImages": "Images de la galerie",
+        "flyerPdfJpg": "Prospectus PDF/JPG",
+        "audioAr": "Audio (AR)",
+        "audioEn": "Audio (EN)",
+        "audioFr": "Audio (FR)",
+        "videoAr": "Vidéo (AR)",
+        "videoEn": "Vidéo (EN)",
+        "videoFr": "Vidéo (FR)",
+        "noFileUploaded": "Aucun fichier téléchargé"
+      }
   },
   "profile": {
     "title": "Profil",
@@ -493,6 +563,51 @@
     "email": "E-mail",
     "readOnly": "Lecture seule",
     "joinedDate": "Date d'inscription"
-  }
+  },
+  "delete_confirmation": {
+    "title": "Êtes-vous sûr ?",
+    "text": "Vous ne pourrez pas récupérer cet élément après la suppression !",
+    "confirmButtonText": "Oui, supprimer !",
+    "cancelButtonText": "Annuler",
+    "deletedTitle": "Supprimé !",
+    "deletedText": "L'élément a été supprimé avec succès."
 }
+  },
+  "modals": {
+    "add_city": {
+      "title": "Ajouter une nouvelle ville",
+      "subtitle": "Définir un nouvel emplacement géographique",
+      "name_fr": "Nom de la ville (FR)",
+      "name_fr_placeholder": "Ex : Casablanca",
+      "name_ar": "Nom de la ville (AR)",
+      "name_ar_placeholder": "Ex : الدار البيضاء",
+      "coordinates_title": "Coordonnées du repère",
+      "latitude": "Latitude",
+      "longitude": "Longitude",
+      "coordinates_hint": "* Ces coordonnées seront utilisées pour centrer la carte lorsque cette ville est sélectionnée.",
+      "submit_btn": "Enregistrer la ville",
+      "success_msg": "Ville créée avec succès",
+      "error_msg": "Échec de la création de la ville. Veuillez vérifier vos entrées."
+    }
+  },
+"rating_report": {
+    "title": "Évaluer et Signaler",
+    "subtitle": "Évaluez le prestataire et signalez tout problème si nécessaire.",
+    "select_rating": "Sélectionnez une évaluation",
+    "feedback_fr": "Feedback en Français",
+    "feedback_fr_placeholder": "Veuillez fournir votre avis en français",
+    "feedback_ar": "Feedback en Arabe",
+    "feedback_ar_placeholder": "Veuillez fournir votre avis en arabe",
+    "submit_btn": "Soumettre l'évaluation",
+    "safety_actions": "Actions de sécurité",
+    "report_worker_btn": "Signaler le prestataire",
+    "report_worker_title": "Signaler le prestataire",
+    "report_worker_subtitle": "Raison du signalement",
+    "report_worker_placeholder": "Veuillez fournir la raison du signalement de ce prestataire",
+    "report_worker_submit_btn": "Soumettre le signalement",
+    "report_worker_success_msg": "Signalement soumis avec succès",
+    "report_worker_cancel_btn": "Annuler",
+    "report_worker_error_msg": "Échec de la soumission du signalement. Veuillez réessayer."
+  }
+
 }

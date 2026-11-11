@@ -1,4 +1,7 @@
+"use client";
+
 import { useFormContext } from "react-hook-form";
+import { useTranslation } from "react-i18next"; // or "next-intl"
 
 interface FileInputProps {
     label: string;
@@ -25,21 +28,29 @@ function FileInput({ label, name, accept, multiple }: FileInputProps) {
 }
 
 export function Step4Upload() {
+    const { t } = useTranslation();
+
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="col-span-full font-bold border-b pb-2 dark:text-gray-100 dark:border-gray-800">Images & Flyers</div>
-            <FileInput label="Images (Gallery)" name="images" accept="image/*" multiple={true} />
-            <FileInput label="Flyer (PDF/JPG)" name="flyer" accept="image/*,application/pdf" />
+            <div className="col-span-full font-bold border-b pb-2 dark:text-gray-100 dark:border-gray-800">
+                {t("dashboard.business.step4.imagesAndFlyers")}
+            </div>
+            <FileInput label={t("dashboard.business.step4.imagesGallery")} name="images" accept="image/*" multiple={true} />
+            <FileInput label={t("dashboard.business.step4.flyer")} name="flyer" accept="image/*,application/pdf" />
 
-            <div className="col-span-full font-bold border-b pb-2 mt-4 text-indigo-600 dark:text-indigo-400 dark:border-gray-800">Audio Records</div>
-            <FileInput label="Audio Arabic" name="audioAr" accept="audio/*" />
-            <FileInput label="Audio English" name="audioEn" accept="audio/*" />
-            <FileInput label="Audio French" name="audioFr" accept="audio/*" />
+            <div className="col-span-full font-bold border-b pb-2 mt-4 text-indigo-600 dark:text-indigo-400 dark:border-gray-800">
+                {t("dashboard.business.step4.audioRecords")}
+            </div>
+            <FileInput label={t("dashboard.business.step4.audioArabic")} name="audioAr" accept="audio/*" />
+            <FileInput label={t("dashboard.business.step4.audioEnglish")} name="audioEn" accept="audio/*" />
+            <FileInput label={t("dashboard.business.step4.audioFrench")} name="audioFr" accept="audio/*" />
 
-            <div className="col-span-full font-bold border-b pb-2 mt-4 text-rose-600 dark:text-rose-400 dark:border-gray-800">Video Records</div>
-            <FileInput label="Video Arabic" name="videoAr" accept="video/*" />
-            <FileInput label="Video English" name="videoEn" accept="video/*" />
-            <FileInput label="Video French" name="videoFr" accept="video/*" />
+            <div className="col-span-full font-bold border-b pb-2 mt-4 text-rose-600 dark:text-rose-400 dark:border-gray-800">
+                {t("dashboard.business.step4.videoRecords")}
+            </div>
+            <FileInput label={t("dashboard.business.step4.videoArabic")} name="videoAr" accept="video/*" />
+            <FileInput label={t("dashboard.business.step4.videoEnglish")} name="videoEn" accept="video/*" />
+            <FileInput label={t("dashboard.business.step4.videoFrench")} name="videoFr" accept="video/*" />
         </div>
     );
 }

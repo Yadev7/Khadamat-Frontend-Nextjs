@@ -2,18 +2,19 @@
 
 import React, { useEffect, useState, useMemo } from "react";
 import { useFormContext } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import { getContactsList } from "@/api/businesses-api";
 import { Phone, Mail, MapPin, Search, Languages, Map as MapIcon, Loader2 } from "lucide-react";
 import dynamic from "next/dynamic";
-import { t } from "i18next";
 
 const MapComponent = dynamic(() => import('@/components/MapComponent'), {
     ssr: false,
-    loading: () => <div className="h-350px bg-slate-100 animate-pulse rounded-2rem flex items-center justify-center text-slate-400 dark:bg-gray-800 dark:text-gray-500">Loading Map...</div>
+    loading: () => <div className="h-[350px] bg-slate-100 animate-pulse rounded-[2rem] flex items-center justify-center text-slate-400 dark:bg-gray-800 dark:text-gray-500">Loading Map...</div>
 });
 
 export function Step2Contact() {
     const { register, watch, setValue } = useFormContext();
+    const { t } = useTranslation();
     const selectedContactId = watch("contactId");
     const manualLat = watch("manualLatitude");
     const manualLng = watch("manualLongitude");
@@ -116,7 +117,7 @@ export function Step2Contact() {
                     </div>
 
                     <div className="col-span-full">
-                        <div className="h-350px w-full rounded-2rem overflow-hidden border-4 border-white shadow-lg relative dark:border-gray-700">
+                        <div className="h-[350px] w-full rounded-[2rem] overflow-hidden border-4 border-white shadow-lg relative dark:border-gray-700">
                             <MapComponent
                                 isPicker={true}
                                 onLocationSelect={handleLocationSelect}
@@ -135,7 +136,7 @@ export function Step2Contact() {
                                 <input
                                     {...register("manualLatitude")}
                                     readOnly
-                                    className="w-full text-sm font-mono font-bold text-slate-700 outline-none dark:text-gray-200"
+                                    className="w-full text-sm font-mono font-bold text-slate-700 outline-none dark:text-gray-200 bg-transparent"
                                     placeholder={t("dashboard.business.step2.click_on_map")}
                                 />
                             </div>
@@ -144,7 +145,7 @@ export function Step2Contact() {
                                 <input
                                     {...register("manualLongitude")}
                                     readOnly
-                                    className="w-full text-sm font-mono font-bold text-slate-700 outline-none dark:text-gray-200"
+                                    className="w-full text-sm font-mono font-bold text-slate-700 outline-none dark:text-gray-200 bg-transparent"
                                     placeholder={t("dashboard.business.step2.click_on_map")}
                                 />
                             </div>

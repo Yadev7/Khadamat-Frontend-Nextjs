@@ -476,6 +476,7 @@
           "manager_email": "البريد الإلكتروني للمدير",
           "manager_phone": "هاتف المدير",
           "manager_position": "منصب المدير",
+          "identity_details": "تفاصيل الهوية",
           "full_name": "الاسم الكامل",
           "full_name_ar": "الاسم الكامل (بالعربية)",
           "geographic_location": "الموقع الجغرافي (انقر على الخريطة للتحديث)",
@@ -487,7 +488,77 @@
           "previous": "السابق",
           "existing_manager": "مدير موجود سابقا",
           "choose_existing_manager": "اختر مدير موجود"
-    }
+    },
+    "step3": {
+    "ownerIsManager": "المالك هو المدير",
+    "newManager": "مدير جديد",
+    "ownerProfileReadOnly": "ملف المالك (قراءة فقط)",
+    "newManagerDetails": "تفاصيل المدير الجديد",
+    "firstNameEn": "الاسم الشخصي (الإنجليزية)",
+    "firstNameEnPlaceholder": "First Name",
+    "firstNameAr": "الاسم الشخصي",
+    "firstNameArPlaceholder": "الاسم",
+    "lastNameEn": "الاسم العائلي (الإنجليزية)",
+    "lastNameEnPlaceholder": "Last Name",
+    "lastNameAr": "الاسم العائلي",
+    "lastNameArPlaceholder": "النسب",
+    "contactEmail": "البريد الإلكتروني للاتصال",
+    "contactEmailPlaceholder": "email@example.com",
+    "mobilePhone": "رقم الهاتف المحمول",
+    "mobilePhonePlaceholder": "+212 ..."
+  },
+"step4": {
+    "imagesAndFlyers": "الصور والمنشورات",
+    "imagesGallery": "الصور (معرض الصور)",
+    "flyer": "المنشور (PDF/JPG)",
+    "audioRecords": "التسجيلات الصوتية",
+    "audioArabic": "صوتي باللغة العربية",
+    "audioEnglish": "صوتي باللغة الإنجليزية",
+    "audioFrench": "صوتي باللغة الفرنسية",
+    "videoRecords": "تسجيلات الفيديو",
+    "videoArabic": "فيديو باللغة العربية",
+    "videoEnglish": "فيديو باللغة الإنجليزية",
+    "videoFrench": "فيديو باللغة الفرنسية"
+  },
+  "step5": {
+        "preparingReviewData": "جاري تجهيز بيانات المراجعة...",
+        "title": "مراجعة إعدادات الشركة",
+        "finalStep": "الخطوة الأخيرة",
+        "basicInformation": "المعلومات الأساسية",
+        "nameLabel": "الاسم (الإنجليزية / الفرنسية / العربية)",
+        "serviceType": "نوع الخدمة",
+        "notSelected": "لم يتم التحديد",
+        "descriptionEn": "الوصف (الإنجليزية)",
+        "descriptionFr": "الوصف (الفرنسية)",
+        "descriptionAr": "الوصف (العربية)",
+        "noDescription": "No description",
+        "noDescriptionAr": "لا يوجد وصف",
+        "website": "موقع الكتروني",
+        "socialMedia": "وسائل التواصل الاجتماعي",
+        "ownershipAndContact": "الملكية والاتصال",
+        "businessOwner": "مالك الشركة",
+        "linkedContact": "جهة الاتصال المرتبطة",
+        "contactAddress": "عنوان الاتصال:",
+        "noAddressDetails": "لا توجد تفاصيل العنوان",
+        "managerDetails": "تفاصيل المدير",
+        "managementType": "نوع الإدارة",
+        "ownerIsManager": "المالك هو المدير",
+        "assignedNewManager": "تم تعيين مدير جديد",
+        "managerName": "اسم المدير",
+        "email": "البريد الإلكتروني",
+        "phone": "الهاتف",
+        "mediaAndUploads": "الوسائط والملفات المرفوعة",
+        "galleryImages": "صور المعرض",
+        "flyerPdfJpg": "المنشور PDF/JPG",
+        "audioAr": "صوتي (عربي)",
+        "audioEn": "صوتي (إنجليزي)",
+        "audioFr": "صوتي (فرنسي)",
+        "videoAr": "فيديو (عربي)",
+        "videoEn": "فيديو (إنجليزي)",
+        "videoFr": "فيديو (فرنسي)",
+        "noFileUploaded": "لم يتم رفع أي ملف"
+      }
+
   },
   "profile": {
     "title": "الملف الشخصي",
@@ -502,6 +573,53 @@
     "email": "البريد الإلكتروني",
     "readOnly": "للقراءة فقط",
     "joinedDate": "تاريخ الإنضمام"
-  }
+  },
+  "delete_confirmation": {
+    "title": "هل أنت متأكد؟",
+    "text": "لن تتمكن من استعادة هذا العنصر بعد حذفه!",
+    "confirmButtonText": "نعم، احذفه الآن",
+    "cancelButtonText": "إلغاء",
+    "deletedTitle": "تم الحذف!",
+    "deletedText": "تم حذف العنصر بنجاح.",
+    "errorTitle": "حدث خطأ",
+    "errorText": "حدث خطأ أثناء الحذف. يرجى المحاولة مرة أخرى."
 }
+  },
+  "modals": {
+    "add_city": {
+      "title": "إضافة مدينة جديدة",
+      "subtitle": "تحديد موقع جغرافي جديد",
+      "name_fr": "اسم المدينة (بالفرنسية)",
+      "name_fr_placeholder": "مثال: Casablanca",
+      "name_ar": "اسم المدينة (بالعربية)",
+      "name_ar_placeholder": "مثال: الدار البيضاء",
+      "coordinates_title": "إحداثيات الخريطة",
+      "latitude": "خط العرض",
+      "longitude": "خط الطول",
+      "coordinates_hint": "* سيتم استخدام هذه الإحداثيات لتوسيط الخريطة عند تحديد هذه المدينة.",
+      "submit_btn": "حفظ المدينة",
+      "success_msg": "تم إنشاء المدينة بنجاح",
+      "error_msg": "فشل في إنشاء المدينة. يرجى التحقق من المدخلات."
+    }
+  },
+  "rating_report": {
+    "title": "التقييم والإبلاغ",
+    "subtitle": "قم بتقديم تقييم لمقدم الخدمة والإبلاغ عن أي مشكلة إذا لزم الأمر.",
+    "select_rating": "اختر تقييماً",
+    "feedback_fr": "الملاحظات بالفرنسية",
+    "feedback_fr_placeholder": "يرجى تقديم ملاحظاتك باللغة الفرنسية",
+    "feedback_ar": "الملاحظات بالعربية",
+    "feedback_ar_placeholder": "يرجى تقديم ملاحظاتك باللغة العربية",
+    "submit_btn": "إرسال التقييم",
+    "safety_actions": "إجراءات السلامة",
+    "report_worker_btn": "الإبلاغ عن مقدم الخدمة",
+    "report_worker_title": "الإبلاغ عن مقدم الخدمة",
+    "report_worker_subtitle": "سبب الإبلاغ",
+    "report_worker_placeholder": "يرجى ذكر سبب الإبلاغ عن مقدم الخدمة هذا",
+    "report_worker_submit_btn": "إرسال البلاغ",
+    "report_worker_success_msg": "تم إرسال البلاغ بنجاح",
+    "report_worker_cancel_btn": "إلغاء",
+    "report_worker_error_msg": "فشل إرسال البلاغ. يرجى المحاولة مرة أخرى."
+  }
+  
 }

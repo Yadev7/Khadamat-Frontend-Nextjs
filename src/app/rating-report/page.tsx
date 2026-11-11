@@ -5,8 +5,10 @@ import { Star, AlertTriangle, Send, Loader2 } from 'lucide-react';
 import { useSearchParams, useParams } from 'next/navigation';
 import Swal from 'sweetalert2';
 import { createEvaluation } from '@/api/evaluations-api';
+import { useTranslation } from 'react-i18next';
 
 const WorkerReviewPage = () => {
+  const { t } = useTranslation();
   const searchParams = useSearchParams();
   const params = useParams();
   
@@ -62,15 +64,16 @@ const WorkerReviewPage = () => {
 
   const handleReport = async () => {
     const { value: reason } = await Swal.fire({
-      title: 'Report Worker / Business',
+      title: t('rating_report.report_worker_title'),
       input: 'textarea',
-      inputLabel: 'Reason for reporting',
-      inputPlaceholder: 'Type your reason here...',
+      inputLabel: t('rating_report.report_worker_subtitle'),
+      inputPlaceholder: t('rating_report.report_worker_placeholder'),
       inputAttributes: {
-        'aria-label': 'Type your reason here'
+        'aria-label': t('rating_report.report_worker_placeholder')
       },
-      showCancelButton: true,
-      confirmButtonText: 'Submit Report',
+       showCancelButton: true,
+      cancelButtonText: t('rating_report.report_worker_cancel_btn'),
+      confirmButtonText: t('rating_report.report_worker_submit_btn'),
       confirmButtonColor: '#dc2626'
     });
 
@@ -84,8 +87,8 @@ const WorkerReviewPage = () => {
       try {
         Swal.fire({
           icon: 'success',
-          title: 'Reported',
-          text: 'Your report has been submitted for review.',
+          title: t('rating_report.report_worker_success_msg'),
+          text: t('rating_report.report_worker_success_text'),
         });
       } catch (err: any) {
         Swal.fire({
@@ -105,8 +108,8 @@ const WorkerReviewPage = () => {
         
         {/* Header */}
         <div className="text-center mb-8">
-          <h2 className="text-2xl font-bold text-gray-900">Rate Worker</h2>
-          <p className="text-gray-500 mt-2">How was your experience?</p>
+          <h2 className="text-2xl font-bold text-gray-900">{t('rating_report.title')}</h2>
+          <p className="text-gray-500 mt-2">{t('rating_report.subtitle')}</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -135,19 +138,19 @@ const WorkerReviewPage = () => {
               ))}
             </div>
             <span className="mt-2 text-sm font-medium text-gray-600">
-              {rating > 0 ? `${rating} out of 5 stars` : "Select a rating"}
+              {rating > 0 ? `${rating} out of 5 stars` : t('rating_report.select_rating')}
             </span>
           </div>
 
           {/* Comment in French */}
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Feedback (French)
+              {t('rating_report.feedback_fr')}
             </label>
             <textarea
               rows={3}
               className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all resize-none text-gray-800"
-              placeholder="Votre avis en français..."
+              placeholder={t('rating_report.feedback_fr_placeholder')}
               value={commentFr}
               onChange={(e) => setCommentFr(e.target.value)}
             />
@@ -156,13 +159,13 @@ const WorkerReviewPage = () => {
           {/* Comment in Arabic */}
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2 text-right">
-              التعليق (العربية)
+              {t('rating_report.feedback_ar')}
             </label>
             <textarea
               dir="rtl"
               rows={3}
               className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all resize-none text-gray-800 text-right"
-              placeholder="أرأيك بالعربية..."
+              placeholder={t('rating_report.feedback_ar_placeholder')}
               value={commentAr}
               onChange={(e) => setCommentAr(e.target.value)}
             />
@@ -175,13 +178,13 @@ const WorkerReviewPage = () => {
             className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 text-white font-bold py-3 px-6 rounded-xl transition-colors flex items-center justify-center gap-2"
           >
             {isSubmitting ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
-            Submit Review
+            {t('rating_report.submit_btn')}
           </button>
         </form>
 
         <div className="relative my-8">
           <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-gray-200"></span></div>
-          <div className="relative flex justify-center text-xs uppercase"><span className="bg-white px-2 text-gray-400">Safety Actions</span></div>
+          <div className="relative flex justify-center text-xs uppercase"><span className="bg-white px-2 text-gray-400">{t('rating_report.safety_actions')}</span></div>
         </div>
 
         {/* Report Button */}
@@ -191,7 +194,7 @@ const WorkerReviewPage = () => {
           className="w-full bg-white border-2 border-red-500 text-red-600 hover:bg-red-50 font-bold py-3 px-6 rounded-xl transition-all flex items-center justify-center gap-2 group disabled:opacity-50"
         >
           {isReporting ? <Loader2 size={18} className="animate-spin" /> : <AlertTriangle size={18} className="group-hover:animate-pulse" />}
-          Report Worker
+          {t('rating_report.report_worker_btn')}
         </button>
       </div>
     </div>
