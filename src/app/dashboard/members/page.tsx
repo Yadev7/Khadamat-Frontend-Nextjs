@@ -109,6 +109,15 @@ export default function MembersPage() {
       setMembers(prev =>
         prev.map(m => m.id === member.id ? { ...m, status: newStatus } : m)
       );
+      Swal.fire({
+        icon: 'success',
+        title: isRtl ? 'تم التحديث بنجاح' : 'Status Updated',
+        text: isRtl 
+          ? (newStatus === 'BLOCKED' ? 'تم حظر العضو ولن يتمكن من تسجيل الدخول.' : 'تم إلغاء الحظر بنجاح.') 
+          : (newStatus === 'BLOCKED' ? 'Member has been blocked and can no longer log in.' : 'Member unblocked successfully.'),
+        timer: 1500,
+        showConfirmButton: false
+      });
     } catch (err: any) {
       console.error("Toggle status error:", err);
       Swal.fire({ icon: 'error', title: 'Error', text: 'Error updating status' });
@@ -177,12 +186,12 @@ export default function MembersPage() {
         </div>
 
         {/* Member Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+        {/* <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
           {paginatedMembers.length === 0 ? (
             <div className="col-span-full flex flex-col items-center justify-center p-12 text-slate-500 bg-white rounded-3xl border border-slate-100 border-dashed dark:text-gray-400 dark:bg-gray-900 dark:border-gray-800">
               <UserIcon size={40} className="mb-3 text-slate-300 dark:text-gray-600" />
-              <p className="text-base font-medium">No members found</p>
-              <p className="text-xs">Click &quot;Add Member&quot; to get started.</p>
+              <p className="text-base font-medium">{t("members.no_members")}</p>
+              <p className="text-xs">{t("members.click")} &quot; {t("members.add_member")} &quot; {t("members.get_started")}</p>
             </div>
           ) : (
             paginatedMembers.map((member) => {
@@ -273,13 +282,109 @@ export default function MembersPage() {
               );
             })
           )}
+        </div> */}
+        
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5">
+          {paginatedMembers.length === 0 ? (
+            <div className="col-span-full flex flex-col items-center justify-center p-12 text-slate-500 bg-white rounded-3xl border border-slate-100 border-dashed dark:text-gray-400 dark:bg-gray-900 dark:border-gray-800">
+              <UserIcon size={40} className="mb-3 text-slate-300 dark:text-gray-600" />
+              <p className="text-base font-semibold">{t("members.no_members")}</p>
+              <p className="text-sm font-medium">{t("members.click")} &quot; {t("members.add_member")} &quot; {t("members.get_started")}</p>
+            </div>
+          ) : (
+            paginatedMembers.map((member) => {
+              const isEnterprise = member.typeMember === 'ENTERPRISE' || member.typeMember === 'ENTREPRISE';
+
+              let displayName: string = "";
+              if (isEnterprise) {
+                const enterpriseName = currentLang === "ar"
+                  ? (member.entreprise?.nameAr ?? member.entreprise?.nameFr ?? "Enterprise")
+                  : (member.entreprise?.nameFr ?? member.entreprise?.nameAr ?? "Enterprise");
+                displayName = enterpriseName || "Enterprise";
+              } else {
+                const fName = currentLang === "ar"
+                  ? (member.contact?.firstNameAr ?? member.contact?.firstName ?? "")
+                  : (member.contact?.firstName ?? member.contact?.firstNameAr ?? "");
+                const lName = currentLang === "ar"
+                  ? (member.contact?.lastNameAr ?? member.contact?.lastName ?? "")
+                  : (member.contact?.lastName ?? member.contact?.lastNameAr ?? "");
+
+                displayName = [fName, lName].filter(Boolean).join(" ") ||
+                  (member.user?.email ? member.user.email.split('@')[0] : "Member");
+              }
+
+              const cityName = member.contact?.address?.city ? member.contact.address.city[isRtl ? 'nameAr' : 'nameFr'] : "---";
+              const displayEmail = member.contact?.email || member.user?.email || "---";
+              const profilePic = member.user?.photo?.path ? `${API_URL}${member.user.photo.path}` : null;
+
+              return (
+                <div key={member.id} className={`bg-white rounded-2xl p-3 shadow-xs border border-slate-200/60 group transition-all duration-300 hover:shadow-xl dark:bg-gray-900 dark:border-gray-800 text-sm flex flex-col justify-between ${member.status === 'BLOCKED' ? 'grayscale opacity-75' : ''}`}>
+                  <div>
+                    <div className="relative h-32 w-full rounded-xl bg-linear-to-br from-indigo-600 to-violet-700 mb-3 p-3 flex items-center justify-between">
+                      <div className="relative">
+                        {profilePic ? (
+                          <div className="relative w-16 h-16 rounded-2xl border-2 border-white shadow-md overflow-hidden bg-white">
+                            <Image src={profilePic} alt="Profile" fill className="object-cover" />
+                          </div>
+                        ) : (
+                          <div className="h-16 w-16 rounded-2xl bg-white border-2 border-white flex items-center justify-center text-indigo-600 text-xl font-bold shadow-sm">
+                            {isEnterprise ? <Building2 size={26} /> : displayName.charAt(0).toUpperCase()}
+                          </div>
+                        )}
+                        <div className={`absolute -bottom-1 -right-1 h-4 w-4 rounded-full border-2 border-white ${member.status === 'ACTIVE' ? 'bg-emerald-500' : 'bg-red-500'}`} />
+                      </div>
+
+                      <div className="absolute top-2 right-2 flex gap-1.5 opacity-0 group-hover:opacity-100 transition-all">
+                        <button onClick={() => handleToggleStatus(member)} className={`p-1.5 rounded-lg text-white transition-colors ${(member.status || 'ACTIVE') === 'ACTIVE' ? 'bg-white/20 hover:bg-orange-500' : 'bg-red-500 hover:bg-emerald-500'}`}>
+                          {(member.status || 'ACTIVE') === 'ACTIVE' ? <Unlock size={14} /> : <Lock size={14} />}
+                        </button>
+                        <button onClick={() => { setSelectedMember(member); setIsDeleteModalOpen(true); }} className="p-1.5 bg-white/20 hover:bg-red-600 text-white rounded-lg">
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="px-1 pb-2">
+                      <h3 className="text-sm font-bold text-slate-800 line-clamp-1 dark:text-gray-100 mb-1" title={displayName}>{displayName}</h3>
+                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-indigo-50 text-indigo-700 text-xs font-semibold uppercase tracking-wide dark:bg-indigo-950 dark:text-indigo-300 mb-3">
+                        {isEnterprise ? <Building2 size={11} /> : <UserIcon size={11} />}
+                        {member.typeMember}
+                      </span>
+
+                      <div className="space-y-1.5 mb-3">
+                        <div className="flex items-center gap-2 text-slate-600 dark:text-gray-300">
+                          <Mail size={13} className="shrink-0 text-indigo-500" />
+                          <span className="text-xs font-medium truncate">{displayEmail}</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-slate-600 dark:text-gray-300">
+                          <Phone size={13} className="shrink-0 text-indigo-500" />
+                          <span className="text-xs font-medium">{member.contact?.phoneCell || "---"}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between p-2.5 bg-slate-50/80 rounded-xl dark:bg-gray-800 mt-auto border border-slate-100 dark:border-gray-700/50">
+                    <div className="flex items-center gap-2">
+                      <MapPin size={14} className="text-indigo-500 shrink-0" />
+                      <div>
+                        <p className="text-[10px] font-bold text-slate-400 uppercase dark:text-gray-500">{isRtl ? 'المدينة' : 'City'}</p>
+                        <p className="text-xs font-semibold text-slate-700 dark:text-gray-200">{cityName}</p>
+                      </div>
+                    </div>
+                    <div className={`text-[10px] font-bold px-2 py-0.5 rounded shadow-xs ${(member.status || 'ACTIVE') === 'ACTIVE' ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300' : 'bg-red-600 text-white'}`}>
+                      {member.status || 'ACTIVE'}
+                    </div>
+                  </div>
+                </div>
+              );
+            })
+          )}
         </div>
 
-        {/* --- NUMBERED PAGINATION CONTROLS: 1 2 3 4 --- */}
+        {/* Pagination Controls */}
         {filteredMembers.length > 0 && (
           <div className="bg-white rounded-2xl p-4 border border-slate-100 shadow-xs dark:bg-gray-900 dark:border-gray-800 mt-6 space-y-4">
-            
-            {/* Items Per Page Selector & Counter */}
             <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-xs font-semibold text-slate-500 dark:text-gray-400 pb-3 border-b border-slate-100 dark:border-gray-800">
               <div className="flex items-center gap-2">
                 <span>{isRtl ? "عرض" : "Show"}</span>
@@ -303,7 +408,6 @@ export default function MembersPage() {
               </span>
             </div>
 
-            {/* Clickable 1 2 3 4 Number Sequence */}
             <div className="flex items-center justify-center gap-2 flex-wrap pt-1">
               <button
                 onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
@@ -343,7 +447,6 @@ export default function MembersPage() {
                 {isRtl ? <ChevronLeft size={14} /> : <ChevronRight size={14} />}
               </button>
             </div>
-
           </div>
         )}
       </div>

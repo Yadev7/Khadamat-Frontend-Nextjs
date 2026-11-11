@@ -216,7 +216,7 @@ export default function CityAreasPage() {
   };
 
   const handleDelete = async (id: string) => {
-    const result = await Swal.fire({ title: t('common.confirm_delete_title'), icon: 'warning', showCancelButton: true });
+    const result = await Swal.fire({ title: t('common.confirm_delete_title'), icon: 'warning', showCancelButton: true, cancelButtonText: t('common.cancel'), confirmButtonText: t('common.yes_delete') });
     if (result.isConfirmed) {
       try {
         await deleteCityArea(id);

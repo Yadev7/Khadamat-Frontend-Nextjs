@@ -20,26 +20,6 @@ const Footer = () => {
 
   return (
     <footer className="bg-gray-950 text-white border-t border-gray-800">
-      {/* Stats Section */}
-      <div ref={ref} className="bg-gradient-to-b from-gray-900 to-gray-950 py-16 border-b border-gray-800/50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 text-center">
-            <div className="space-y-2">
-              <div className="text-5xl lg:text-7xl font-extrabold text-blue-500 tracking-tight">
-                {startCounting && <CountUp end={24} duration={2.5} suffix="k" />}
-              </div>
-              <p className="text-gray-400 text-lg font-medium">{t('footer.stats.customers')}</p>
-            </div>
-            <div className="space-y-2">
-              <div className="text-5xl lg:text-7xl font-extrabold text-emerald-500 tracking-tight">
-                {startCounting && <CountUp end={7} duration={2.5} suffix="k+" />}
-              </div>
-              <p className="text-gray-400 text-lg font-medium">{t('footer.stats.projects')}</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
       {/* Main Footer Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">

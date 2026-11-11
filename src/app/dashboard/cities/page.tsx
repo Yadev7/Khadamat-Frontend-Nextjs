@@ -106,7 +106,11 @@ export default function CitiesPage() {
   };
 
   const handleDelete = async (id: string) => {
-    const result = await Swal.fire({ title: t('common.confirm_delete_title'), icon: 'warning', showCancelButton: true });
+    const result = await Swal.fire({ title: t('common.confirm_delete_title'), icon: 'warning', 
+      showCancelButton: true, 
+      confirmButtonText:t('common.yes_delete'),
+      cancelButtonText: t('common.cancel'),
+    });
     if (result.isConfirmed) {
       try {
         await deleteCity(id);

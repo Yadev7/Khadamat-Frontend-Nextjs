@@ -126,6 +126,7 @@ export default function CountriesPage() {
       title: t('common.confirm_delete_title'),
       icon: 'warning',
       showCancelButton: true,
+      cancelButtonText: t('common.cancel'),
       confirmButtonColor: '#ef4444',
       confirmButtonText: t('common.yes_delete')
     });

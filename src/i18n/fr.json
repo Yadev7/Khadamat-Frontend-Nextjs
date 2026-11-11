@@ -210,7 +210,11 @@
   "members": {
     "add_member": "Ajouter Un Membre",
     "pros": "Professionnels",
-    "short_description": "Annuaire des experts et services disponibles au Maroc"
+    "short_description": "Annuaire des experts et services disponibles au Maroc",
+    "no_members": "Pas de Professionels Trouvé",
+    "click": "Cliquer",
+    "add_member_to_get_started": "Pour ajouter un professionel",
+    "get_started":"Pour commencer"
   },
   "contact": {
     "write_us": "Motif de contact",

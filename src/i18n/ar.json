@@ -211,7 +211,11 @@
   "members": {
     "add_member": "اضف مهني",
     "pros": "المهنين",
-    "short_description": "قائمة الخبراء والخدمات المتاحة في المغرب"
+    "short_description": "قائمة الخبراء والخدمات المتاحة في المغرب",
+    "no_members": "لم يتم العثور على مهني",
+    "click": "اضغط",
+    "add_member_to_get_started": "لاضافة مهني",
+    "get_started":"للبدء"
   },
   "contact": {
     "write_us": "سبب الاتصال",

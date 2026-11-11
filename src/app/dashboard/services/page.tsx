@@ -237,6 +237,8 @@ export default function ServicesPage() {
       title: t('common.confirm_delete_title', 'هل أنت متأكد من الحذف؟'),
       icon: 'warning',
       showCancelButton: true,
+      cancelButtonText: t('common.cancel'),
+      confirmButtonText: t('common.yes_delete'),
       confirmButtonColor: '#ef4444',
     }).then(async (result) => {
       if (result.isConfirmed) {

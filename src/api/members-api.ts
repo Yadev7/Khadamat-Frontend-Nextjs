@@ -30,9 +30,22 @@ export const updateMember = async (id: string, data: any) => {
 };
 
 // 5. Delete Member
+// export const deleteMember = async (id: string) => {
+//   const response = await api.delete(`/v1/members/${id}`);
+//   return response.data;
+// };
+
+
+
 export const deleteMember = async (id: string) => {
-  const response = await api.delete(`/v1/members/${id}`);
-  return response.data;
+  try {
+    const response = await api.delete(`/v1/members/${id}`);
+    return response.data;
+  } catch (error: any) {
+    // Re-throw the error with a clean message so your UI component can catch and display it
+    const message = error.response?.data?.errors?.database || error.message || 'Failed to delete member';
+    throw new Error(message);
+  }
 };
 
 // 6. Upload File

@@ -210,7 +210,11 @@
   "members": {
     "add_member": "Add Professional",
     "pros": "Professionals",
-    "short_description": "Directory of experts and services available in Morocco"
+    "short_description": "Directory of experts and services available in Morocco",
+    "no_members": "No professionals found.",
+    "click": "Click",
+    "add_member_to_get_started": "Add a professional",
+    "get_started":"to get started."
   },
   "contact": {
     "write_us": "Motif for Contact",
