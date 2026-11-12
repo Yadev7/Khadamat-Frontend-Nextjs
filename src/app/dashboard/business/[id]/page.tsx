@@ -124,7 +124,7 @@ export default function BusinessDetailsPage() {
 
   if (!business) return (
     <div className="pt-40 text-center space-y-4">
-      <h2 className="text-2xl font-bold">{t("details_ads.profile_not_found") || "Profile not found"}</h2>
+      <h2 className="text-2xl font-bold">{t("details_ads.profile_not_found")}</h2>
       <button onClick={() => router.back()} className="text-indigo-600 underline">Back</button>
     </div>
   );
@@ -134,7 +134,7 @@ export default function BusinessDetailsPage() {
       <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center">
           <button onClick={() => router.back()} className="flex items-center gap-2 font-bold text-sm text-gray-600">
-            <ArrowLeft size={20} /> {t("details_ads.back_to_search") || "Back"}
+            <ArrowLeft size={20} /> {t("details_ads.back_to_search")}
           </button>
         </div>
       </nav>

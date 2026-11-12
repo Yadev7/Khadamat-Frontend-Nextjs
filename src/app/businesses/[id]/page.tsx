@@ -373,7 +373,7 @@ export default function PublicBusinessDetailsPage() {
         <div className="fixed inset-0 z-150 flex items-end sm:items-center justify-center p-4 bg-black/40 backdrop-blur-sm overflow-y-auto">
           <div className="bg-white w-full max-w-lg rounded-[2.5rem] shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
             <div className="p-6 border-b border-gray-50 flex justify-between items-center bg-gray-50/50 shrink-0">
-              <div className="flex items-center gap-3"><div className="p-2 bg-indigo-100 text-indigo-600 rounded-xl"><MessageSquare size={20} /></div><h3 className="font-bold text-lg">Inquire Profile</h3></div>
+              <div className="flex items-center gap-3"><div className="p-2 bg-indigo-100 text-indigo-600 rounded-xl"><MessageSquare size={20} /></div><h3 className="font-bold text-lg">{t('details_ads.inquire_profile')}</h3></div>
               <button onClick={() => { removeAudio(); setIsModalOpen(false); }} className="p-2 hover:bg-white rounded-full"><X size={20} /></button>
             </div>
             <div className="p-6 space-y-5 overflow-y-auto">
@@ -407,8 +407,8 @@ export default function PublicBusinessDetailsPage() {
                     <button onClick={startRecording} className="mx-auto w-16 h-16 flex items-center justify-center bg-red-50 text-red-500 rounded-full hover:bg-red-100 transition-colors">
                       <Mic size={28} />
                     </button>
-                    <p className="text-sm font-semibold">Tap to record audio</p>
-                    <p className="text-xs text-gray-400">Voice message will be sent with your inquiry</p>
+                    <p className="text-sm font-semibold">{t('details_ads.tab_to_record')}</p>
+                    <p className="text-xs text-gray-400">{t('details_ads.message_audio')}</p>
                   </>
                 )}
 
@@ -423,26 +423,26 @@ export default function PublicBusinessDetailsPage() {
                         <Square size={20} fill="white" />
                       </button>
                     </div>
-                    <p className="text-xs text-gray-500">Tap stop when finished</p>
+                    <p className="text-xs text-gray-500">{t('details_ads.stop_record')}</p>
                   </div>
                 )}
 
                 {!isRecording && audioPreviewUrl && (
                   <div className="space-y-3">
                     <div className="flex items-center justify-center gap-2 text-green-600 text-sm font-semibold">
-                      {isUploadingAudio ? <><Loader2 size={16} className="animate-spin" /> Uploading...</> : <><Play size={16} /> Ready to send • {formatTime(recordingTime)}</>}
+                      {isUploadingAudio ? <><Loader2 size={16} className="animate-spin" /> Uploading...</> : <><Play size={16} /> {t('details_ads.ready_send')} • {formatTime(recordingTime)}</>}
                     </div>
                     <audio controls src={audioPreviewUrl} className="w-full h-10 accent-indigo-600" />
                     <div className="flex gap-2 justify-center">
                       <button onClick={removeAudio} className="flex items-center gap-1.5 px-4 py-2 bg-white border rounded-xl text-sm font-semibold hover:bg-gray-50">
-                        <Trash2 size={16} /> Remove
+                        <Trash2 size={16} /> {t('details_ads.remove')}
                       </button>
                       <button onClick={startRecording} className="flex items-center gap-1.5 px-4 py-2 bg-indigo-50 text-indigo-600 rounded-xl text-sm font-semibold hover:bg-indigo-100">
-                        <Mic size={16} /> Re-record
+                        <Mic size={16} /> {t('details_ads.re_record')}
                       </button>
                     </div>
                     {audioFilePath && !isUploadingAudio && (
-                      <p className="text-xs text-green-600">✓ Audio saved</p>
+                      <p className="text-xs text-green-600">{t('details_ads.audio_saved')}</p>
                     )}
                   </div>
                 )}
@@ -450,10 +450,10 @@ export default function PublicBusinessDetailsPage() {
 
               {/* === MULTILINGUAL FIELDS -> titleAr, titleFr, textAr, textFr, textEn === */}
               <div className="space-y-4">
-                <p className="text-xs font-bold tracking-widest text-indigo-600 uppercase">Titles — titleAr / titleFr</p>
+                <p className="text-xs font-bold tracking-widest text-indigo-600 uppercase">{t('details_ads.titleFr')}</p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="space-y-1">
-                    <label className="text-xs font-semibold text-gray-600">titleAr <span className="text-gray-400 font-normal">(العربية)</span></label>
+                    <label className="text-xs font-semibold text-gray-600">{t('details_ads.titleAr')}</label>
                     <input
                       dir="rtl"
                       value={titleAr}
@@ -463,7 +463,7 @@ export default function PublicBusinessDetailsPage() {
                     />
                   </div>
                   <div className="space-y-1">
-                    <label className="text-xs font-semibold text-gray-600">titleFr <span className="text-gray-400 font-normal">(Français)</span></label>
+                    <label className="text-xs font-semibold text-gray-600">{t('details_ads.titleFr')}</label>
                     <input
                       value={titleFr}
                       onChange={(e) => setTitleFr(e.target.value)}
@@ -531,7 +531,7 @@ export default function PublicBusinessDetailsPage() {
             <div className="p-6 border-b border-gray-50 flex justify-between items-center bg-gray-50/50">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-indigo-100 text-indigo-600 rounded-xl"><Mic size={20} /></div>
-                <h3 className="font-bold text-lg">Record Audio</h3>
+                <h3 className="font-bold text-lg">{t('details_ads.record_audio')}</h3>
               </div>
               <button
                 onClick={() => { if (!isRecording) removeAudio(); setIsRecordModalOpen(false); }}
@@ -559,7 +559,7 @@ export default function PublicBusinessDetailsPage() {
                   ) : null}
                 </>
               ) : (
-                <p className="text-sm text-gray-500">Record a voice message and send it to this business.</p>
+                <p className="text-sm text-gray-500">{t('details_ads.subtitle')}</p>
               )}
 
               <div className="flex gap-3">
@@ -569,14 +569,14 @@ export default function PublicBusinessDetailsPage() {
                     isRecording ? "bg-red-500 hover:bg-red-600" : "bg-indigo-600 hover:bg-indigo-700"
                   }`}
                 >
-                  {isRecording ? <><Square size={18} fill="white" /> Stop</> : <><Mic size={18} /> Record</>}
+                  {isRecording ? <><Square size={18} fill="white" /> Stop</> : <><Mic size={18} /> {t('details_ads.record')}</>}
                 </button>
                 <button
                   onClick={handleSendMessage}
                   disabled={!audioFilePath || sending || isUploadingAudio}
                   className="flex-1 flex items-center justify-center gap-2 bg-gray-900 text-white py-4 rounded-2xl font-bold hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
-                  {sending ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />} Send
+                  {sending ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />} {t('details_ads.send')}
                 </button>
               </div>
 
@@ -585,7 +585,7 @@ export default function PublicBusinessDetailsPage() {
                   onClick={removeAudio}
                   className="w-full flex items-center justify-center gap-1.5 py-3 bg-white border rounded-2xl text-sm font-semibold hover:bg-gray-50"
                 >
-                  <Trash2 size={16} /> Remove
+                  <Trash2 size={16} /> {t('details_ads.remove')}
                 </button>
               )}
             </div>
