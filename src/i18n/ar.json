@@ -440,7 +440,8 @@
         "upload_image": "رفع صورة",
         "change_image": "تغيير الصورة",
         "update_now": "تحديث الآن",
-        "update_loading": "جاري التحديث..."
+        "update_loading": "جاري التحديث...",
+        "confirm_update": "حفظ التغيرات"
       }
     },
     "business": {
@@ -470,6 +471,9 @@
       "validation_error": "خطأ في التحقق من صحة البيانات. يرجى التحقق من الحقول المطلوبة.",
       "cancel_button_text": "الغاء",
       "confirm_delete": "نعم , قم بحذفه",
+      "confirm_update": "حفظ التغيرات",
+      "title_modal_delete": "هل انت متاكد ؟",
+      "text_modal_delete": "لن تستطيع استرجاعها بعد الحذف",
       "step1": {
           "title": "الخطوة 1: المعلومات الأساسية",
           "description": "قدم المعلومات الأساسية حول عملك التجاري.",

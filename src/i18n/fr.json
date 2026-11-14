@@ -432,7 +432,8 @@
         "upload_image": "Charger l'image",
         "change_image": "Changer l'image",
         "update_now": "Mettre à jour maintenant",
-        "update_loading": "Mise à jour en cours..."
+        "update_loading": "Mise à jour en cours...",
+        "confirm_update": "Enregistrer les modifications"
       }
     },
     "business": {
@@ -462,7 +463,9 @@
       "validation_error": "Veuillez corriger les erreurs dans le formulaire avant de continuer.",
       "cancel_button_text": "Annuler",
       "confirm_delete": "Oui, Supprimer!",
-      "confirm_update": "Enregistrer les modifications"
+      "confirm_update": "Enregistrer les modifications",
+      "title_modal_delete": "Est vous sure ?",
+      "text_modal_delete": "Vous ne pouvez pas la recupérer après la suppression",
     "step1": {
         "title": "Étape 1 : Informations de base",
         "description": "Fournissez les informations de base sur votre entreprise.",

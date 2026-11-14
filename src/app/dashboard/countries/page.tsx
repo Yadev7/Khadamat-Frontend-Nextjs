@@ -99,7 +99,7 @@ export default function CountriesPage() {
     setIsSubmitting(true);
     try {
       let finalPayload = { ...formData };
-      
+
       if (selectedFile) {
         const uploadedFileResponse = await uploadFile(selectedFile);
         const fileId = uploadedFileResponse?.file?.id || uploadedFileResponse?.id || uploadedFileResponse;
@@ -201,13 +201,18 @@ export default function CountriesPage() {
         <div className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
           <div className="bg-white w-full max-w-5xl rounded-[2.5rem] p-6 md:p-10 shadow-2xl scale-in-center overflow-y-auto max-h-[95vh] dark:bg-gray-900">
             <div className="flex justify-between items-center mb-8">
-              <h2 className="text-2xl font-black text-slate-800 dark:text-gray-100">{editingCountry ? 'Edit Country' : 'New Country'}</h2>
+              <h2 className="text-2xl font-black text-slate-800 dark:text-gray-100">
+                {editingCountry
+                  ? t('dashboard.infos-general.common.edit', t('common.edit'))
+                  : t('dashboard.infos-general.common.add_new', 'Add New')}
+                {t('dashboard.infos-general.common.country', t('dashboard.infos-general.tabs.country_tab', 'Country'))}
+              </h2>
               <button onClick={() => setIsModalOpen(false)} className="p-2 hover:bg-slate-100 rounded-full transition dark:text-gray-400 dark:hover:bg-gray-800"><X className="w-6 h-6" /></button>
             </div>
 
             {/* Main Outer structural container changed to a simple DIV to avoid nesting forms */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-              
+
               {/* Form Input fields container - Form is isolated safely here */}
               <form onSubmit={handleSubmit} className="order-2 lg:order-1 lg:col-span-5 space-y-5 w-full">
                 <div className="space-y-4">
@@ -215,7 +220,7 @@ export default function CountriesPage() {
                   <input placeholder="French Name" type="text" required className="w-full bg-slate-50 border-none rounded-2xl p-4 text-slate-800 font-bold outline-none ring-2 ring-transparent focus:ring-blue-500/20 transition-all dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-500" value={formData.nameFr} onChange={(e) => setFormData({ ...formData, nameFr: e.target.value })} />
                   <input placeholder="English Name" type="text" required className="w-full bg-slate-50 border-none rounded-2xl p-4 text-slate-800 font-bold outline-none ring-2 ring-transparent focus:ring-blue-500/20 transition-all dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-500" value={formData.nameEn} onChange={(e) => setFormData({ ...formData, nameEn: e.target.value })} />
                 </div>
-                
+
                 <div>
                   <select required className="w-full bg-slate-50 border-none rounded-2xl p-4 text-slate-800 font-bold outline-none ring-2 ring-transparent focus:ring-blue-500/20 transition-all dark:bg-gray-800 dark:text-gray-100" value={formData.countryCode} onChange={(e) => setFormData({ ...formData, countryCode: e.target.value })}>
                     <option value="">-- Select Country Code --</option>
@@ -244,7 +249,7 @@ export default function CountriesPage() {
 
                 <button type="submit" disabled={isSubmitting} className="w-full bg-blue-600 text-white py-4 rounded-2xl font-black shadow-lg hover:bg-blue-700 transition mt-4 disabled:opacity-50 flex justify-center items-center gap-2">
                   {isSubmitting && <Loader2 className="w-5 h-5 animate-spin" />}
-                  {editingCountry ? 'Save Changes' : 'Create Country'}
+                  {editingCountry ? t('dashboard.infos-general.common.confirm_update') : 'Create Country'}
                 </button>
               </form>
 

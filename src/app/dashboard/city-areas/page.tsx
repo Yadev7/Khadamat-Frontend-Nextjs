@@ -104,7 +104,7 @@ export default function CityAreasPage() {
     try {
       setLoading(true);
       const [areasData, citiesData] = await Promise.all([getCityAreas(), getCities()]);
-      
+
       const cleanAreas = Array.isArray(areasData) ? areasData : (areasData as any)?.data || [];
       const cleanCities = Array.isArray(citiesData) ? citiesData : (citiesData as any)?.data || [];
 
@@ -123,7 +123,7 @@ export default function CityAreasPage() {
     if (!formData.cityId) return [];
     const selectedCity = cities.find(c => c.id === formData.cityId);
     if (!selectedCity) return [];
-    
+
     const lookupKeyFr = selectedCity.nameFr?.toLowerCase().trim() || '';
     const lookupKeyAr = selectedCity.nameAr?.toLowerCase().trim() || '';
 
@@ -132,7 +132,7 @@ export default function CityAreasPage() {
         return CITY_AREAS_DICTIONARY[key];
       }
     }
-    
+
     return [
       { ar: "المركز", fr: "Centre-Ville", lat: selectedCity.localisation?.latitude || 34.0331, lng: selectedCity.localisation?.longitude || -5.0003 },
       { ar: "حي الإداري", fr: "Quartier Administratif", lat: selectedCity.localisation?.latitude || 34.0331, lng: selectedCity.localisation?.longitude || -5.0003 }
@@ -233,9 +233,9 @@ export default function CityAreasPage() {
       const selectedCityObj = cities.find(c => c.id === formData.cityId);
       const cityName = selectedCityObj ? (isAr ? selectedCityObj.nameAr : selectedCityObj.nameFr) : "";
       const areaName = (isAr ? formData.nameAr : formData.nameFr);
-      
-      const labelText = areaName && cityName 
-        ? `${areaName}, ${cityName}` 
+
+      const labelText = areaName && cityName
+        ? `${areaName}, ${cityName}`
         : cityName || areaName || "Selected Target Position";
 
       return [{
@@ -303,12 +303,19 @@ export default function CityAreasPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
           <div className="bg-white w-full max-w-5xl rounded-[2.5rem] p-6 md:p-10 shadow-2xl overflow-y-auto max-h-[95vh] dark:bg-gray-900">
             <div className="flex justify-between items-center mb-8">
-              <h2 className="text-2xl font-black text-slate-800 dark:text-gray-100">{editingArea ? 'Edit Area' : 'New Area'}</h2>
+              {/* <h2 className="text-2xl font-black text-slate-800 dark:text-gray-100">{editingArea ? t('dashboard.infos-general.common.edit') t('dashboard.infos-general.common.city-zone')  : 'New Area'}</h2> */}
+              <h2 className="text-2xl font-black text-slate-800 dark:text-gray-100">
+                {editingArea
+                  ? t('dashboard.infos-general.common.edit', t('common.edit'))
+                  : t('dashboard.infos-general.common.add_new', 'Add New')}
+                {t('dashboard.infos-general.common.city-zone', t('dashboard.infos-general.tabs.zone_tab', 'City Zone'))}
+              </h2>
+
               <button onClick={() => setIsModalOpen(false)} className="p-2 hover:bg-slate-100 rounded-full transition dark:text-gray-400 dark:hover:bg-gray-800"><X className="w-6 h-6" /></button>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-              
+
               {/* Form Fields Column */}
               <form onSubmit={handleSubmit} className="order-2 lg:order-1 lg:col-span-5 space-y-5 w-full">
                 <div>
@@ -318,14 +325,14 @@ export default function CityAreasPage() {
                     {cities.map(c => (<option key={c.id} value={c.id}>{isAr ? c.nameAr : c.nameFr}</option>))}
                   </select>
                 </div>
-                
+
                 <div>
                   <label className="block text-[10px] font-black uppercase text-slate-400 mb-2 px-1 dark:text-gray-500">City Area / Sector</label>
-                  <select 
-                    required 
+                  <select
+                    required
                     disabled={!formData.cityId}
-                    className="w-full bg-slate-50 border-none rounded-2xl p-4 text-slate-800 font-bold outline-none disabled:opacity-50 dark:bg-gray-800 dark:text-gray-100" 
-                    value={formData.nameFr} 
+                    className="w-full bg-slate-50 border-none rounded-2xl p-4 text-slate-800 font-bold outline-none disabled:opacity-50 dark:bg-gray-800 dark:text-gray-100"
+                    value={formData.nameFr}
                     onChange={handleSubAreaChange}
                   >
                     <option value="">-- Select Area --</option>
@@ -336,7 +343,7 @@ export default function CityAreasPage() {
                     ))}
                   </select>
                 </div>
-                
+
                 <div className="p-4 bg-violet-50 rounded-2xl border border-violet-100 dark:bg-violet-950 dark:border-violet-900">
                   <h4 className="text-[10px] font-black text-violet-400 uppercase mb-2 dark:text-violet-300">Coordinates (GPS)</h4>
                   <div className="flex justify-between font-mono text-xs font-bold text-violet-700 dark:text-violet-300">
@@ -346,12 +353,12 @@ export default function CityAreasPage() {
                 </div>
 
                 <button type="submit" className="w-full bg-violet-600 text-white py-4 rounded-2xl font-black shadow-lg hover:bg-violet-700 transition-all">
-                  {editingArea ? 'Save Changes' : 'Create Area'}
+                  {editingArea ? t('dashboard.infos-general.common.confirm_update') : 'Create Area'}
                 </button>
               </form>
 
               {/* Map Column */}
-              <div className="order-1 lg:order-2 lg:col-span-7 h-[350px] lg:h-[500px] w-full rounded-3xl overflow-hidden border-4 border-slate-50 shadow-inner relative z-0 dark:border-gray-800">
+              <div className="order-1 lg:order-2 lg:col-span-7 h-350px lg:h-500px w-full rounded-3xl overflow-hidden border-4 border-slate-50 shadow-inner relative z-0 dark:border-gray-800">
                 <MapComponent
                   key={`${editingArea?.id || 'new'}-${formData.cityId}-${formData.nameFr}`}
                   center={[formData.latitude, formData.longitude]}

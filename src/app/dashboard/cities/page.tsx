@@ -175,7 +175,14 @@ export default function CitiesPage() {
       
       {/* Modal Header */}
       <div className="flex justify-between items-center mb-8">
-        <h2 className="text-2xl font-black text-slate-800 dark:text-gray-100">{editingCity ? 'Edit City' : 'Add New City'}</h2>
+        {/* <h2 className="text-2xl font-black text-slate-800 dark:text-gray-100">{editingCity ? 'Edit City' : 'Add New City'}</h2> */}
+
+                      <h2 className="text-2xl font-black text-slate-800 dark:text-gray-100">
+                {editingCity
+                  ? t('dashboard.infos-general.common.edit', t('common.edit', 'Edit'))
+                  : t('dashboard.infos-general.common.add_new', 'Add New')}{' '}
+                {t('dashboard.infos-general.common.city', t('dashboard.infos-general.tabs.country_tab', 'Country'))}
+              </h2>
         <button onClick={() => setIsModalOpen(false)} className="p-2 hover:bg-slate-100 rounded-full transition dark:text-gray-400 dark:hover:bg-gray-800"><X className="w-6 h-6" /></button>
       </div>
 
@@ -225,7 +232,7 @@ export default function CitiesPage() {
             onClick={handleSubmit}
             className="w-full bg-indigo-600 text-white py-4 rounded-2xl font-black shadow-lg hover:bg-indigo-700 transition-all"
           >
-            {editingCity ? 'Save Changes' : 'Create City'}
+            {editingCity ? t('dashboard.infos-general.common.confirm_update') : 'Create City'}
           </button>
         </div>
 

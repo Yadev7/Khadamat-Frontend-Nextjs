@@ -416,6 +416,9 @@
       "common": {
         "add_new": "Add New",
         "edit": "Edit",
+        "country": "Country",
+        "city": "City",
+        "city-zone": "City Zone",
         "save": "Save",
         "delete": "Delete",
         "confirm_delete_title": "Are you sure ?",
@@ -432,7 +435,8 @@
         "upload_image": "Upload image",
         "change_image": "Change Image",
         "update_now": "Update Now",
-        "update_loading": "Updating..."
+        "update_loading": "Updating...",
+        "confirm_update": "Save Changes"
       }
     },
  
@@ -464,6 +468,12 @@
     "cancel_button_text": "Cancel",
     "confirm_delete": "Yes, delete it!",
     "confirm_update": "Save Changes",
+    "title_modal_delete": "Are you sure?",
+    "text_modal_delete": "You won't be able to revert this!",
+    "name_in_french": "Text in French",
+    "name_in_english": "Text in English",
+    "name_in_arabic": "Text in Arabic",
+
   "step1": {
     "title": "Step 1: Basic Information",
     "description": "Provide the basic information about your business.",

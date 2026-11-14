@@ -262,14 +262,14 @@ export default function BusinessesPage() {
   const handleDelete = async (id: string) => {
     const MySwal = withReactContent(Swal);
     const result = await MySwal.fire({
-      title: 'Are you sure?',
-      text: "You won't be able to revert this!",
+      title: t('dashboard.business.title_modal_delete'),
+      text: t('dashboard.business.text_modal_delete'),
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#ef4444',
       cancelButtonColor: '#94a3b8',
       cancelButtonText: t('dashboard.business.cancel_button_text'),
-      confirmButtonText: t('')
+      confirmButtonText: t('dashboard.business.confirm_delete')
     });
 
     if (result.isConfirmed) {
