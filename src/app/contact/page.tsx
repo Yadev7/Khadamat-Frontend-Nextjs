@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { Mail, Phone, MapPin, Clock, Building2, PenTool } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { getServices } from '@/api/services-api';
+
 
 export default function ContactPage() {
     const { t, i18n } = useTranslation();
@@ -23,18 +23,7 @@ export default function ContactPage() {
         customService: '' // Champ pour le service personnalisé si "Autre" est sélectionné
     });
 
-    // Chargement des services depuis l'API au montage
-    useEffect(() => {
-        const fetchServicesList = async () => {
-            try {
-                const data = await getServices();
-                setServices(data);
-            } catch (error) {
-                console.error("Erreur lors du chargement des services :", error);
-            }
-        };
-        fetchServicesList();
-    }, []);
+ 
 
     // Gestion des changements de champs de saisie
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -79,37 +68,7 @@ export default function ContactPage() {
                         </p>
 
                         <form onSubmit={handleSubmit} className="space-y-6">
-                            {/* BOUTONS RADIO : TYPE DE DEMANDE */}
-                            <div className="space-y-2">
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                    {t('contact.placeholder.type')} <span className="text-red-500">*</span>
-                                </label>
-                                <div className="flex items-center space-x-6">
-                                    <label className="flex items-center space-x-2 cursor-pointer text-sm text-gray-700 dark:text-gray-300">
-                                        <input
-                                            type="radio"
-                                            name="requestType"
-                                            value="registration"
-                                            checked={requestType === 'registration'}
-                                            onChange={() => setRequestType('registration')}
-                                            className="w-4 h-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-700"
-                                        />
-                                        <span>{t('contact.placeholder.demande_inscription')}</span>
-                                    </label>
 
-                                    <label className="flex items-center space-x-2 cursor-pointer text-sm text-gray-700 dark:text-gray-300">
-                                        <input
-                                            type="radio"
-                                            name="requestType"
-                                            value="other"
-                                            checked={requestType === 'other'}
-                                            onChange={() => setRequestType('other')}
-                                            className="w-4 h-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-700"
-                                        />
-                                        <span>{t('contact.placeholder.autre')}</span>
-                                    </label>
-                                </div>
-                            </div>
 
                             {/* CHAMP NOM */}
                             <div className="group">
@@ -152,58 +111,6 @@ export default function ContactPage() {
                                     />
                                 </div>
                             </div>
-
-                            {/* SELECTION DU SERVICE (Affiché uniquement si Demande d'inscription est sélectionné) */}
-                            {requestType === 'registration' && (
-                                <div className="space-y-4">
-                                    <div className="space-y-1.5 group">
-                                        <label className="text-xs font-bold text-gray-600 dark:text-gray-400 uppercase tracking-widest ml-1 transition-colors group-focus-within:text-blue-600 flex items-center gap-1">
-                                            <Building2 size={12} /> {t("dashboard.business.step1.service_type", "Service Type")}
-                                        </label>
-                                        <div className="relative">
-                                            <select
-                                                id="serviceId"
-                                                name="serviceId"
-                                                disabled={isSubmitting}
-                                                required={requestType === 'registration'}
-                                                className={`${inputClasses} appearance-none cursor-pointer`}
-                                                value={formData.serviceId}
-                                                onChange={handleChange}
-                                            >
-                                                <option value="">{t("dashboard.business.step1.select_service", "Select a service")}</option>
-                                                {services.map((s: any) => {
-                                                    const serviceName = s[`nameServ${langSuffix}`] || s.nameServEn || s.nameServAr || s.nameServFr || "Service";
-                                                    return (
-                                                        <option key={s.id} value={s.id}>
-                                                            {serviceName}
-                                                        </option>
-                                                    );
-                                                })}
-                                                {/* Option Autre */}
-                                                <option value="custom">{t("contact.placeholder.other_service")}</option>
-                                            </select>
-                                        </div>
-                                    </div>
-
-                                    {/* Champ de saisie personnalisée si 'Autre' est sélectionné */}
-                                    {formData.serviceId === 'custom' && (
-                                        <div className="group animate-fadeIn">
-                                            <label className="text-xs font-bold text-gray-600 dark:text-gray-400 uppercase tracking-widest ml-1 mb-1 flex items-center gap-1">
-                                                <PenTool size={12} /> 
-                                            </label>
-                                            <input
-                                                type="text"
-                                                name="customService"
-                                                required={formData.serviceId === 'custom'}
-                                                value={formData.customService}
-                                                onChange={handleChange}
-                                                className={inputClasses}
-                                                placeholder={t("contact.placeholder.placeholder_service")}
-                                            />
-                                        </div>
-                                    )}
-                                </div>
-                            )}
 
                             {/* CHAMP OBJET */}
                             <div>

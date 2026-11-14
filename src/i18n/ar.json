@@ -164,6 +164,7 @@
     "record":"تسجيل",
     "send": "ارسال",
     "inquire_profile": "ملف شخصي",
+    "send_message": "ارسال الرسالة",
     "audio_saved": "تسجيل اوديو مسجل"
     
   },
@@ -374,6 +375,8 @@
       "status_active": "نشط",
       "default_role": "مستخدم"
     },
+    "admin_control":" لوحة تحكم المسؤول ",
+    "system_operation": "نضام العمليات",
     "operations": {
       "title": "العمليات المتاحة",
       "manage_services": "إدارة الخدمات (Services)",
@@ -465,6 +468,8 @@
       "back_to_directory": "العودة إلى الدليل",
       "records": "سجلات",
       "validation_error": "خطأ في التحقق من صحة البيانات. يرجى التحقق من الحقول المطلوبة.",
+      "cancel_button_text": "الغاء",
+      "confirm_delete": "نعم , قم بحذفه",
       "step1": {
           "title": "الخطوة 1: المعلومات الأساسية",
           "description": "قدم المعلومات الأساسية حول عملك التجاري.",

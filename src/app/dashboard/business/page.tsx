@@ -205,7 +205,7 @@ export default function BusinessesPage() {
   const handleEdit = async (business: any) => {
     const MySwal = withReactContent(Swal);
     const { value: formValues } = await MySwal.fire({
-      title: 'Edit Business',
+      title: t("dashboard.business.edit_business_title"),
       html: `
         <div style="text-align:left;display:flex;flex-direction:column;gap:10px;">
           <label style="font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.08em">Name (EN)</label>
@@ -228,7 +228,8 @@ export default function BusinessesPage() {
       showCancelButton: true,
       confirmButtonColor: '#4f46e5',
       cancelButtonColor: '#94a3b8',
-      confirmButtonText: 'Save Changes',
+      cancelButtonText: t('dashboard.business.cancel_button_text'),
+      confirmButtonText: t('dashboard.business.confirm_update'),
       preConfirm: () => ({
         nameEn: (document.getElementById('swal-nameEn') as HTMLInputElement)?.value,
         nameFr: (document.getElementById('swal-nameFr') as HTMLInputElement)?.value,
@@ -267,7 +268,8 @@ export default function BusinessesPage() {
       showCancelButton: true,
       confirmButtonColor: '#ef4444',
       cancelButtonColor: '#94a3b8',
-      confirmButtonText: 'Yes, delete it!'
+      cancelButtonText: t('dashboard.business.cancel_button_text'),
+      confirmButtonText: t('')
     });
 
     if (result.isConfirmed) {

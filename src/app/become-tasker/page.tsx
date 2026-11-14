@@ -1,10 +1,11 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import { User, Mail, Phone, Wrench, Send, CheckCircle, AlertCircle, Loader2, Mic, Square, Trash2, Play, Upload } from "lucide-react";
+import { User, Mail, Phone, Wrench, Send, CheckCircle, AlertCircle, Loader2, Mic, Square, Trash2, Play, Upload, Building2, PenTool } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import Image from "next/image";
 import { createMessage } from "@/api/messages-api";
+import { getServices } from "@/api/services-api";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import axios from "axios";
@@ -17,7 +18,12 @@ export default function BecomeTaskerPage() {
     email: "",
     phone: "",
     skills: "",
+    serviceId: "",
+    customService: "",
   });
+
+  const [requestType, setRequestType] = useState<"registration" | "other">("registration");
+  const [services, setServices] = useState<any[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [alert, setAlert] = useState<{ type: "success" | "error"; message: string } | null>(null);
 
@@ -34,7 +40,22 @@ export default function BecomeTaskerPage() {
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const currentLang = i18n.language || "en";
+  const langSuffix = currentLang.charAt(0).toUpperCase() + currentLang.slice(1); // En, Fr, Ar
+
+  // Fetch services on mount
+  useEffect(() => {
+    const fetchServicesList = async () => {
+      try {
+        const data = await getServices({});
+        setServices(Array.isArray(data) ? data : []);
+      } catch (error) {
+        console.error("Erreur lors du chargement des services :", error);
+      }
+    };
+    fetchServicesList();
+  }, []);
 
   const formatTime = (s: number) => {
     const m = Math.floor(s / 60).toString().padStart(2, "0");
@@ -66,17 +87,16 @@ export default function BecomeTaskerPage() {
       const baseEndpoint = (process.env.NEXT_PUBLIC_API_ENDPOINT || "http://127.0.0.1:3001/api")
         .replace(/\/$/, "")
         .replace(/\/v1$/, "");
-      const formData = new FormData();
+      const uploadFormData = new FormData();
       const ext = blob.type.includes("mp4") ? "mp4" : blob.type.includes("ogg") ? "ogg" : blob.type.includes("mpeg") ? "mp3" : "webm";
       const file = new File([blob], `become-tasker-${Date.now()}.${ext}`, { type: blob.type || "audio/webm" });
-      formData.append("file", file);
+      uploadFormData.append("file", file);
 
-      // use raw axios so public upload works without auth header requirement
       const token = typeof window !== "undefined" ? localStorage.getItem("accessToken") || localStorage.getItem("token") : null;
       const headers: Record<string, string> = {};
       if (token) headers["Authorization"] = `Bearer ${token}`;
 
-      const res = await axios.post(`${baseEndpoint}/v1/files/upload`, formData, { headers });
+      const res = await axios.post(`${baseEndpoint}/v1/files/upload`, uploadFormData, { headers });
 
       const fileObj = (res.data as any)?.file || (res.data as any)?.data?.file || res.data;
       const path = fileObj?.path || fileObj?.file?.path || null;
@@ -104,7 +124,6 @@ export default function BecomeTaskerPage() {
       Swal.fire("Invalid file", "Please select an audio file.", "warning");
       return;
     }
-    // clear previous recording
     if (audioPreviewUrl) {
       URL.revokeObjectURL(audioPreviewUrl);
       setAudioPreviewUrl(null);
@@ -114,7 +133,6 @@ export default function BecomeTaskerPage() {
     setAudioPreviewUrl(url);
     setRecordingTime(0);
     await uploadAudioBlob(file);
-    // reset input so same file can be re-selected
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
@@ -183,8 +201,8 @@ export default function BecomeTaskerPage() {
     setRecordingTime(0);
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setFormData({ ...formData, [e.target.id]: e.target.value });
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    setFormData({ ...formData, [e.target.name || e.target.id]: e.target.value });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -207,6 +225,9 @@ export default function BecomeTaskerPage() {
         emailContact: formData.email,
         phoneContact: formData.phone,
         audio: audioFilePath || null,
+        requestType: requestType,
+        serviceId: requestType === "registration" ? formData.serviceId : null,
+        customService: requestType === "registration" && formData.serviceId === "custom" ? formData.customService : null,
       };
 
       await createMessage(payload);
@@ -228,7 +249,7 @@ export default function BecomeTaskerPage() {
         showConfirmButton: true,
       });
 
-      setFormData({ name: "", email: "", phone: "", skills: "" });
+      setFormData({ name: "", email: "", phone: "", skills: "", serviceId: "", customService: "" });
       removeAudio();
 
       setTimeout(() => setAlert(null), 6000);
@@ -261,7 +282,6 @@ export default function BecomeTaskerPage() {
 
   return (
     <div className="min-h-screen bg-linear-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4 md:p-8 overflow-hidden">
-
       <div className="max-w-5xl w-full bg-white rounded-[2.5rem] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.15)] overflow-hidden flex flex-col md:flex-row animate-slide-up border border-white/20">
 
         <div className="hidden md:flex md:w-2/5 relative overflow-hidden flex-col justify-between text-white p-12">
@@ -320,6 +340,7 @@ export default function BecomeTaskerPage() {
                   <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-blue-500 transition-colors" />
                   <input
                     id="name"
+                    name="name"
                     type="text"
                     required
                     disabled={isSubmitting}
@@ -339,6 +360,7 @@ export default function BecomeTaskerPage() {
                   <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-blue-500 transition-colors" />
                   <input
                     id="email"
+                    name="email"
                     type="email"
                     required
                     disabled={isSubmitting}
@@ -359,6 +381,7 @@ export default function BecomeTaskerPage() {
                 <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-blue-500 transition-colors" />
                 <input
                   id="phone"
+                  name="phone"
                   type="tel"
                   required
                   disabled={isSubmitting}
@@ -370,6 +393,89 @@ export default function BecomeTaskerPage() {
               </div>
             </div>
 
+            {/* BOUTONS RADIO : TYPE DE DEMANDE */}
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                {t('contact.placeholder.type')} <span className="text-red-500">*</span>
+              </label>
+              <div className="flex items-center space-x-6">
+                <label className="flex items-center space-x-2 cursor-pointer text-sm text-gray-700 dark:text-gray-300">
+                  <input
+                    type="radio"
+                    name="requestType"
+                    value="registration"
+                    checked={requestType === 'registration'}
+                    onChange={() => setRequestType('registration')}
+                    className="w-4 h-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-700"
+                  />
+                  <span>{t('contact.placeholder.demande_inscription')}</span>
+                </label>
+
+                <label className="flex items-center space-x-2 cursor-pointer text-sm text-gray-700 dark:text-gray-300">
+                  <input
+                    type="radio"
+                    name="requestType"
+                    value="other"
+                    checked={requestType === 'other'}
+                    onChange={() => setRequestType('other')}
+                    className="w-4 h-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-700"
+                  />
+                  <span>{t('contact.placeholder.autre')}</span>
+                </label>
+              </div>
+            </div>
+
+            {/* SELECTION DU SERVICE (Affiché uniquement si Demande d'inscription est sélectionné) */}
+            {requestType === 'registration' && (
+              <div className="space-y-4">
+                <div className="space-y-1.5 group">
+                  <label className="text-xs font-bold text-gray-600 dark:text-gray-400 uppercase tracking-widest ml-1 transition-colors group-focus-within:text-blue-600 flex items-center gap-1">
+                    <Building2 size={12} /> {t("dashboard.business.step1.service_type", "Service Type")}
+                  </label>
+                  <div className="relative">
+                    <select
+                      id="serviceId"
+                      name="serviceId"
+                      disabled={isSubmitting}
+                      required={requestType === 'registration'}
+                      className={`${inputClasses} appearance-none cursor-pointer`}
+                      value={formData.serviceId}
+                      onChange={handleChange}
+                    >
+                      <option value="">{t("dashboard.business.step1.select_service", "Select a service")}</option>
+                      {services.map((s: any) => {
+                        const serviceName = s[`nameServ${langSuffix}`] || s.nameServEn || s.nameServAr || s.nameServFr || "Service";
+                        return (
+                          <option key={s.id} value={s.id}>
+                            {serviceName}
+                          </option>
+                        );
+                      })}
+                      <option value="custom">{t("contact.placeholder.other_service", "Other service")}</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Champ de saisie personnalisée si 'Autre' est sélectionné */}
+                {formData.serviceId === 'custom' && (
+                  <div className="group animate-fadeIn">
+                    <label className="text-xs font-bold text-gray-600 dark:text-gray-400 uppercase tracking-widest ml-1 mb-1 flex items-center gap-1">
+                      <PenTool size={12} /> {t("contact.placeholder.placeholder_service", "Specify service")}
+                    </label>
+                    <input
+                      type="text"
+                      name="customService"
+                      required={formData.serviceId === 'custom'}
+                      value={formData.customService}
+                      onChange={handleChange}
+                      className={inputClasses}
+                      placeholder={t("contact.placeholder.placeholder_service", "Specify your service")}
+                    />
+                  </div>
+                )}
+              </div>
+            )}
+
             <div className="space-y-1.5 group">
               <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1 transition-colors group-focus-within:text-blue-600">
                 {t('become_tasker_page.form.skills')}
@@ -378,6 +484,7 @@ export default function BecomeTaskerPage() {
                 <Wrench className="absolute left-3.5 top-4 w-4 h-4 text-gray-400 group-focus-within:text-blue-500 transition-colors" />
                 <textarea
                   id="skills"
+                  name="skills"
                   required
                   disabled={isSubmitting}
                   className={`${inputClasses} min-h-140px pt-4 resize-none`}
@@ -395,7 +502,6 @@ export default function BecomeTaskerPage() {
                 {t('become_tasker_page.form.audio', 'Voice Introduction (optional)')}
               </label>
               <div className="rounded-2xl border-2 border-dashed border-gray-200 bg-gray-50/50 p-5 space-y-3">
-                {/* Hidden file input for upload fallback */}
                 <input
                   ref={fileInputRef}
                   type="file"
@@ -454,7 +560,7 @@ export default function BecomeTaskerPage() {
                       {isUploadingAudio ? (
                         <span className="flex items-center gap-2 text-amber-600"><Loader2 size={16} className="animate-spin" /> {t('become_tasker_page.audio.uploading', 'Uploading...')}</span>
                       ) : audioFilePath ? (
-                        <span className="flex items-center gap-1.5 text-green-600"><CheckCircle size={16} /> {t('become_tasker_page.audio.ready', 'Ready to send')} • {formatTime(recordingTime)}</span>
+                        <span className="flex items-center gap-1.5 text-green-600"><CheckCircle size={16} /> {t('become_tasker_page.audio.ready', 'Ready to send')} {formatTime(recordingTime)}</span>
                       ) : (
                         <span className="flex items-center gap-1.5 text-gray-600"><Play size={16} /> {formatTime(recordingTime)}</span>
                       )}
@@ -471,9 +577,6 @@ export default function BecomeTaskerPage() {
                         <Upload size={16} /> {t('become_tasker_page.audio.change_file', 'Change file')}
                       </button>
                     </div>
-                    {audioFilePath && !isUploadingAudio && (
-                      <p className="text-xs text-green-600 text-center">✓ {t('become_tasker_page.audio.saved', 'Audio saved → will be stored in message.audio')}</p>
-                    )}
                   </div>
                 )}
               </div>

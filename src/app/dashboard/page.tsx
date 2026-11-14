@@ -15,7 +15,7 @@ export default function DashboardPage() {
   useEffect(() => {
     if (!isLoading && !user) {
       router.push('/sign-in');
-    }
+    } 
   }, [user, isLoading, router]);
 
   if (isLoading && !user) return (
@@ -51,7 +51,7 @@ export default function DashboardPage() {
         {isAdmin && (
           <div className="mb-8 p-6 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl">
             <h2 className="text-lg font-bold text-amber-800 dark:text-amber-400 mb-4">
-              🛠️ لوحة تحكم المسؤول (Admin Controls)
+              {t('dashboard.admin_control')}
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-amber-100 dark:border-amber-900">
@@ -87,7 +87,7 @@ export default function DashboardPage() {
         {/* 3. OPERATIONS & BUSINESS SECTION */}
         <div className="mt-12 border-t pt-8">
           <h2 className="text-xl font-bold mb-4">
-            {isAdmin ? 'System Operations' : 'My Business Hub (إدارة أعمالي)'}
+            {isAdmin ? t('dashboard.system_operation') : null}
           </h2>
           
           {!isAdmin ? (

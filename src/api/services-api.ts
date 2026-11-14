@@ -11,7 +11,7 @@ export interface ServiceData {
   image?: { id: string | number };
 }
 
-export const getServices = async () => {
+export const getServices = async (data: any) => {
   const response = await api.get('/v1/services', {
     params: { limit: LOOKUP_LIMIT },
   });

@@ -373,6 +373,8 @@
       "status_subtitle": "Active",
       "default_role": "User"
     },
+    "admin_control": "Admin Controls",
+    "system_operation": "System Operations",
     "operations": {
       "title": "Available Operations",
       "manage_services": "Manage Services",
@@ -459,6 +461,9 @@
     "back_to_directory": "Back to Directory",
     "records": "records",
     "validation_error": "Please fill in all required fields to continue",
+    "cancel_button_text": "Cancel",
+    "confirm_delete": "Yes, delete it!",
+    "confirm_update": "Save Changes",
   "step1": {
     "title": "Step 1: Basic Information",
     "description": "Provide the basic information about your business.",
