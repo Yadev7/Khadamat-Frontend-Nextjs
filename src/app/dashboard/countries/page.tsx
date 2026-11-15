@@ -249,7 +249,7 @@ export default function CountriesPage() {
 
                 <button type="submit" disabled={isSubmitting} className="w-full bg-blue-600 text-white py-4 rounded-2xl font-black shadow-lg hover:bg-blue-700 transition mt-4 disabled:opacity-50 flex justify-center items-center gap-2">
                   {isSubmitting && <Loader2 className="w-5 h-5 animate-spin" />}
-                  {editingCountry ? t('dashboard.infos-general.common.confirm_update') : 'Create Country'}
+                  {editingCountry ? t('dashboard.infos-general.common.confirm_update') : t('dashboard.infos-general.common.confirm_create')}
                 </button>
               </form>
 

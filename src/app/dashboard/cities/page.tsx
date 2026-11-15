@@ -139,7 +139,7 @@ export default function CitiesPage() {
         </div>
         <button onClick={() => handleOpenModal()} className="flex items-center gap-2 bg-indigo-600 text-white px-6 py-3 rounded-2xl font-bold shadow-lg hover:bg-indigo-700 transition-all w-full md:w-auto justify-center">
           <Plus className="w-5 h-5" />
-          <span>{t("dashboard.infos-general.common.add_new")}</span>
+          <span>{t("dashboard.infos-general.common.add_new")}</span> 
         </button>
       </div>
 
@@ -181,7 +181,7 @@ export default function CitiesPage() {
                 {editingCity
                   ? t('dashboard.infos-general.common.edit', t('common.edit', 'Edit'))
                   : t('dashboard.infos-general.common.add_new', 'Add New')}{' '}
-                {t('dashboard.infos-general.common.city', t('dashboard.infos-general.tabs.country_tab', 'Country'))}
+                {t('dashboard.infos-general.common.city', t('dashboard.infos-general.tabs.city_tab', 'City'))}
               </h2>
         <button onClick={() => setIsModalOpen(false)} className="p-2 hover:bg-slate-100 rounded-full transition dark:text-gray-400 dark:hover:bg-gray-800"><X className="w-6 h-6" /></button>
       </div>
@@ -232,7 +232,7 @@ export default function CitiesPage() {
             onClick={handleSubmit}
             className="w-full bg-indigo-600 text-white py-4 rounded-2xl font-black shadow-lg hover:bg-indigo-700 transition-all"
           >
-            {editingCity ? t('dashboard.infos-general.common.confirm_update') : 'Create City'}
+            {editingCity ? t('dashboard.infos-general.common.confirm_update') :  t('dashboard.infos-general.common.confirm_create')}
           </button>
         </div>
 

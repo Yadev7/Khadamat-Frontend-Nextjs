@@ -94,6 +94,7 @@
     "placeholder": "Search for services, providers...",
     "button": "Search",
     "city": "City",
+    "country": "Country",
     "zone": "Zone",
     "service": "Service",
     "list": "List",
@@ -436,7 +437,8 @@
         "change_image": "Change Image",
         "update_now": "Update Now",
         "update_loading": "Updating...",
-        "confirm_update": "Save Changes"
+        "confirm_update": "Save Changes",
+        "confirm_create" : "Create"
       }
     },
  

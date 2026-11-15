@@ -93,6 +93,7 @@
     "placeholder": "Rechercher des services, des prestataires...",
     "button": "Rechercher",
     "city": "Ville",
+    "country": "Pays",
     "zone": "Zone",
     "service": "Service",
     "list": "Liste",
@@ -433,7 +434,8 @@
         "change_image": "Changer l'image",
         "update_now": "Mettre à jour maintenant",
         "update_loading": "Mise à jour en cours...",
-        "confirm_update": "Enregistrer les modifications"
+        "confirm_update": "Enregistrer les modifications",
+        "confirm_create": "Créer"
       }
     },
     "business": {

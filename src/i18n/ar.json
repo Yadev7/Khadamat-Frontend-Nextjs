@@ -94,6 +94,7 @@
     "placeholder": "ابحث عن خدمات، مزودين...",
     "button": "بحث",
     "city": "المدينة",
+    "country": "الدولة",
     "zone": "المنطقة",
     "service": "الخدمة",
     "list": "قائمة",
@@ -441,7 +442,8 @@
         "change_image": "تغيير الصورة",
         "update_now": "تحديث الآن",
         "update_loading": "جاري التحديث...",
-        "confirm_update": "حفظ التغيرات"
+        "confirm_update": "حفظ التغيرات",
+        "confirm_create": "انشء"
       }
     },
     "business": {

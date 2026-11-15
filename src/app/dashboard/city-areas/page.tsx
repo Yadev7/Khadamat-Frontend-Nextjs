@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Trash2, Plus, Pencil, Loader2, X,
-  MapPin, Building2, Navigation
+  MapPin, Building2, Navigation, Search
 } from "lucide-react";
 import dynamic from 'next/dynamic';
 import Swal from 'sweetalert2';
@@ -97,6 +97,11 @@ export default function CityAreasPage() {
   const [editingArea, setEditingArea] = useState<CityArea | null>(null);
   const [formData, setFormData] = useState({ nameAr: '', nameFr: '', cityId: '', latitude: 34.0331, longitude: -5.0003 });
 
+  // Map search state
+  const [mapSearchQuery, setMapSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+
   const { i18n, t } = useTranslation();
   const isAr = i18n.language === 'ar';
 
@@ -153,12 +158,49 @@ export default function CityAreasPage() {
       setEditingArea(null);
       setFormData({ nameAr: '', nameFr: '', cityId: '', latitude: 34.0331, longitude: -5.0003 });
     }
+    setMapSearchQuery('');
+    setSearchResults([]);
     setIsModalOpen(true);
   };
 
   const handleLocationChange = useCallback((lat: number, lng: number) => {
     setFormData(prev => ({ ...prev, latitude: lat, longitude: lng }));
   }, []);
+
+  // Handle live search using OpenStreetMap Nominatim API
+  useEffect(() => {
+    if (!mapSearchQuery || mapSearchQuery.trim().length < 2) {
+      setSearchResults([]);
+      return;
+    }
+
+    const timer = setTimeout(async () => {
+      try {
+        setIsSearching(true);
+        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(mapSearchQuery)}&countrycodes=ma&limit=5`);
+        const data = await res.json();
+        setSearchResults(data);
+      } catch (err) {
+        console.error("Map search error:", err);
+      } finally {
+        setIsSearching(false);
+      }
+    }, 400);
+
+    return () => clearTimeout(timer);
+  }, [mapSearchQuery]);
+
+  const handleSelectSearchResult = (item: any) => {
+    const lat = parseFloat(item.lat);
+    const lon = parseFloat(item.lon);
+    setFormData(prev => ({
+      ...prev,
+      latitude: lat,
+      longitude: lon
+    }));
+    setMapSearchQuery(item.display_name);
+    setSearchResults([]);
+  };
 
   const handleCityChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedCityId = e.target.value;
@@ -228,27 +270,6 @@ export default function CityAreasPage() {
     }
   };
 
-  const activePickerMarker = useMemo(() => {
-    if (formData.latitude && formData.longitude) {
-      const selectedCityObj = cities.find(c => c.id === formData.cityId);
-      const cityName = selectedCityObj ? (isAr ? selectedCityObj.nameAr : selectedCityObj.nameFr) : "";
-      const areaName = (isAr ? formData.nameAr : formData.nameFr);
-
-      const labelText = areaName && cityName
-        ? `${areaName}, ${cityName}`
-        : cityName || areaName || "Selected Target Position";
-
-      return [{
-        id: editingArea?.id || "new-zone-picker",
-        position: [formData.latitude, formData.longitude] as [number, number],
-        label: labelText,
-        address: "Zone Coordinates Set",
-        active: true
-      }];
-    }
-    return [];
-  }, [formData.latitude, formData.longitude, formData.nameAr, formData.nameFr, formData.cityId, cities, editingArea, isAr]);
-
   if (loading) return (
     <div className="flex flex-col items-center justify-center min-h-[50vh]">
       <Loader2 className="w-10 h-10 animate-spin text-violet-600 mb-2" />
@@ -303,14 +324,13 @@ export default function CityAreasPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
           <div className="bg-white w-full max-w-5xl rounded-[2.5rem] p-6 md:p-10 shadow-2xl overflow-y-auto max-h-[95vh] dark:bg-gray-900">
             <div className="flex justify-between items-center mb-8">
-              {/* <h2 className="text-2xl font-black text-slate-800 dark:text-gray-100">{editingArea ? t('dashboard.infos-general.common.edit') t('dashboard.infos-general.common.city-zone')  : 'New Area'}</h2> */}
               <h2 className="text-2xl font-black text-slate-800 dark:text-gray-100">
                 {editingArea
-                  ? t('dashboard.infos-general.common.edit', t('common.edit'))
+                  ? t('dashboard.infos-general.common.edit', 'Edit')
                   : t('dashboard.infos-general.common.add_new', 'Add New')}
-                {t('dashboard.infos-general.common.city-zone', t('dashboard.infos-general.tabs.zone_tab', 'City Zone'))}
+                {' '}
+                {t('dashboard.infos-general.common.city-zone', 'City Zone')}
               </h2>
-
               <button onClick={() => setIsModalOpen(false)} className="p-2 hover:bg-slate-100 rounded-full transition dark:text-gray-400 dark:hover:bg-gray-800"><X className="w-6 h-6" /></button>
             </div>
 
@@ -353,20 +373,60 @@ export default function CityAreasPage() {
                 </div>
 
                 <button type="submit" className="w-full bg-violet-600 text-white py-4 rounded-2xl font-black shadow-lg hover:bg-violet-700 transition-all">
-                  {editingArea ? t('dashboard.infos-general.common.confirm_update') : 'Create Area'}
+                  {editingArea ? t('dashboard.infos-general.common.confirm_update', 'Update') : t('dashboard.infos-general.common.confirm_create', 'Create')}
                 </button>
               </form>
 
-              {/* Map Column */}
-              <div className="order-1 lg:order-2 lg:col-span-7 h-350px lg:h-500px w-full rounded-3xl overflow-hidden border-4 border-slate-50 shadow-inner relative z-0 dark:border-gray-800">
-                <MapComponent
-                  key={`${editingArea?.id || 'new'}-${formData.cityId}-${formData.nameFr}`}
-                  center={[formData.latitude, formData.longitude]}
-                  displayLabel={isAr ? formData.nameAr : formData.nameFr}
-                  isPicker={false}
-                  onLocationSelect={handleLocationChange}
-                  markers={activePickerMarker}
-                />
+              {/* Map Column with Search Input Overlay */}
+              <div className="order-1 lg:order-2 lg:col-span-7 h-[350px] lg:h-[500px] w-full rounded-3xl overflow-hidden border-4 border-slate-50 shadow-inner relative z-0 dark:border-gray-800 flex flex-col">
+                
+                {/* Floating Search Bar over Map */}
+                <div className="absolute top-4 left-4 right-4 z-[400]">
+                  <div className="relative">
+                    <span className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-slate-400">
+                      <Search className="w-4 h-4" />
+                    </span>
+                    <input
+                      type="text"
+                      placeholder="Search location or address on map..."
+                      value={mapSearchQuery}
+                      onChange={(e) => setMapSearchQuery(e.target.value)}
+                      className="w-full bg-white/95 dark:bg-gray-900/95 backdrop-blur-md text-slate-800 dark:text-gray-100 pl-11 pr-10 py-3 rounded-2xl shadow-lg border border-slate-200/60 dark:border-gray-700/60 text-sm font-semibold outline-none focus:ring-2 focus:ring-violet-500 transition-all"
+                    />
+                    {isSearching && (
+                      <span className="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none text-violet-600">
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Search Dropdown Results */}
+                  {searchResults.length > 0 && (
+                    <div className="mt-2 bg-white dark:bg-gray-900 rounded-2xl shadow-xl border border-slate-200 dark:border-gray-800 overflow-hidden max-h-60 overflow-y-auto">
+                      {searchResults.map((result, idx) => (
+                        <button
+                          key={idx}
+                          type="button"
+                          onClick={() => handleSelectSearchResult(result)}
+                          className="w-full text-left px-4 py-3 hover:bg-violet-50 dark:hover:bg-gray-800 text-xs text-slate-700 dark:text-gray-200 font-medium border-b border-slate-100 dark:border-gray-800 last:border-none transition flex items-center gap-2"
+                        >
+                          <MapPin className="w-4 h-4 text-violet-600 shrink-0" />
+                          <span className="truncate">{result.display_name}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Map Component */}
+                <div className="w-full h-full">
+                  <MapComponent
+                    center={[formData.latitude, formData.longitude]}
+                    displayLabel={isAr ? formData.nameAr : formData.nameFr}
+                    isPicker={true}
+                    onLocationSelect={handleLocationChange}
+                  />
+                </div>
               </div>
 
             </div>
