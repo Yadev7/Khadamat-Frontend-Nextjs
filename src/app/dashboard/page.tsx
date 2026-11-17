@@ -55,12 +55,12 @@ export default function DashboardPage() {
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-amber-100 dark:border-amber-900">
-                <h3 className="font-semibold text-gray-700 dark:text-gray-200 mb-1">Professional Overview</h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400">إدارة الجوانب المهنية والخدمات العامة للنظام.</p>
+                <h3 className="font-semibold text-gray-700 dark:text-gray-200 mb-1">{t('dashboard.dashboard_home.professional_overview_title')}</h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400">{t('dashboard.dashboard_home.professional_overview')}</p>
               </div>
               <div className="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-amber-100 dark:border-amber-900">
-                <h3 className="font-semibold text-gray-700 dark:text-gray-200 mb-1">General Informations</h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400">معلومات عامة وإحصائيات المنصة الشاملة.</p>
+                <h3 className="font-semibold text-gray-700 dark:text-gray-200 mb-1">{t('dashboard.dashboard_home.general_informations_title')}</h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400">{t('dashboard.dashboard_home.general_informations')}</p>
               </div>
             </div>
           </div>
@@ -85,7 +85,7 @@ export default function DashboardPage() {
         </div>
 
         {/* 3. OPERATIONS & BUSINESS SECTION */}
-        <div className="mt-12 border-t pt-8">
+        {/* <div className="mt-12 border-t pt-8">
           <h2 className="text-xl font-bold mb-4">
             {isAdmin ? t('dashboard.system_operation') : null}
           </h2>
@@ -124,14 +124,14 @@ export default function DashboardPage() {
           ) : (
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
               <button className="bg-amber-600 text-white px-6 py-3 rounded-xl hover:bg-amber-700 transition shadow-lg w-full sm:w-auto">
-                إدارة كافة المستخدمين والشركات
+             {t('dashboard.dashboard_home.button_manage')}
               </button>
               <button className="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 px-6 py-3 rounded-xl hover:bg-gray-200 transition w-full sm:w-auto">
                 إعدادات النظام العامة
               </button>
             </div>
           )}
-        </div>
+        </div> */}
 
       </div>
     </div>

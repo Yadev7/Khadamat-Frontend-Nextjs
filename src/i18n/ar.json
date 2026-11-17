@@ -139,9 +139,9 @@
     "record_audio": "تسجيل صوتي",
     "subtitle": "سجل رسالة صوتية وارسلها الى هذا العامل",
     "re_record": "اعادة التسجيل",
-     "tab_to_record":"اضغط لتسجيل",
-     "stop_record": "اضغط لايقاف تسجيل",
-     "ready_send": "جاهز للارسال",
+    "tab_to_record": "اضغط لتسجيل",
+    "stop_record": "اضغط لايقاف تسجيل",
+    "ready_send": "جاهز للارسال",
     "message_audio": "سيتم ارسال التسجيل الصوتي",
     "call": "اتصل الآن",
     "your_email": "بريدك الإلكتروني (اختياري)",
@@ -162,51 +162,50 @@
     "titleEn": "نص بالانجليزية",
     "textEn": "نص بالإنجليزية",
     "remove": "حذف",
-    "record":"تسجيل",
+    "record": "تسجيل",
     "send": "ارسال",
     "inquire_profile": "ملف شخصي",
     "send_message": "ارسال الرسالة",
     "audio_saved": "تسجيل اوديو مسجل"
-    
   },
   "how_it_works": {
-  "process": "خطوات العمل",
-  "title": "كيف تعمل المنصة؟",
-  "description": "إنجاز مهامك في المغرب لم يكن قط بهذه السهولة. اتبع هذه الخطوات الثلاث البسيطة للبدء.",
-  "tabs": {
-    "client": "للعملاء",
-    "provider": "للخبراء"
+    "process": "خطوات العمل",
+    "title": "كيف تعمل المنصة؟",
+    "description": "إنجاز مهامك في المغرب لم يكن قط بهذه السهولة. اتبع هذه الخطوات الثلاث البسيطة للبدء.",
+    "tabs": {
+      "client": "للعملاء",
+      "provider": "للخبراء"
+    },
+    "client_steps": {
+      "1": {
+        "title": "ابحث عن خبيرك",
+        "description": "تصفح المحترفين الأعلى تقييماً في المغرب. صَفِّ العروض حسب السعر، المهارات، وآراء المستخدمين الحقيقية."
+      },
+      "2": {
+        "title": "احجز ورتب موعدك",
+        "description": "اختر الوقت الذي يناسب جدولك الزمني. حجز فوري مع خبراء محليين متاحين ابتداءً من اليوم."
+      },
+      "3": {
+        "title": "أدِر كل شيء",
+        "description": "دردش بأمان، تتبع تقدم العمل، ادفع واترك تقييمك - كل ذلك عبر لوحة تحكم واحدة مبسطة."
+      }
+    },
+    "provider_steps": {
+      "1": {
+        "title": "أنشئ ملفك المهني",
+        "description": "سجل مجاناً، واعرض مهاراتك، أسعارك وخدماتك لجذب العملاء في جميع أنحاء المغرب."
+      },
+      "2": {
+        "title": "أدِر طلبات الحجز",
+        "description": "استقبل طلبات الحجز المباشرة ونظم مواعيدك اليومية بكل مرونة عبر لوحة التحكم الخاصة بك."
+      },
+      "3": {
+        "title": "طوّر نشاطك التجاري",
+        "description": "أنِجز مهامك، استلم مستحقاتك المالية بشكل آمن، وعزز سمعتك الرقمية بفضل تقييمات العملاء."
+      }
+    },
+    "details": "التفاصيل"
   },
-  "client_steps": {
-    "1": {
-      "title": "ابحث عن خبيرك",
-      "description": "تصفح المحترفين الأعلى تقييماً في المغرب. صَفِّ العروض حسب السعر، المهارات، وآراء المستخدمين الحقيقية."
-    },
-    "2": {
-      "title": "احجز ورتب موعدك",
-      "description": "اختر الوقت الذي يناسب جدولك الزمني. حجز فوري مع خبراء محليين متاحين ابتداءً من اليوم."
-    },
-    "3": {
-      "title": "أدِر كل شيء",
-      "description": "دردش بأمان، تتبع تقدم العمل، ادفع واترك تقييمك - كل ذلك عبر لوحة تحكم واحدة مبسطة."
-    }
-  },
-  "provider_steps": {
-    "1": {
-      "title": "أنشئ ملفك المهني",
-      "description": "سجل مجاناً، واعرض مهاراتك، أسعارك وخدماتك لجذب العملاء في جميع أنحاء المغرب."
-    },
-    "2": {
-      "title": "أدِر طلبات الحجز",
-      "description": "استقبل طلبات الحجز المباشرة ونظم مواعيدك اليومية بكل مرونة عبر لوحة التحكم الخاصة بك."
-    },
-    "3": {
-      "title": "طوّر نشاطك التجاري",
-      "description": "أنِجز مهامك، استلم مستحقاتك المالية بشكل آمن، وعزز سمعتك الرقمية بفضل تقييمات العملاء."
-    }
-  },
-  "details": "التفاصيل"
-},
   "services_section": {
     "title": "خدمات مميزة",
     "description": "جودة استثنائية ومحترفين موثوقين لجميع احتياجاتك في المغرب.",
@@ -232,7 +231,7 @@
     "no_members": "لم يتم العثور على مهني",
     "click": "اضغط",
     "add_member_to_get_started": "لاضافة مهني",
-    "get_started":"للبدء"
+    "get_started": "للبدء"
   },
   "contact": {
     "write_us": "سبب الاتصال",
@@ -251,12 +250,12 @@
       "phone": "+212 5 35 65 07 57",
       "email": "contact@newdevmaroc.com"
     },
-  "horaires": {
-    "title": "ساعات العمل",
-    "monday_friday": "من الإثنين إلى الجمعة: من 09:00 صباحاً إلى 06:00 مساءً",
-    "saturday": "السبت: من 09:00 صباحاً إلى 01:00 مساءً",
-    "sunday": "الأحد: مغلق"
-  },
+    "horaires": {
+      "title": "ساعات العمل",
+      "monday_friday": "من الإثنين إلى الجمعة: من 09:00 صباحاً إلى 06:00 مساءً",
+      "saturday": "السبت: من 09:00 صباحاً إلى 01:00 مساءً",
+      "sunday": "الأحد: مغلق"
+    },
     "placeholder": {
       "name": "اسمك *",
       "email": "البريد الإلكتروني *",
@@ -376,7 +375,7 @@
       "status_active": "نشط",
       "default_role": "مستخدم"
     },
-    "admin_control":" لوحة تحكم المسؤول ",
+    "admin_control": " لوحة تحكم المسؤول ",
     "system_operation": "نضام العمليات",
     "operations": {
       "title": "العمليات المتاحة",
@@ -477,80 +476,80 @@
       "title_modal_delete": "هل انت متاكد ؟",
       "text_modal_delete": "لن تستطيع استرجاعها بعد الحذف",
       "step1": {
-          "title": "الخطوة 1: المعلومات الأساسية",
-          "description": "قدم المعلومات الأساسية حول عملك التجاري.",
-          "name_english": "الاسم بالإنجليزية",
-          "name_arabic": "الاسم بالعربية",
-          "name_french": "الاسم بالفرنسية",
-          "description_english": "الوصف بالإنجليزية",
-          "description_arabic": "الوصف بالعربية",
-          "description_french": "الوصف بالفرنسية",
-          "service_type": "نوع الخدمة",
-          "select_service": "اختر الخدمة",
-          "business_owner": "صاحب العمل",
-          "select_owner": "اختر المالك",
-          "website_url": "رابط الموقع",
-          "social_media": "وسائل التواصل الاجتماعي",
-          "service": "الخدمات",
-          "contact": "الاتصال",
-          "management": "الإدارة",
-          "media": "الوسائط",
-          "recap": "ملخص",
-          "next": "التالي",
-          "previous": "السابق"
-              },
+        "title": "الخطوة 1: المعلومات الأساسية",
+        "description": "قدم المعلومات الأساسية حول عملك التجاري.",
+        "name_english": "الاسم بالإنجليزية",
+        "name_arabic": "الاسم بالعربية",
+        "name_french": "الاسم بالفرنسية",
+        "description_english": "الوصف بالإنجليزية",
+        "description_arabic": "الوصف بالعربية",
+        "description_french": "الوصف بالفرنسية",
+        "service_type": "نوع الخدمة",
+        "select_service": "اختر الخدمة",
+        "business_owner": "صاحب العمل",
+        "select_owner": "اختر المالك",
+        "website_url": "رابط الموقع",
+        "social_media": "وسائل التواصل الاجتماعي",
+        "service": "الخدمات",
+        "contact": "الاتصال",
+        "management": "الإدارة",
+        "media": "الوسائط",
+        "recap": "ملخص",
+        "next": "التالي",
+        "previous": "السابق"
+      },
       "step2": {
-          "title": "الخطوة 2: الإدارة",
-          "description": "قدم معلومات الإدارة حول عملك التجاري.",
-          "manager_name": "اسم المدير",
-          "manager_email": "البريد الإلكتروني للمدير",
-          "manager_phone": "هاتف المدير",
-          "manager_position": "منصب المدير",
-          "identity_details": "تفاصيل الهوية",
-          "full_name": "الاسم الكامل",
-          "full_name_ar": "الاسم الكامل (بالعربية)",
-          "geographic_location": "الموقع الجغرافي (انقر على الخريطة للتحديث)",
-          "latitude": "خط العرض",
-          "longitude": "خط الطول",
-          "street_address": "عنوان الشارع",
-          "click_on_map": "انقر على الخريطة لتحديث الموقع الجغرافي",
-          "next": "التالي",
-          "previous": "السابق",
-          "existing_manager": "مدير موجود سابقا",
-          "choose_existing_manager": "اختر مدير موجود"
-    },
-    "step3": {
-    "ownerIsManager": "المالك هو المدير",
-    "newManager": "مدير جديد",
-    "ownerProfileReadOnly": "ملف المالك (قراءة فقط)",
-    "newManagerDetails": "تفاصيل المدير الجديد",
-    "firstNameEn": "الاسم الشخصي (الإنجليزية)",
-    "firstNameEnPlaceholder": "First Name",
-    "firstNameAr": "الاسم الشخصي",
-    "firstNameArPlaceholder": "الاسم",
-    "lastNameEn": "الاسم العائلي (الإنجليزية)",
-    "lastNameEnPlaceholder": "Last Name",
-    "lastNameAr": "الاسم العائلي",
-    "lastNameArPlaceholder": "النسب",
-    "contactEmail": "البريد الإلكتروني للاتصال",
-    "contactEmailPlaceholder": "email@example.com",
-    "mobilePhone": "رقم الهاتف المحمول",
-    "mobilePhonePlaceholder": "+212 ..."
-  },
-"step4": {
-    "imagesAndFlyers": "الصور والمنشورات",
-    "imagesGallery": "الصور (معرض الصور)",
-    "flyer": "المنشور (PDF/JPG)",
-    "audioRecords": "التسجيلات الصوتية",
-    "audioArabic": "صوتي باللغة العربية",
-    "audioEnglish": "صوتي باللغة الإنجليزية",
-    "audioFrench": "صوتي باللغة الفرنسية",
-    "videoRecords": "تسجيلات الفيديو",
-    "videoArabic": "فيديو باللغة العربية",
-    "videoEnglish": "فيديو باللغة الإنجليزية",
-    "videoFrench": "فيديو باللغة الفرنسية"
-  },
-  "step5": {
+        "title": "الخطوة 2: الإدارة",
+        "description": "قدم معلومات الإدارة حول عملك التجاري.",
+        "manager_name": "اسم المدير",
+        "manager_email": "البريد الإلكتروني للمدير",
+        "manager_phone": "هاتف المدير",
+        "manager_position": "منصب المدير",
+        "identity_details": "تفاصيل الهوية",
+        "full_name": "الاسم الكامل",
+        "full_name_ar": "الاسم الكامل (بالعربية)",
+        "geographic_location": "الموقع الجغرافي (انقر على الخريطة للتحديث)",
+        "latitude": "خط العرض",
+        "longitude": "خط الطول",
+        "street_address": "عنوان الشارع",
+        "click_on_map": "انقر على الخريطة لتحديث الموقع الجغرافي",
+        "next": "التالي",
+        "previous": "السابق",
+        "existing_manager": "مدير موجود سابقا",
+        "choose_existing_manager": "اختر مدير موجود"
+      },
+      "step3": {
+        "ownerIsManager": "المالك هو المدير",
+        "newManager": "مدير جديد",
+        "ownerProfileReadOnly": "ملف المالك (قراءة فقط)",
+        "newManagerDetails": "تفاصيل المدير الجديد",
+        "firstNameEn": "الاسم الشخصي (الإنجليزية)",
+        "firstNameEnPlaceholder": "First Name",
+        "firstNameAr": "الاسم الشخصي",
+        "firstNameArPlaceholder": "الاسم",
+        "lastNameEn": "الاسم العائلي (الإنجليزية)",
+        "lastNameEnPlaceholder": "Last Name",
+        "lastNameAr": "الاسم العائلي",
+        "lastNameArPlaceholder": "النسب",
+        "contactEmail": "البريد الإلكتروني للاتصال",
+        "contactEmailPlaceholder": "email@example.com",
+        "mobilePhone": "رقم الهاتف المحمول",
+        "mobilePhonePlaceholder": "+212 ..."
+      },
+      "step4": {
+        "imagesAndFlyers": "الصور والمنشورات",
+        "imagesGallery": "الصور (معرض الصور)",
+        "flyer": "المنشور (PDF/JPG)",
+        "audioRecords": "التسجيلات الصوتية",
+        "audioArabic": "صوتي باللغة العربية",
+        "audioEnglish": "صوتي باللغة الإنجليزية",
+        "audioFrench": "صوتي باللغة الفرنسية",
+        "videoRecords": "تسجيلات الفيديو",
+        "videoArabic": "فيديو باللغة العربية",
+        "videoEnglish": "فيديو باللغة الإنجليزية",
+        "videoFrench": "فيديو باللغة الفرنسية"
+      },
+      "step5": {
         "preparingReviewData": "جاري تجهيز بيانات المراجعة...",
         "title": "مراجعة إعدادات الشركة",
         "finalStep": "الخطوة الأخيرة",
@@ -588,32 +587,37 @@
         "videoFr": "فيديو (فرنسي)",
         "noFileUploaded": "لم يتم رفع أي ملف"
       }
-
-  },
-  "profile": {
-    "title": "الملف الشخصي",
-    "successUpdate": "تم تحديث البيانات بنجاح!",
-    "errorUpdate": "فشل في تحديث البيانات",
-    "roleDefault": "مستخدم",
-    "cancel": "إلغاء",
-    "saveChanges": "حفظ التغييرات",
-    "editProfile": "تعديل الملف",
-    "firstName": "الإسم الشخصي",
-    "lastName": "الإسم العائلي",
-    "email": "البريد الإلكتروني",
-    "readOnly": "للقراءة فقط",
-    "joinedDate": "تاريخ الإنضمام"
-  },
-  "delete_confirmation": {
-    "title": "هل أنت متأكد؟",
-    "text": "لن تتمكن من استعادة هذا العنصر بعد حذفه!",
-    "confirmButtonText": "نعم، احذفه الآن",
-    "cancelButtonText": "إلغاء",
-    "deletedTitle": "تم الحذف!",
-    "deletedText": "تم حذف العنصر بنجاح.",
-    "errorTitle": "حدث خطأ",
-    "errorText": "حدث خطأ أثناء الحذف. يرجى المحاولة مرة أخرى."
-}
+    },
+    "dashboard_home": {
+      "professional_overview_title": "نبذة مهنية",
+      "professional_overview": "إدارة الجوانب المهنية والخدمات العامة للنظام.",
+      "general_informations_title": "معلومات عامة",
+      "general_informations": "معلومات عامة وإحصائيات المنصة الشاملة."
+    },
+    "profile": {
+      "title": "الملف الشخصي",
+      "successUpdate": "تم تحديث البيانات بنجاح!",
+      "errorUpdate": "فشل في تحديث البيانات",
+      "roleDefault": "مستخدم",
+      "cancel": "إلغاء",
+      "saveChanges": "حفظ التغييرات",
+      "editProfile": "تعديل الملف",
+      "firstName": "الإسم الشخصي",
+      "lastName": "الإسم العائلي",
+      "email": "البريد الإلكتروني",
+      "readOnly": "للقراءة فقط",
+      "joinedDate": "تاريخ الإنضمام"
+    },
+    "delete_confirmation": {
+      "title": "هل أنت متأكد؟",
+      "text": "لن تتمكن من استعادة هذا العنصر بعد حذفه!",
+      "confirmButtonText": "نعم، احذفه الآن",
+      "cancelButtonText": "إلغاء",
+      "deletedTitle": "تم الحذف!",
+      "deletedText": "تم حذف العنصر بنجاح.",
+      "errorTitle": "حدث خطأ",
+      "errorText": "حدث خطأ أثناء الحذف. يرجى المحاولة مرة أخرى."
+    }
   },
   "modals": {
     "add_city": {
@@ -651,5 +655,4 @@
     "report_worker_cancel_btn": "إلغاء",
     "report_worker_error_msg": "فشل إرسال البلاغ. يرجى المحاولة مرة أخرى."
   }
-  
 }
