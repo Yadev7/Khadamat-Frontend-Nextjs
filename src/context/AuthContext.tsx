@@ -2,7 +2,7 @@
 
 import { createContext, useState, useEffect, ReactNode, useContext, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { loginUser } from '@/api/auth-api';
+import api, { loginUser } from '@/api/auth-api';
 import Cookies from 'js-cookie';
 
 interface User {
@@ -11,7 +11,7 @@ interface User {
   firstName?: string;
   lastName?: string;
   photo?: { path: string };
-  member?: any; // أضفنا هذا لأننا نحتاجه في Khadamat
+  member?: any;
   [key: string]: unknown;
 }
 
@@ -20,19 +20,17 @@ interface AuthContextType {
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
-  refreshUser: () => Promise<void>; // 🚀 إضافة مهمة لتحديث البيانات يدوياً
+  refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-const API_BASE_URL = (process.env.NEXT_PUBLIC_API_ENDPOINT || "http://127.0.0.1:3001/api").replace(/\/$/, "");
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
-  // دالة جلب بيانات المستخدم (استخدمت useCallback لمنع الـ Re-renders اللانهائية)
+  // 🟢 Use Axios `api` so that 401 errors automatically trigger the refresh token interceptor
   const checkAuth = useCallback(async () => {
     const token = Cookies.get('auth_token');
     
@@ -42,53 +40,27 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       return;
     }
 
-    // Never let a hanging request leave the app stuck on the loading screen.
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 15000);
-
     try {
-      const res = await fetch(`${API_BASE_URL}/v1/auth/me`, {
-        method: "GET",
-        credentials: "include",
-        signal: controller.signal,
-        headers: {
-          "Accept": "application/json",
-          "Authorization": `Bearer ${token}`
-        }
-      });
-
-      if (res.ok) {
-        const userData = await res.json();
-        setUser(userData);
-      } else {
-        // The server rejected the token (expired/invalid): clear it so the
-        // middleware and the client agree that the user is logged out.
-        if (res.status === 401 || res.status === 403) {
-          Cookies.remove('auth_token');
-        }
-        setUser(null);
-      }
+      const response = await api.get('/v1/auth/me');
+      setUser(response.data);
     } catch (err) {
-      console.error("🌐 Server is unreachable. Check if NestJS is running.", err);
+      console.error("🌐 Session hydration failed or server unreachable:", err);
+      // If Axios interceptor fails to refresh, tokens are already wiped by api.ts interceptor
       setUser(null);
     } finally {
-      clearTimeout(timeoutId);
       setIsLoading(false);
     }
   }, []);
 
-  // تنفيذ الفحص عند أول تحميل للتطبيق
+  // Run auth check on initial app mount
   useEffect(() => {
     checkAuth();
   }, [checkAuth]);
 
-
-
-  // دالة تسجيل الدخول المحدثة
+  // Login handler
   const login = async (email: string, password: string) => {
     try {
       const response = await loginUser(email, password);
-      // استخراج التوكنات وتخزينها بأمان
       const token = response?.token || response?.accessToken;
       const refreshToken = response?.refreshToken;
 
@@ -110,73 +82,29 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         });
       }
 
-      // إذا كان السيرفر يعيد بيانات المستخدم مباشرة
       if (response?.user) {
         setUser(response.user);
         setIsLoading(false);
-        router.push('/'); // أو لوحة التحكم الخاصة بك
+        router.push('/');
         return;
       }
 
-      // وإلا قم بجلب بيانات المستخدم من /me
       await checkAuth();
       router.push('/');
     } catch (error) {
-      throw error; // إعادة رمي الخطأ ليتم التقاطه في صفحة تسجيل الدخول
+      throw error;
     }
   };
 
-  // // دالة تسجيل الدخول
-  // const login = async (email: string, password: string) => {
-  //   const response = await loginUser(email, password);
-
-  //   if (response?.token) {
-  //     // ✅ تحديد 7 أيام يحل مشكلة الـ 15 دقيقة في المتصفح
-  //     Cookies.set('auth_token', response.token, {
-  //       expires: 7,
-  //       secure: process.env.NODE_ENV === 'production',
-  //       sameSite: 'strict',
-  //     });
-  //   }
-
-  //   // Keep the refresh token so auth-api can silently renew an expired
-  //   // access token (backend expects it as a Bearer token on /auth/refresh).
-  //   if (response?.refreshToken) {
-  //     Cookies.set('auth_refresh_token', response.refreshToken, {
-  //       expires: 30,
-  //       secure: process.env.NODE_ENV === 'production',
-  //       sameSite: 'strict',
-  //     });
-  //   }
-
-  //   if (response?.user) {
-  //     // Use the user returned by the login response so the UI can redirect
-  //     // immediately instead of waiting on a second /me round-trip.
-  //     setUser(response.user);
-  //     setIsLoading(false);
-  //     // Refresh the full profile in the background.
-  //     void checkAuth();
-  //     return;
-  //   }
-
-  //   // Fallback: some providers may not return the user in the login payload.
-  //   await checkAuth();
-  // };
-
-  // دالة تسجيل الخروج
+  // Logout handler
   const logout = async () => {
     try {
-      const token = Cookies.get('auth_token');
-      await fetch(`${API_BASE_URL}/v1/auth/logout`, { 
-        method: 'POST', 
-        credentials: "include",
-        headers: {
-           ...(token ? { "Authorization": `Bearer ${token}` } : {}),
-        }
-      });
+      await api.post('/v1/auth/logout');
+    } catch (e) {
+      // Ignore network errors on logout
     } finally {
-      Cookies.remove('auth_token');
-      Cookies.remove('auth_refresh_token');
+      Cookies.remove('auth_token', { path: '/' });
+      Cookies.remove('auth_refresh_token', { path: '/' });
       setUser(null);
       router.push("/sign-in");
     }
@@ -188,7 +116,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       isLoading, 
       login, 
       logout, 
-      refreshUser: checkAuth // 🚀 ربط refreshUser بدالة checkAuth
+      refreshUser: checkAuth 
     }}>
       {children}
     </AuthContext.Provider>
